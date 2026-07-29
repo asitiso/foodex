@@ -27,9 +27,8 @@ button { cursor: pointer; }
 
 .home { background: radial-gradient(circle at 90% 5%, #ffe27c 0 8%, transparent 8.5%), #fff8ef; }
 .collection { background: radial-gradient(circle at 8% 8%, #d9f2e9 0 8%, transparent 8.5%), #fff8ef; }
-
-a { color: inherit; }
 h1 { margin: 0; font-size: clamp(1.75rem, 8vw, 2.45rem); line-height: 1.15; letter-spacing: -0.03em; }
+h2 { margin: 0; font-size: 1rem; }
 .eyebrow { margin: 0; color: #6746f6; font-size: .78rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
 
 .hero-card {
@@ -42,12 +41,44 @@ h1 { margin: 0; font-size: clamp(1.75rem, 8vw, 2.45rem); line-height: 1.15; lett
   box-shadow: 0 .45rem 0 #4127a7;
 }
 .hero-card span, .hero-card small { opacity: .82; font-weight: 800; }
-.hero-card strong { font-size: 2rem; }
+.hero-card strong { font-size: 1.8rem; }
 
 .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
-.stats div { display: grid; gap: .3rem; padding: 1rem; border: 1px solid #e8dfef; border-radius: 1rem; background: #fff; }
-.stats span { color: #776b87; font-size: .8rem; font-weight: 800; }
-.stats strong { color: #433062; }
+.stats div, .panel, .box {
+  display: grid;
+  gap: .45rem;
+  padding: 1rem;
+  border: 1px solid #e8dfef;
+  border-radius: 1rem;
+  background: #fff;
+}
+.stats span, .panel small, .box span, .box small { color: #776b87; font-size: .78rem; font-weight: 800; }
+.stats strong, .panel strong, .box strong { color: #433062; }
+.stats small { color: #6746f6; font-size: .76rem; font-weight: 900; }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.panel p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: 0;
+  padding: .65rem .7rem;
+  border-radius: .8rem;
+  background: #f8f5ff;
+  color: #675d72;
+  font-size: .88rem;
+  font-weight: 850;
+}
+.panel p.done { background: #fff7dc; color: #493568; }
+.panel p span { flex: 0 0 auto; padding: .25rem .5rem; border-radius: 999px; background: #e7deef; font-size: .72rem; font-weight: 900; }
+.panel p.done span { background: #6543eb; color: #fff; }
+
+.bar { height: .65rem; overflow: hidden; border-radius: 999px; background: #eee9ff; }
+.bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #6543eb, #ffe278); }
+.season { border-color: #f1cf60; }
+.box { border-color: #f1cf60; background: #fff7dc; }
+.box.available { background: linear-gradient(135deg, #fff7dc, #eee9ff); }
 
 .primary {
   min-height: 3.5rem;
@@ -89,7 +120,7 @@ h1 { margin: 0; font-size: clamp(1.75rem, 8vw, 2.45rem); line-height: 1.15; lett
 
 .empty {
   display: grid;
-  min-height: 16rem;
+  min-height: 14rem;
   place-items: center;
   margin: 0;
   border: 2px dashed #d7cbea;
@@ -110,8 +141,11 @@ h1 { margin: 0; font-size: clamp(1.75rem, 8vw, 2.45rem); line-height: 1.15; lett
   color: #fff;
   box-shadow: 0 .3rem 0 rgba(58,31,138,.28);
 }
+.card.rare { background: linear-gradient(150deg, #167db7, #11407a); }
+.card.epic { background: linear-gradient(150deg, #a942a7, #47238f); }
+.card.legendary { background: linear-gradient(150deg, #d99116, #6c2b8f); }
 .card span { font-size: 3rem; }
-.card small { font-weight: 900; opacity: .78; }
+.card small { font-weight: 900; opacity: .82; }
 .card strong { font-size: 1.05rem; }
 .card em { color: #ffe278; font-style: normal; font-weight: 900; }
 
