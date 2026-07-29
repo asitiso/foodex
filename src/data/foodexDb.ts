@@ -1,0 +1,274 @@
+import { deleteDB, openDB } from 'idb'
+import type { DBSchema, IDBPDatabase } from 'idb'
+import { FOOD_META } from '../domain/types'
+import type { FoodCard, FoodHistory, MealRecord } from '../domain/types'
+import type { LegacyOrV3FoodCard } from './normalizers'
+import { normalizeCard } from './normalizers'
+
+export interface SyncQueueItem {
+  kind: 'meal-card'
+  mealId: string
+  attempts: number
+  lastError?: string
+  rewardKeys?: string[]
+}
+
+export interface UserReward {
+  key: string
+  id: string
+  rewardType: 'skin' | 'background' | 'event-card' | 'fusion-card'
+  rewardId: string
+  sourceType: 'set' | 'event' | 'fusion'
+  sourceId: string
+  unlockedAt: number
+}
+
+export interface FusionRecord {
+  id: string
+  leftCardId: string
+  rightCardId: string
+  fusionCatalogId: string
+  createdAt: number
+}
+
+interface FoodexDatabaseSchema extends DBSchema {
+  meals: {
+    key: string
+    value: MealRecord
+  }
+  cards: {
+    key: string
+    value: LegacyOrV3FoodCard
+    indexes: { createdAt: number }
+  }
+  syncQueue: {
+    key: string
+    value: SyncQueueItem
+  }
+  rewards: {
+    key: string
+    value: UserReward
+  }
+  fusions: {
+    key: string
+    value: FusionRecord
+  }
+  settings: {
+    key: string
+    value: { key: string; value: string }
+  }
+}
+
+export interface FoodexRepository {
+  saveMealAndCard(meal: MealRecord, card: FoodCard, rewards?: UserReward[]): Promise<void>
+  listCards(): Promise<Array<{ card: FoodCard; meal: MealRecord }>>
+  getHistory(): Promise<FoodHistory>
+  getSummary(now: number): Promise<{
+    todayCount: number
+    discoveredCount: number
+    totalXp: number
+    lastMealAt?: number
+  }>
+  saveRewards?(rewards: UserReward[]): Promise<void>
+  listRewards?(): Promise<UserReward[]>
+  saveFusion?(fusion: FusionRecord): Promise<void>
+  updateCard?(card: FoodCard): Promise<void>
+  syncPending?(): Promise<void>
+  migrateLegacyData?(): Promise<void>
+}
+
+const DEFAULT_DATABASE_NAME = 'foodex'
+
+function openFoodexDatabase(name: string): Promise<IDBPDatabase<FoodexDatabaseSchema>> {
+  return openDB<FoodexDatabaseSchema>(name, 2, {
+    upgrade(database) {
+      if (!database.objectStoreNames.contains('meals')) {
+        database.createObjectStore('meals', { keyPath: 'id' })
+      }
+
+      if (!database.objectStoreNames.contains('cards')) {
+        const cards = database.createObjectStore('cards', { keyPath: 'id' })
+        cards.createIndex('createdAt', 'createdAt')
+      }
+      if (!database.objectStoreNames.contains('syncQueue')) {
+        database.createObjectStore('syncQueue', { keyPath: 'mealId' })
+      }
+      if (!database.objectStoreNames.contains('rewards')) {
+        database.createObjectStore('rewards', { keyPath: 'key' })
+      }
+      if (!database.objectStoreNames.contains('fusions')) {
+        database.createObjectStore('fusions', { keyPath: 'id' })
+      }
+      if (!database.objectStoreNames.contains('settings')) {
+        database.createObjectStore('settings', { keyPath: 'key' })
+      }
+    },
+  })
+}
+
+export interface LocalFoodexRepository extends FoodexRepository {
+  enqueueSync(item: SyncQueueItem): Promise<void>
+  listPendingSync(): Promise<SyncQueueItem[]>
+  markSynced(mealId: string): Promise<void>
+  saveRewards(rewards: UserReward[]): Promise<void>
+  listRewards(): Promise<UserReward[]>
+  saveFusion(fusion: FusionRecord): Promise<void>
+  listFusions(): Promise<FusionRecord[]>
+  getSetting(key: string): Promise<string | undefined>
+  setSetting(key: string, value: string): Promise<void>
+  getEntry(mealId: string): Promise<{ meal: MealRecord; card: FoodCard } | undefined>
+  getRewards(keys: readonly string[]): Promise<UserReward[]>
+  updateCard(card: FoodCard): Promise<void>
+}
+
+async function withDatabase<T>(name: string, action: (database: IDBPDatabase<FoodexDatabaseSchema>) => Promise<T>): Promise<T> {
+  const database = await openFoodexDatabase(name)
+
+  try {
+    return await action(database)
+  } finally {
+    database.close()
+  }
+}
+
+export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): LocalFoodexRepository {
+  return {
+    async saveMealAndCard(meal, card) {
+      await withDatabase(databaseName, async (database) => {
+        const transaction = database.transaction(['meals', 'cards'], 'readwrite')
+        await Promise.all([
+          transaction.objectStore('meals').put(meal),
+          transaction.objectStore('cards').put(card),
+          transaction.done,
+        ])
+      })
+    },
+
+    async listCards() {
+      return withDatabase(databaseName, async (database) => {
+        const transaction = database.transaction(['cards', 'meals'], 'readonly')
+        const [cards, meals] = await Promise.all([
+          transaction.objectStore('cards').getAll(),
+          transaction.objectStore('meals').getAll(),
+          transaction.done,
+        ])
+        const mealsById = new Map(meals.map((meal) => [meal.id, meal]))
+
+        return cards
+          .flatMap((card) => {
+            const meal = mealsById.get(card.mealId)
+            return meal ? [{ card: normalizeCard(card, meal.foodType), meal }] : []
+          })
+          .sort((left, right) => right.card.createdAt - left.card.createdAt)
+      })
+    },
+
+    async getHistory() {
+      return withDatabase(databaseName, async (database) => {
+        const meals = await database.getAll('meals')
+        const foodTypes = new Set(meals.map((meal) => meal.foodType))
+        const categories = new Set(meals.map((meal) => FOOD_META[meal.foodType].category))
+
+        return {
+          foodTypes: [...foodTypes],
+          categories: [...categories],
+        }
+      })
+    },
+
+    async getSummary(now) {
+      return withDatabase(databaseName, async (database) => {
+        const [meals, cards] = await Promise.all([
+          database.getAll('meals'),
+          database.getAll('cards'),
+        ])
+        const startOfToday = new Date(now).setHours(0, 0, 0, 0)
+        const startOfTomorrow = new Date(startOfToday).setDate(new Date(startOfToday).getDate() + 1)
+        const mealTimes = meals.map((meal) => meal.recordedAt)
+        const foodTypes = new Set(meals.map((meal) => meal.foodType))
+
+        return {
+          todayCount: mealTimes.filter((recordedAt) => recordedAt >= startOfToday && recordedAt < startOfTomorrow).length,
+          discoveredCount: foodTypes.size,
+          totalXp: cards.reduce((total, card) => total + card.xp, 0),
+          ...(mealTimes.length > 0 ? { lastMealAt: Math.max(...mealTimes) } : {}),
+        }
+      })
+    },
+
+    async enqueueSync(item) {
+      await withDatabase(databaseName, (database) => database.put('syncQueue', item))
+    },
+
+    async listPendingSync() {
+      return withDatabase(databaseName, (database) => database.getAll('syncQueue'))
+    },
+
+    async markSynced(mealId) {
+      await withDatabase(databaseName, (database) => database.delete('syncQueue', mealId))
+    },
+
+    async saveRewards(rewards) {
+      await withDatabase(databaseName, async (database) => {
+        const transaction = database.transaction('rewards', 'readwrite')
+        await Promise.all([
+          ...rewards.map((reward) => transaction.store.put(reward)),
+          transaction.done,
+        ])
+      })
+    },
+
+    async listRewards() {
+      return withDatabase(databaseName, (database) => database.getAll('rewards'))
+    },
+
+    async updateCard(card) {
+      await withDatabase(databaseName, (database) => database.put('cards', card))
+    },
+
+    async saveFusion(fusion) {
+      await withDatabase(databaseName, (database) => database.put('fusions', fusion))
+    },
+
+    async listFusions() {
+      return withDatabase(databaseName, (database) => database.getAll('fusions'))
+    },
+
+    async getSetting(key) {
+      const setting = await withDatabase(databaseName, (database) => database.get('settings', key))
+      return setting?.value
+    },
+
+    async setSetting(key, value) {
+      await withDatabase(databaseName, (database) => database.put('settings', { key, value }))
+    },
+
+    async getEntry(mealId) {
+      return withDatabase(databaseName, async (database) => {
+        const transaction = database.transaction(['meals', 'cards'], 'readonly')
+        const [meal, cards] = await Promise.all([
+          transaction.objectStore('meals').get(mealId),
+          transaction.objectStore('cards').getAll(),
+          transaction.done,
+        ])
+        const card = cards.find((candidate) => candidate.mealId === mealId)
+        return meal && card ? { meal, card: normalizeCard(card, meal.foodType) } : undefined
+      })
+    },
+
+    async getRewards(keys) {
+      return withDatabase(databaseName, async (database) => {
+        const transaction = database.transaction('rewards', 'readonly')
+        const rewards = await Promise.all(keys.map((key) => transaction.store.get(key)))
+        await transaction.done
+        return rewards.filter((reward): reward is UserReward => Boolean(reward))
+      })
+    },
+  }
+}
+
+export function deleteFoodexDatabase(databaseName = DEFAULT_DATABASE_NAME): Promise<void> {
+  return deleteDB(databaseName)
+}
+
+export const foodexRepository = createFoodexRepository()
