@@ -1,6 +1,16 @@
-# Foodex
+# Foodex V2
 
-Foodex is a mobile-first meal collection MVP. Instead of calorie tracking, it turns meal photos into collectible food cards.
+Foodex is a mobile-first meal collection app. Instead of calorie tracking, it turns meal photos into collectible food cards so recording meals feels like collecting.
+
+## V2 game loop
+
+- Card rarity: 일반, 희귀, 에픽, 전설
+- Level and XP progress
+- Food evolution by repeated records
+- Summer season event
+- Daily quests
+- Today reward box
+- Collection bonuses
 
 ## Run locally
 
@@ -15,12 +25,6 @@ npm run dev
 npm run build
 ```
 
-## MVP scope
+## Data
 
-- Home summary
-- Meal photo selection
-- Food and amount selection
-- Food card reveal
-- Local collection screen
-
-Data is stored on the current browser only.
+Foodex V2 stores cards in the current browser only. Clearing site data removes the local collection.
