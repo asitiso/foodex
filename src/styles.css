@@ -493,6 +493,12 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .class-picker-grid button.selected { border-color: #7150db; box-shadow: 0 .18rem 0 #7150db; }
 .class-picker-grid button:disabled { opacity: .58; }
 .class-picker-grid small { font-size: .72rem; color: #776982; }
+.advanced-systems-panel { display: grid; gap: .55rem; padding: 1rem; border: 2px solid #d8c4f5; border-radius: 1.2rem; background: linear-gradient(135deg,#f8f0ff,#fff9dc); }
+.advanced-systems-panel h2, .advanced-systems-panel p { margin: 0; }
+.advanced-systems-panel p, .advanced-systems-panel small { color: #675b70; font-size: .8rem; }
+.dungeon-rooms { display: grid; grid-template-columns: repeat(3,1fr); gap: .35rem; }
+.dungeon-rooms span { padding: .45rem .25rem; border-radius: .55rem; background: #eee8f4; color: #8c8094; text-align: center; font-size: .7rem; }
+.dungeon-rooms span.cleared { background: #7150db; color: #fff; }
 .character-evolution-card { display: grid; gap: .4rem; padding: 1rem; border: 2px solid #ffe581; border-radius: 1.2rem; background: #fff8dc; }
 .character-evolution-card h2, .character-evolution-card p { margin: 0; }
 .character-evolution-card p, .character-evolution-card small { color: #6e5d72; }

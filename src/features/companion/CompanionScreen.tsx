@@ -10,6 +10,7 @@ import { COMPANION_CHARACTERS } from '../../domain/companionCharacters'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
 import type { CompanionClass, CompanionClassId } from '../../domain/companionClasses'
+import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
 
 type CompanionTab = 'journal' | 'report' | 'room'
 
@@ -31,6 +32,7 @@ export function CompanionScreen({
   evolution,
   companionClasses = [],
   onClassChange = () => undefined,
+  advancedSystems,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   roomUnlocks: readonly RoomUnlock[]
@@ -43,6 +45,7 @@ export function CompanionScreen({
   evolution?: CompanionEvolution
   companionClasses?: CompanionClass[]
   onClassChange?: (id: CompanionClassId) => void
+  advancedSystems?: AdvancedGameSystems
 }) {
   const [activeTab, setActiveTab] = useState<CompanionTab>('journal')
   const now = Date.now()
@@ -125,6 +128,18 @@ export function CompanionScreen({
           {companionClasses.map((job) => <button key={job.id} type="button" disabled={!job.unlocked} className={job.recommended ? 'selected' : ''} aria-pressed={job.recommended} onClick={() => onClassChange(job.id)}><strong>{job.name}</strong><small>{job.unlocked ? `${job.skill} · ${job.bonus}` : `🔒 ${job.requirement}`}</small></button>)}
         </div>
       </section>
+      {advancedSystems && (
+        <section className="advanced-systems-panel" aria-label="푸디 게임 시스템">
+          <h2>오늘의 식사 던전</h2>
+          <div className="dungeon-rooms">{advancedSystems.dungeon.rooms.map((room) => <span className={room.cleared ? 'cleared' : ''} key={room.id}>{room.cleared ? '✓ ' : '○ '}{room.name}</span>)}</div>
+          <p>{advancedSystems.event.title} · {advancedSystems.event.reward}</p>
+          <p>{advancedSystems.transformation.message}</p>
+          <p>주간 보스: {advancedSystems.boss.name} ({advancedSystems.boss.hp}/{advancedSystems.boss.maxHp})</p>
+          <small>활성 스킬: {advancedSystems.skill.name} · {advancedSystems.skill.effect}</small>
+          {advancedSystems.equipment.length > 0 && <small>장비: {advancedSystems.equipment.join(', ')}</small>}
+          {advancedSystems.npcs.length > 0 && <small>만난 NPC: {advancedSystems.npcs.join(', ')}</small>}
+        </section>
+      )}
       <section className="character-picker" aria-label="푸디 캐릭터 선택">
         <h2>푸디 캐릭터 선택</h2>
         <div className="character-picker-grid">

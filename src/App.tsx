@@ -23,6 +23,7 @@ import type { CompanionCharacterId } from './domain/companionCharacters'
 import { buildCompanionEvolution } from './domain/companionEvolution'
 import { buildCompanionClasses } from './domain/companionClasses'
 import type { CompanionClassId } from './domain/companionClasses'
+import { buildAdvancedGameSystems } from './domain/advancedGameSystems'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
 import { AdventureScreen } from './features/adventure/AdventureScreen'
 import { CollectionScreen } from './features/collection/CollectionScreen'
@@ -118,6 +119,7 @@ export function App({
   )
   const companionEvolution = useMemo(() => buildCompanionEvolution(characterId, entries.map(({ meal }) => ({ meal }))), [characterId, entries])
   const companionClasses = useMemo(() => buildCompanionClasses(entries.map(({ meal }) => ({ meal })), classId), [entries, classId])
+  const advancedSystems = useMemo(() => buildAdvancedGameSystems(entries.map(({ meal }) => ({ meal })), classId, companionEvolution.stage), [entries, classId, companionEvolution.stage])
   const worldProgress = useMemo(() => buildWorldProgress(entries.map(({ meal }) => ({ meal }))), [entries])
   const gameLoop = useMemo(() => buildGameLoop(entries, Date.now()), [entries])
   const companion = useMemo(() => {
@@ -418,6 +420,7 @@ export function App({
           evolution={companionEvolution}
           companionClasses={companionClasses}
           onClassChange={(id) => { setClassId(id); window.localStorage.setItem('foodex-companion-class', id) }}
+          advancedSystems={advancedSystems}
         />
       )}
       {screen === 'home' && canProtectCollection && (
