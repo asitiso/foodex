@@ -7,6 +7,8 @@ import { buildTagAchievements, buildTagEvents, buildTagProgress } from './tagPro
 import type { TagAchievement, TagCollectionProgress, TagEvent } from './tagProgression'
 import { buildMealGameLoop } from './mealGameLoop'
 import type { MealGameLoopState } from './mealGameLoop'
+import { buildMealAdventure } from './mealAdventure'
+import type { MealAdventureState } from './mealAdventure'
 
 export interface PlayerLevel {
   level: number
@@ -99,6 +101,7 @@ export interface Progression {
   tagAchievements: TagAchievement[]
   tagEvents: TagEvent[]
   mealGameLoop: MealGameLoopState
+  mealAdventure: MealAdventureState
   v3: V3Progress
 }
 
@@ -341,6 +344,7 @@ export function buildProgression(
     tagAchievements,
     tagEvents,
     mealGameLoop: buildMealGameLoop(entries, now),
+    mealAdventure: buildMealAdventure(entries, now),
     v3: buildV3Progress(entries, unlockedRewardIds, now),
   }
 }

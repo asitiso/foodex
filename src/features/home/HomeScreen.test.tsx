@@ -32,6 +32,16 @@ const props = {
     totalMeals: 1,
     growth: { current: 0, next: 3, remaining: 2 },
   },
+  mealAdventure: {
+    choice: { title: '오늘 식사 루트를 골라보세요', options: ['집밥 마을', '빠른 한 끼', '새로운 음식'] },
+    route: { id: 'lunch', label: '에너지 충전 루트', stage: 1, completed: false },
+    mood: 'energized' as const,
+    recipes: [],
+    roomReward: { title: '방 꾸미기 장식', remaining: 2 },
+    chapter: { title: '푸디의 첫 식탁', line: '1장 진행 중' },
+    rewardChoices: ['XP 보너스', '방 장식', '내일 보호권'],
+    monthly: { breakfast: 1, lunch: 1, dinner: 0, completeDays: 1 },
+  },
   companionLine: '새 친구를 환영해!',
   companionEmotion: 'happy' as const,
   decorationIds: [],
@@ -69,6 +79,7 @@ describe('HomeScreen', () => {
     expect(screen.getByText('다음 한 끼까지 1끼 남았어요')).toBeInTheDocument()
     expect(screen.getByText('다음 성장까지 2끼')).toBeInTheDocument()
     expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('첫 끼 출발 콤보')
+    expect(screen.getByRole('region', { name: '식사 모험' })).toHaveTextContent('푸디의 첫 식탁')
   })
 
   it('shows the V5.2 adventure board with rewards and the next evolution focus', () => {

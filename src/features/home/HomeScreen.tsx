@@ -1,5 +1,6 @@
 import type { AdventureBoard, DailyQuest, MealStreak, PlayerLevel } from '../../domain/progression'
 import type { MealGameLoopState } from '../../domain/mealGameLoop'
+import type { MealAdventureState } from '../../domain/mealAdventure'
 import { CompanionRoom } from './CompanionRoom'
 import type { CompanionEmotion } from './CompanionRoom'
 import { HomeStatusGrid } from './HomeStatusGrid'
@@ -16,6 +17,7 @@ interface HomeScreenProps {
   dailyQuests: DailyQuest[]
   adventureBoard: AdventureBoard
   mealGameLoop: MealGameLoopState
+  mealAdventure: MealAdventureState
   companionLine: string
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
@@ -33,6 +35,7 @@ export function HomeScreen({
   dailyQuests,
   adventureBoard,
   mealGameLoop,
+  mealAdventure,
   companionLine,
   companionEmotion,
   decorationIds,
@@ -103,6 +106,15 @@ export function HomeScreen({
           이번 주 원정 {mealGameLoop.weeklyMeals}/{mealGameLoop.weeklyTarget}끼
           {mealGameLoop.recoveryAvailable ? ' · 회복권 사용 가능' : ''}
         </p>
+      </section>
+
+      <section className="meal-adventure-panel" aria-label="식사 모험">
+        <div className="section-title-row"><h2>{mealAdventure.chapter.title}</h2><strong>{mealAdventure.route.label}</strong></div>
+        <p>{mealAdventure.chapter.line}</p>
+        <p>푸디 상태: {mealAdventure.mood === 'bright' ? '최고 컨디션' : mealAdventure.mood === 'energized' ? '기운이 돌아왔어요' : '조금 배고파 보여요'}</p>
+        {mealAdventure.recipes.length > 0 && <p>발견한 조합: {mealAdventure.recipes.join(', ')}</p>}
+        <p>이번 달 컬렉션: 아침 {mealAdventure.monthly.breakfast} · 점심 {mealAdventure.monthly.lunch} · 저녁 {mealAdventure.monthly.dinner}</p>
+        <small>다음 보상: {mealAdventure.roomReward.title}까지 {mealAdventure.roomReward.remaining}끼</small>
       </section>
 
       <section className="home-adventure-board" aria-label={adventureBoard.title}>

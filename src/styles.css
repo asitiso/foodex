@@ -677,6 +677,32 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
   font-weight: 800;
 }
 
+.meal-adventure-panel {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 1.2rem;
+  border: 2px solid #f0d8a8;
+  background: #fff8e8;
+}
+
+.meal-adventure-panel h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.meal-adventure-panel p {
+  margin: .45rem 0 0;
+  color: #62556b;
+  font-size: .86rem;
+}
+
+.meal-adventure-panel small {
+  display: block;
+  margin-top: .6rem;
+  color: #8a6131;
+  font-weight: 700;
+}
+
 .meal-weekly-goal {
   color: #8a6131;
 }

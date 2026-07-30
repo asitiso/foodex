@@ -348,6 +348,7 @@ export function App({
           dailyQuests={progression.dailyQuests}
           adventureBoard={progression.adventureBoard}
           mealGameLoop={progression.mealGameLoop}
+          mealAdventure={progression.mealAdventure}
           companionLine={companion.line}
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}
