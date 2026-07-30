@@ -16,6 +16,7 @@ interface HomeScreenProps {
     totalXp: number
     lastMealAt?: number
   }
+  coinBalance: number
   level: PlayerLevel
   streak: MealStreak
   dailyQuests: DailyQuest[]
@@ -39,6 +40,7 @@ interface HomeScreenProps {
 
 export function HomeScreen({
   summary,
+  coinBalance,
   level,
   streak,
   dailyQuests,
@@ -73,7 +75,10 @@ export function HomeScreen({
           <p className="eyebrow">FOODEX ROOM</p>
           <h1>푸디의 맛있는 방</h1>
         </div>
-        <span className="room-level-pill">LV.{level.level}</span>
+        <div className="home-wallet-cluster">
+          <span className="home-coin-pill" aria-label={`보유 코인 ${coinBalance}개`}>◆ {coinBalance}</span>
+          <span className="room-level-pill">LV.{level.level}</span>
+        </div>
       </header>
 
       <CompanionRoom

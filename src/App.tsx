@@ -95,6 +95,7 @@ export function App({
   const [readError, setReadError] = useState<ReadError>()
   const [failedDraft, setFailedDraft] = useState<MealDraft>()
   const [rewards, setRewards] = useState<UserReward[]>([])
+  const [coinBalance, setCoinBalance] = useState(0)
   const [experienceSettings, setExperienceSettings] = useState<ExperienceSettings>(() => ({
     ...DEFAULT_EXPERIENCE_SETTINGS,
     reducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
@@ -169,11 +170,12 @@ export function App({
     const refreshId = ++latestRefresh.current
 
     try {
-      const [nextEntries, nextSummary, nextRewards, nextExperienceSettings] = await Promise.all([
+      const [nextEntries, nextSummary, nextRewards, nextExperienceSettings, nextCoinBalance] = await Promise.all([
         repository.listCards(),
         repository.getSummary(Date.now()),
         repository.listRewards?.() ?? Promise.resolve(undefined),
         repository.getExperienceSettings?.() ?? Promise.resolve(undefined),
+        repository.getCoinBalance?.() ?? Promise.resolve(undefined),
       ])
       if (refreshId !== latestRefresh.current) return
 
@@ -181,6 +183,7 @@ export function App({
       setSummary(nextSummary)
       if (nextRewards) setRewards(nextRewards)
       if (nextExperienceSettings) setExperienceSettings(nextExperienceSettings)
+      if (nextCoinBalance !== undefined) setCoinBalance(nextCoinBalance)
       setReadError((error) => error === 'load' ? undefined : error)
     } catch {
       if (refreshId === latestRefresh.current) setReadError('load')
@@ -376,6 +379,7 @@ export function App({
       {screen === 'home' && (
         <HomeScreen
           summary={summary}
+          coinBalance={coinBalance}
           level={progression.level}
           streak={progression.streak}
           dailyQuests={progression.dailyQuests}
@@ -441,6 +445,13 @@ export function App({
           companionClasses={companionClasses}
           onClassChange={(id) => { setClassId(id); window.localStorage.setItem('foodex-companion-class', id) }}
           advancedSystems={advancedSystems}
+          coinBalance={coinBalance}
+          shopOnline={Boolean(repository.purchaseShopProduct && navigator.onLine)}
+          onPurchaseProduct={async (product) => {
+            if (!repository.purchaseShopProduct) throw new Error('shop-offline')
+            await repository.purchaseShopProduct(product)
+            await refresh()
+          }}
         />
       )}
       {screen === 'home' && canProtectCollection && (

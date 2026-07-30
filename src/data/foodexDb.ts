@@ -103,6 +103,8 @@ export interface FoodexRepository {
   saveDialogueHistory?(item: DialogueHistoryItem): Promise<void>
   getExperienceSettings?(): Promise<ExperienceSettings>
   saveExperienceSettings?(settings: ExperienceSettings): Promise<void>
+  getCoinBalance?(): Promise<number>
+  purchaseShopProduct?(product: ShopProduct): Promise<UserReward>
 }
 
 const DEFAULT_DATABASE_NAME = 'foodex'

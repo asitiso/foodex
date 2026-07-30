@@ -11,6 +11,8 @@ import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
 import type { CompanionClass, CompanionClassId } from '../../domain/companionClasses'
 import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
+import type { ShopProduct } from '../../domain/shopCatalog'
+import { CosmeticShop } from './CosmeticShop'
 
 type CompanionTab = 'journal' | 'report' | 'room'
 
@@ -33,6 +35,9 @@ export function CompanionScreen({
   companionClasses = [],
   onClassChange = () => undefined,
   advancedSystems,
+  coinBalance = 0,
+  shopOnline = false,
+  onPurchaseProduct = async () => undefined,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   roomUnlocks: readonly RoomUnlock[]
@@ -46,6 +51,9 @@ export function CompanionScreen({
   companionClasses?: CompanionClass[]
   onClassChange?: (id: CompanionClassId) => void
   advancedSystems?: AdvancedGameSystems
+  coinBalance?: number
+  shopOnline?: boolean
+  onPurchaseProduct?: (product: ShopProduct) => Promise<void>
 }) {
   const [activeTab, setActiveTab] = useState<CompanionTab>('journal')
   const now = Date.now()
@@ -102,14 +110,22 @@ export function CompanionScreen({
           </section>
         )}
         {activeTab === 'room' && (
-          <section className="friend-story-card">
-            <span aria-hidden="true">🏠</span>
-            <h2>내 방 장식</h2>
-            {roomUnlocks.length > 0
-              ? <ul>{roomUnlocks.map((unlock) => <li key={unlock.id}>{unlock.title}</li>)}</ul>
-              : <p>아직 기본 방이야. 모험을 이어 가면 장식이 생겨!</p>}
-            <strong>다음 장식: 레벨 3 작은 화분</strong>
-          </section>
+          <>
+            <section className="friend-story-card">
+              <span aria-hidden="true">🏠</span>
+              <h2>내 방 장식</h2>
+              {roomUnlocks.length > 0
+                ? <ul>{roomUnlocks.map((unlock) => <li key={unlock.id}>{unlock.title}</li>)}</ul>
+                : <p>아직 기본 방이에요. 모험을 이어 가면 장식이 생겨요!</p>}
+              <strong>다음 장식: 레벨 3 작은 화분</strong>
+            </section>
+            <CosmeticShop
+              balance={coinBalance}
+              ownedIds={rewards.filter((reward) => reward.sourceType === 'shop').map((reward) => reward.rewardId)}
+              online={shopOnline}
+              onPurchase={onPurchaseProduct}
+            />
+          </>
         )}
       </div>
       <ExperienceSettings value={experienceSettings} onChange={onExperienceSettingsChange} />

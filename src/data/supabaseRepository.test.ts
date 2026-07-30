@@ -38,6 +38,7 @@ const reward: UserReward = {
 
 function createClient() {
   const upload = vi.fn().mockResolvedValue({ data: {}, error: null })
+  const rpc = vi.fn().mockResolvedValue({ data: [], error: null })
   const operations = new Map<string, { upsert: ReturnType<typeof vi.fn> }>()
   const client = {
     storage: {
@@ -50,8 +51,9 @@ function createClient() {
       operations.set(table, operation)
       return operation
     }),
+    rpc,
   }
-  return { client, upload, operations }
+  return { client, upload, operations, rpc }
 }
 
 describe('Supabase Foodex repository', () => {
@@ -134,5 +136,56 @@ describe('Supabase Foodex repository', () => {
 
     expect(mealUpsert).toHaveBeenCalledTimes(2)
     expect(mealUpsert.mock.calls[1][0]).not.toHaveProperty('food_name')
+  })
+
+  it('claims meal coins through the server-owned reward rule', async () => {
+    const { client, rpc } = createClient()
+    rpc.mockResolvedValueOnce({
+      data: [{ balance: 13, awarded: 8, transaction_key: `meal:${meal.id}:coins` }],
+      error: null,
+    })
+    const repository = createSupabaseRepository(client as never, 'user-1')
+
+    await expect(repository.claimMealCoins(meal.id, `meal:${meal.id}:coins`)).resolves.toEqual({
+      balance: 13,
+      awarded: 8,
+      transactionKey: `meal:${meal.id}:coins`,
+    })
+    expect(rpc).toHaveBeenCalledWith('claim_meal_coins', {
+      p_meal_id: meal.id,
+      p_transaction_key: `meal:${meal.id}:coins`,
+    })
+  })
+
+  it('purchases a shop product without sending a client-controlled price', async () => {
+    const { client, rpc } = createClient()
+    rpc.mockResolvedValueOnce({
+      data: [{
+        balance: 10,
+        reward_id: '55555555-5555-4555-8555-555555555555',
+        reward_type: 'background',
+        product_id: 'shop-sunroom',
+        transaction_key: 'shop:44444444-4444-4444-8444-444444444444',
+      }],
+      error: null,
+    })
+    const repository = createSupabaseRepository(client as never, 'user-1')
+
+    const result = await repository.purchaseShopProduct(
+      'shop-sunroom',
+      'shop:44444444-4444-4444-8444-444444444444',
+    )
+
+    expect(rpc).toHaveBeenCalledWith('purchase_shop_product', {
+      p_product_id: 'shop-sunroom',
+      p_transaction_key: 'shop:44444444-4444-4444-8444-444444444444',
+    })
+    expect(result).toEqual(expect.objectContaining({
+      balance: 10,
+      reward: expect.objectContaining({
+        rewardId: 'shop-sunroom',
+        sourceType: 'shop',
+      }),
+    }))
   })
 })

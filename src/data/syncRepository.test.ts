@@ -3,6 +3,8 @@ import type { FoodCard, MealRecord } from '../domain/types'
 import { createFoodexRepository, deleteFoodexDatabase } from './foodexDb'
 import type { UserReward } from './foodexDb'
 import { createSyncRepository } from './syncRepository'
+import type { CoinTransaction } from '../domain/coinWallet'
+import { SHOP_PRODUCTS } from '../domain/shopCatalog'
 
 const databaseName = 'foodex-sync-test'
 const meal: MealRecord = {
@@ -36,6 +38,14 @@ const reward: UserReward = {
   sourceId: 'sunny-bites',
   unlockedAt: 1,
 }
+const coinTransaction: CoinTransaction = {
+  id: meal.id,
+  key: `meal:${meal.id}:coins`,
+  kind: 'meal-earned',
+  amount: 5,
+  mealId: meal.id,
+  createdAt: meal.recordedAt,
+}
 
 function createRemote(options: { fail?: boolean } = {}) {
   return {
@@ -53,6 +63,26 @@ function createRemote(options: { fail?: boolean } = {}) {
     }),
     upsertDialogueHistory: vi.fn(async () => {
       if (options.fail) throw new Error('offline')
+    }),
+    claimMealCoins: vi.fn(async (_mealId: string, transactionKey: string) => {
+      if (options.fail) throw new Error('offline')
+      return { balance: 5, awarded: 5, transactionKey }
+    }),
+    purchaseShopProduct: vi.fn(async (productId: string, transactionKey: string) => {
+      if (options.fail) throw new Error('offline')
+      return {
+        balance: 0,
+        transactionKey,
+        reward: {
+          key: `background:${productId}`,
+          id: 'reward-shop',
+          rewardType: 'background' as const,
+          rewardId: productId,
+          sourceType: 'shop' as const,
+          sourceId: productId,
+          unlockedAt: 2,
+        },
+      }
     }),
   }
 }
@@ -153,5 +183,39 @@ describe('local-first synchronization', () => {
 
     expect(await local.listDialogueHistory()).toEqual([item])
     await vi.waitFor(() => expect(remote.upsertDialogueHistory).toHaveBeenCalledWith(item))
+  })
+
+  it('claims the stable meal coin transaction before clearing its sync item', async () => {
+    const local = createFoodexRepository(databaseName)
+    const remote = createRemote()
+    const repository = createSyncRepository(local, remote)
+
+    await repository.saveMealAndCard(meal, card, [], coinTransaction)
+    await repository.syncPending()
+
+    expect(remote.claimMealCoins).toHaveBeenCalledWith(meal.id, coinTransaction.key)
+    expect(await local.listPendingSync()).toEqual([])
+    expect(await local.getCoinBalance()).toBe(5)
+  })
+
+  it('blocks shop purchases offline and mirrors a successful remote purchase locally', async () => {
+    const local = createFoodexRepository(databaseName)
+    await local.saveMealAndCard(meal, card, [], {
+      ...coinTransaction,
+      amount: SHOP_PRODUCTS[0].price,
+    })
+    const offlineRepository = createSyncRepository(local)
+    await expect(offlineRepository.purchaseShopProduct(SHOP_PRODUCTS[0])).rejects.toThrow('shop-offline')
+
+    const remote = createRemote()
+    const repository = createSyncRepository(local, remote)
+    await repository.purchaseShopProduct(SHOP_PRODUCTS[0])
+
+    expect(remote.purchaseShopProduct).toHaveBeenCalledWith(
+      SHOP_PRODUCTS[0].id,
+      expect.stringMatching(/^shop:/),
+    )
+    expect(await local.getCoinBalance()).toBe(0)
+    expect((await local.listRewards()).some((item) => item.rewardId === SHOP_PRODUCTS[0].id)).toBe(true)
   })
 })

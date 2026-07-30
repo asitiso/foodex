@@ -4,6 +4,7 @@ import { HomeScreen } from './HomeScreen'
 
 const props = {
   summary: { todayCount: 1, discoveredCount: 1, totalXp: 20 },
+  coinBalance: 13,
   level: { level: 1, currentLevelXp: 20, nextLevelXp: 30, totalXp: 20 },
   streak: { currentDays: 1, recordedToday: true },
   dailyQuests: [
@@ -70,6 +71,11 @@ describe('HomeScreen', () => {
   it('keeps the main recording action visible', () => {
     render(<HomeScreen {...props} />)
     expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
+  })
+
+  it('shows the compact coin wallet beside the level', () => {
+    render(<HomeScreen {...props} />)
+    expect(screen.getByLabelText('보유 코인 13개')).toBeInTheDocument()
   })
 
   it('shows the unified next goal in the existing hero mission', () => {

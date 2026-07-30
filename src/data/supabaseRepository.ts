@@ -117,6 +117,46 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
       }, { onConflict: 'user_id,id' })
       throwIfError(result)
     },
+
+    async claimMealCoins(mealId: string, transactionKey: string) {
+      const result = await client.rpc('claim_meal_coins', {
+        p_meal_id: mealId,
+        p_transaction_key: transactionKey,
+      })
+      throwIfError(result)
+      const row = result.data?.[0]
+      if (!row) throw new Error('coin-claim-empty')
+      return {
+        balance: row.balance as number,
+        awarded: row.awarded as number,
+        transactionKey: row.transaction_key as string,
+      }
+    },
+
+    async purchaseShopProduct(productId: string, transactionKey: string) {
+      const result = await client.rpc('purchase_shop_product', {
+        p_product_id: productId,
+        p_transaction_key: transactionKey,
+      })
+      throwIfError(result)
+      const row = result.data?.[0]
+      if (!row) throw new Error('shop-purchase-empty')
+      const purchasedAt = Date.now()
+      const reward: UserReward = {
+        key: `${row.reward_type}:${row.product_id}`,
+        id: row.reward_id,
+        rewardType: row.reward_type,
+        rewardId: row.product_id,
+        sourceType: 'shop',
+        sourceId: row.product_id,
+        unlockedAt: purchasedAt,
+      }
+      return {
+        balance: row.balance as number,
+        transactionKey: row.transaction_key as string,
+        reward,
+      }
+    },
   }
 }
 
