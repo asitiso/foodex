@@ -38,11 +38,13 @@ export function CardCollectionTab({
   progression,
   rewards = [],
   onApplyCosmetic = () => undefined,
+  showProgression = false,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   progression: Progression
   rewards?: UserReward[]
   onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
+  showProgression?: boolean
 }) {
   const [category, setCategory] = useState<FoodCategory | 'all'>('all')
   const [regionId, setRegionId] = useState<RegionId | ''>('')
@@ -94,7 +96,7 @@ export function CardCollectionTab({
 
   return (
     <>
-      <section className="achievement-panel" aria-labelledby="achievement-title">
+      {showProgression && <div className="collection-growth-stack"><section className="achievement-panel" aria-labelledby="achievement-title">
         <div className="section-title-row">
           <h2 id="achievement-title">업적</h2>
           <button className="inline-button achievement-toggle" type="button" aria-expanded={achievementsExpanded} aria-controls="achievement-list" onClick={() => setAchievementsExpanded((expanded) => !expanded)}>
@@ -150,9 +152,9 @@ export function CardCollectionTab({
             </article>
           ))}
         </div>
-      </section>
+      </section></div>}
 
-      <div className="collection-filters">
+      {!showProgression && <><div className="collection-filters">
         <label>지역
           <select value={regionId} onChange={(event) => setRegionId(event.target.value as RegionId | '')}>
             <option value="">전체</option>
@@ -219,7 +221,7 @@ export function CardCollectionTab({
             </div>
           ))}
         </div>
-      )}
+      )}</>}
 
       {selected && (
         <dialog

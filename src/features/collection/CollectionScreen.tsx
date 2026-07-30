@@ -16,10 +16,11 @@ interface CollectionScreenProps {
   onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
 }
 
-type CollectionTab = 'cards' | 'world' | 'sets' | 'fusion'
+type CollectionTab = 'cards' | 'growth' | 'world' | 'sets' | 'fusion'
 
 const tabs: Array<{ id: CollectionTab; label: string }> = [
-  { id: 'cards', label: '카드' },
+  { id: 'cards', label: '앨범' },
+  { id: 'growth', label: '성장' },
   { id: 'world', label: '세계지도' },
   { id: 'sets', label: '세트 도감' },
   { id: 'fusion', label: '퓨전' },
@@ -60,6 +61,7 @@ export function CollectionScreen({
             key={tab.id}
             id={`collection-tab-${tab.id}`}
             aria-selected={activeTab === tab.id}
+            aria-label={tab.id === 'cards' ? '카드' : undefined}
             aria-controls={`collection-panel-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
           >
@@ -73,12 +75,13 @@ export function CollectionScreen({
         id={`collection-panel-${activeTab}`}
         aria-labelledby={`collection-tab-${activeTab}`}
       >
-        {activeTab === 'cards' && (
+        {(activeTab === 'cards' || activeTab === 'growth') && (
           <CardCollectionTab
             entries={entries}
             progression={progression}
             rewards={rewards}
             onApplyCosmetic={onApplyCosmetic}
+            showProgression={activeTab === 'growth'}
           />
         )}
         {activeTab === 'world' && <WorldMapTab progress={progression.v3} />}
