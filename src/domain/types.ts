@@ -8,6 +8,7 @@ export type CosmeticType = 'skin' | 'background'
 
 export interface FoodHistory {
   foodTypes: readonly FoodType[]
+  foodNames: readonly string[]
   categories: readonly FoodCategory[]
 }
 
@@ -15,6 +16,7 @@ export interface MealRecord {
   id: string
   imageData: string | null
   foodType: FoodType
+  foodName: string
   amount: MealAmount
   recordedAt: number
 }

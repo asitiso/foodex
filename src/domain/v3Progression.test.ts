@@ -8,6 +8,7 @@ function entry(catalogId: string, foodType: FoodType, regionId: RegionId, season
     id: `meal-${catalogId}`,
     imageData: null,
     foodType,
+    foodName: catalogId,
     amount: 'taste',
     recordedAt,
   }

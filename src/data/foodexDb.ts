@@ -4,6 +4,8 @@ import { FOOD_META } from '../domain/types'
 import type { FoodCard, FoodHistory, MealRecord } from '../domain/types'
 import type { LegacyOrV3FoodCard } from './normalizers'
 import { normalizeCard } from './normalizers'
+import type { DialogueHistoryItem } from '../domain/dialogueEngine'
+import type { ExperienceSettings } from '../domain/companionTypes'
 
 export interface SyncQueueItem {
   kind: 'meal-card'
@@ -57,6 +59,15 @@ interface FoodexDatabaseSchema extends DBSchema {
     key: string
     value: { key: string; value: string }
   }
+  dialogueHistory: {
+    key: string
+    value: DialogueHistoryItem
+    indexes: { usedAt: number }
+  }
+  experienceSettings: {
+    key: string
+    value: ExperienceSettings
+  }
 }
 
 export interface FoodexRepository {
@@ -75,12 +86,28 @@ export interface FoodexRepository {
   updateCard?(card: FoodCard): Promise<void>
   syncPending?(): Promise<void>
   migrateLegacyData?(): Promise<void>
+  listDialogueHistory?(): Promise<DialogueHistoryItem[]>
+  saveDialogueHistory?(item: DialogueHistoryItem): Promise<void>
+  getExperienceSettings?(): Promise<ExperienceSettings>
+  saveExperienceSettings?(settings: ExperienceSettings): Promise<void>
 }
 
 const DEFAULT_DATABASE_NAME = 'foodex'
+export const DEFAULT_EXPERIENCE_SETTINGS: ExperienceSettings = {
+  soundEnabled: true,
+  musicEnabled: false,
+  hapticsEnabled: true,
+  reducedMotion: false,
+}
+
+function normalizeMeal(meal: MealRecord): MealRecord {
+  return meal.foodName
+    ? meal
+    : { ...meal, foodName: FOOD_META[meal.foodType].label }
+}
 
 function openFoodexDatabase(name: string): Promise<IDBPDatabase<FoodexDatabaseSchema>> {
-  return openDB<FoodexDatabaseSchema>(name, 2, {
+  return openDB<FoodexDatabaseSchema>(name, 3, {
     upgrade(database) {
       if (!database.objectStoreNames.contains('meals')) {
         database.createObjectStore('meals', { keyPath: 'id' })
@@ -102,6 +129,13 @@ function openFoodexDatabase(name: string): Promise<IDBPDatabase<FoodexDatabaseSc
       if (!database.objectStoreNames.contains('settings')) {
         database.createObjectStore('settings', { keyPath: 'key' })
       }
+      if (!database.objectStoreNames.contains('dialogueHistory')) {
+        const dialogueHistory = database.createObjectStore('dialogueHistory', { keyPath: 'id' })
+        dialogueHistory.createIndex('usedAt', 'usedAt')
+      }
+      if (!database.objectStoreNames.contains('experienceSettings')) {
+        database.createObjectStore('experienceSettings')
+      }
     },
   })
 }
@@ -119,6 +153,10 @@ export interface LocalFoodexRepository extends FoodexRepository {
   getEntry(mealId: string): Promise<{ meal: MealRecord; card: FoodCard } | undefined>
   getRewards(keys: readonly string[]): Promise<UserReward[]>
   updateCard(card: FoodCard): Promise<void>
+  listDialogueHistory(): Promise<DialogueHistoryItem[]>
+  saveDialogueHistory(item: DialogueHistoryItem): Promise<void>
+  getExperienceSettings(): Promise<ExperienceSettings>
+  saveExperienceSettings(settings: ExperienceSettings): Promise<void>
 }
 
 async function withDatabase<T>(name: string, action: (database: IDBPDatabase<FoodexDatabaseSchema>) => Promise<T>): Promise<T> {
@@ -152,7 +190,7 @@ export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): Lo
           transaction.objectStore('meals').getAll(),
           transaction.done,
         ])
-        const mealsById = new Map(meals.map((meal) => [meal.id, meal]))
+        const mealsById = new Map(meals.map(normalizeMeal).map((meal) => [meal.id, meal]))
 
         return cards
           .flatMap((card) => {
@@ -165,12 +203,14 @@ export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): Lo
 
     async getHistory() {
       return withDatabase(databaseName, async (database) => {
-        const meals = await database.getAll('meals')
+        const meals = (await database.getAll('meals')).map(normalizeMeal)
         const foodTypes = new Set(meals.map((meal) => meal.foodType))
+        const foodNames = new Set(meals.map((meal) => meal.foodName))
         const categories = new Set(meals.map((meal) => FOOD_META[meal.foodType].category))
 
         return {
           foodTypes: [...foodTypes],
+          foodNames: [...foodNames],
           categories: [...categories],
         }
       })
@@ -252,7 +292,9 @@ export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): Lo
           transaction.done,
         ])
         const card = cards.find((candidate) => candidate.mealId === mealId)
-        return meal && card ? { meal, card: normalizeCard(card, meal.foodType) } : undefined
+        return meal && card
+          ? { meal: normalizeMeal(meal), card: normalizeCard(card, meal.foodType) }
+          : undefined
       })
     },
 
@@ -263,6 +305,27 @@ export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): Lo
         await transaction.done
         return rewards.filter((reward): reward is UserReward => Boolean(reward))
       })
+    },
+
+    async listDialogueHistory() {
+      return withDatabase(databaseName, async (database) => {
+        const items = await database.getAllFromIndex('dialogueHistory', 'usedAt')
+        return items.sort((left, right) => right.usedAt - left.usedAt)
+      })
+    },
+
+    async saveDialogueHistory(item) {
+      await withDatabase(databaseName, (database) => database.put('dialogueHistory', item))
+    },
+
+    async getExperienceSettings() {
+      return withDatabase(databaseName, async (database) =>
+        (await database.get('experienceSettings', 'experience')) ?? DEFAULT_EXPERIENCE_SETTINGS)
+    },
+
+    async saveExperienceSettings(settings) {
+      await withDatabase(databaseName, (database) =>
+        database.put('experienceSettings', settings, 'experience'))
     },
   }
 }

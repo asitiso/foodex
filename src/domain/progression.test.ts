@@ -9,6 +9,7 @@ function entry(foodType: MealRecord['foodType'], xp: number, recordedAt: number,
     id: `meal-${foodType}-${recordedAt}`,
     imageData: null,
     foodType,
+    foodName: foodType,
     amount: 'taste',
     recordedAt,
   }

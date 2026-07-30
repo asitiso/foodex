@@ -4,21 +4,34 @@ import type { FoodCard, MealRecord } from '../../domain/types'
 import { CardCollectionTab } from './CardCollectionTab'
 import { SetDexTab } from './SetDexTab'
 import { WorldMapTab } from './WorldMapTab'
+import { FusionLab } from '../play/FusionLab'
+import type { FusionRecord, UserReward } from '../../data/foodexDb'
+import type { CosmeticType } from '../../domain/types'
 
 interface CollectionScreenProps {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   progression: Progression
+  onFuse?: (fusion: FusionRecord, reward: UserReward) => void
+  rewards?: UserReward[]
+  onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
 }
 
-type CollectionTab = 'cards' | 'world' | 'sets'
+type CollectionTab = 'cards' | 'world' | 'sets' | 'fusion'
 
 const tabs: Array<{ id: CollectionTab; label: string }> = [
   { id: 'cards', label: '카드' },
   { id: 'world', label: '세계지도' },
   { id: 'sets', label: '세트 도감' },
+  { id: 'fusion', label: '퓨전' },
 ]
 
-export function CollectionScreen({ entries, progression }: CollectionScreenProps) {
+export function CollectionScreen({
+  entries,
+  progression,
+  onFuse = () => undefined,
+  rewards = [],
+  onApplyCosmetic = () => undefined,
+}: CollectionScreenProps) {
   const [activeTab, setActiveTab] = useState<CollectionTab>('cards')
 
   return (
@@ -60,9 +73,21 @@ export function CollectionScreen({ entries, progression }: CollectionScreenProps
         id={`collection-panel-${activeTab}`}
         aria-labelledby={`collection-tab-${activeTab}`}
       >
-        {activeTab === 'cards' && <CardCollectionTab entries={entries} progression={progression} />}
+        {activeTab === 'cards' && (
+          <CardCollectionTab
+            entries={entries}
+            progression={progression}
+            rewards={rewards}
+            onApplyCosmetic={onApplyCosmetic}
+          />
+        )}
         {activeTab === 'world' && <WorldMapTab progress={progression.v3} />}
         {activeTab === 'sets' && <SetDexTab entries={entries} progress={progression.v3} />}
+        {activeTab === 'fusion' && (
+          entries.length > 0
+            ? <FusionLab entries={entries} onFuse={onFuse} />
+            : <p className="gentle-empty">카드를 모으면 퓨전 연구를 시작할 수 있어요.</p>
+        )}
       </div>
     </section>
   )

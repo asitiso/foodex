@@ -1,7 +1,12 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AMOUNT_META, FOOD_META } from '../../domain/types'
+import { AMOUNT_META } from '../../domain/types'
 import type { FoodType, MealAmount } from '../../domain/types'
+import type { MealRecord } from '../../domain/types'
+import { suggestFoods } from '../../domain/foodCatalog'
+import type { FoodDefinition } from '../../domain/foodCatalog'
+import { captureNativeMealPhoto, isNativeApp } from '../../lib/nativePlatform'
+import { FoodQuickPicker } from './FoodQuickPicker'
 import '../../styles.css'
 
 type RecordStep = 'photo' | 'food' | 'amount'
@@ -9,6 +14,7 @@ type RecordStep = 'photo' | 'food' | 'amount'
 export interface MealDraft {
   imageData: string
   foodType: FoodType
+  foodName: string
   amount: MealAmount
 }
 
@@ -16,17 +22,25 @@ interface RecordFlowProps {
   onComplete: (meal: MealDraft) => void
   onCancel: () => void
   recovery?: ReactNode
+  recentMeals?: readonly MealRecord[]
 }
 
-const foodTypes = Object.keys(FOOD_META) as FoodType[]
 const mealAmounts = Object.keys(AMOUNT_META) as MealAmount[]
 
-export function RecordFlow({ onComplete, onCancel, recovery }: RecordFlowProps) {
+export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }: RecordFlowProps) {
   const [step, setStep] = useState<RecordStep>('photo')
   const [imageData, setImageData] = useState<string>()
   const [foodType, setFoodType] = useState<FoodType>()
+  const [foodName, setFoodName] = useState<string>()
+  const [selectedFoodId, setSelectedFoodId] = useState<string>()
   const [amount, setAmount] = useState<MealAmount>()
   const [photoError, setPhotoError] = useState<string>()
+  const [isOpeningCamera, setIsOpeningCamera] = useState(false)
+  const nativeApp = useMemo(() => isNativeApp(), [])
+  const suggestions = useMemo(
+    () => suggestFoods({ now: Date.now(), entries: recentMeals, query: '' }),
+    [recentMeals],
+  )
 
   const readPhoto = (file: File | undefined) => {
     if (!file) return
@@ -42,8 +56,27 @@ export function RecordFlow({ onComplete, onCancel, recovery }: RecordFlowProps) 
   }
 
   const complete = () => {
-    if (!imageData || !foodType || !amount) return
-    onComplete({ imageData, foodType, amount })
+    if (!imageData || !foodType || !foodName || !amount) return
+    onComplete({ imageData, foodType, foodName, amount })
+  }
+
+  const capturePhoto = async () => {
+    setPhotoError(undefined)
+    setIsOpeningCamera(true)
+    try {
+      const capturedImage = await captureNativeMealPhoto()
+      if (capturedImage) setImageData(capturedImage)
+    } catch {
+      setPhotoError('카메라를 열지 못했어요. 권한을 확인하고 다시 시도해 주세요.')
+    } finally {
+      setIsOpeningCamera(false)
+    }
+  }
+
+  const selectFood = (food: FoodDefinition) => {
+    setFoodType(food.foodType)
+    setFoodName(food.name)
+    setSelectedFoodId(food.id)
   }
 
   return (
@@ -53,20 +86,36 @@ export function RecordFlow({ onComplete, onCancel, recovery }: RecordFlowProps) 
         <div className="record-step">
           <h1>오늘 먹은 것을 찍어 볼까?</h1>
           <p>사진 한 장이면 멋진 발견 카드가 시작돼!</p>
-          <input
-            className="photo-input"
-            id="meal-camera"
-            aria-label="식사 사진 선택"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(event) => readPhoto(event.currentTarget.files?.[0])}
-          />
-          <label className="photo-dropzone" htmlFor="meal-camera">
-            {imageData ? <img src={imageData} alt="선택한 식사 사진" /> : <span aria-hidden="true">📷</span>}
-            <strong>{imageData ? '사진을 바꿀 수도 있어' : '카메라로 식사 사진 찍기'}</strong>
-            <small>맛있게 먹은 순간을 남겨 줘</small>
-          </label>
+          {nativeApp ? (
+            <button
+              className="photo-dropzone"
+              type="button"
+              aria-label="카메라로 식사 사진 찍기"
+              disabled={isOpeningCamera}
+              onClick={() => void capturePhoto()}
+            >
+              {imageData ? <img src={imageData} alt="선택한 식사 사진" /> : <span aria-hidden="true">📷</span>}
+              <strong>{isOpeningCamera ? '카메라 여는 중…' : imageData ? '사진을 다시 찍을 수도 있어' : '카메라로 식사 사진 찍기'}</strong>
+              <small>맛있게 먹은 순간을 남겨 줘</small>
+            </button>
+          ) : (
+            <>
+              <input
+                className="photo-input"
+                id="meal-camera"
+                aria-label="식사 사진 선택"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={(event) => readPhoto(event.currentTarget.files?.[0])}
+              />
+              <label className="photo-dropzone" htmlFor="meal-camera">
+                {imageData ? <img src={imageData} alt="선택한 식사 사진" /> : <span aria-hidden="true">📷</span>}
+                <strong>{imageData ? '사진을 바꿀 수도 있어' : '카메라로 식사 사진 찍기'}</strong>
+                <small>맛있게 먹은 순간을 남겨 줘</small>
+              </label>
+            </>
+          )}
           <input
             className="photo-input"
             id="meal-gallery"
@@ -88,19 +137,7 @@ export function RecordFlow({ onComplete, onCancel, recovery }: RecordFlowProps) 
         <div className="record-step">
           <h1>무엇을 먹었어?</h1>
           <p>가장 가까운 친구를 골라 줘.</p>
-          <div className="choice-grid food-grid" role="group" aria-label="음식 선택">
-            {foodTypes.map((type) => (
-              <button
-                className={foodType === type ? 'choice-button selected' : 'choice-button'}
-                type="button"
-                key={type}
-                aria-pressed={foodType === type}
-                onClick={() => setFoodType(type)}
-              >
-                {FOOD_META[type].label}
-              </button>
-            ))}
-          </div>
+          <FoodQuickPicker suggestions={suggestions} selectedId={selectedFoodId} onSelect={selectFood} />
           <div className="record-actions">
             <button className="text-button" type="button" onClick={() => setStep('photo')}>이전</button>
             <button type="button" onClick={() => setStep('amount')} disabled={!foodType}>다음</button>

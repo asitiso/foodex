@@ -4,6 +4,7 @@ import type {
   SyncQueueItem,
   UserReward,
 } from './foodexDb'
+import type { DialogueHistoryItem } from '../domain/dialogueEngine'
 
 interface RemoteSyncRepository {
   uploadMealPhoto(mealId: string, imageData: string): Promise<string>
@@ -13,6 +14,7 @@ interface RemoteSyncRepository {
     rewards: UserReward[],
     photoPath: string | null,
   ): Promise<void>
+  upsertDialogueHistory?(item: DialogueHistoryItem): Promise<void>
 }
 
 export function createSyncRepository(
@@ -72,6 +74,13 @@ export function createSyncRepository(
       }
       await local.enqueueSync(item)
       void scheduleSync(item)
+    },
+
+    async saveDialogueHistory(item: DialogueHistoryItem) {
+      await local.saveDialogueHistory(item)
+      if (remote?.upsertDialogueHistory) {
+        void remote.upsertDialogueHistory(item).catch(() => undefined)
+      }
     },
 
     syncPending,

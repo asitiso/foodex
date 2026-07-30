@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Foodex</string>
+    <string name="title_activity_main">Foodex</string>
+    <string name="package_name">com.foodex.app</string>
+    <string name="custom_url_scheme">com.foodex.app</string>
+</resources>
