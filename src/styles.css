@@ -438,7 +438,7 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .evolution-stage-4 .companion-body { box-shadow: 0 0 .9rem rgba(255,229,129,.85); }
 .companion-character { border: 0; padding: 0; cursor: pointer; background: transparent; appearance: none; box-shadow: none; }
 .room-window, .room-shelf { color: inherit; }
-.room-decoration { border: 0; padding: 0; cursor: pointer; }
+.room-decoration { border: 0; padding: 0; cursor: pointer; background: transparent; appearance: none; }
 .companion-reaction { position: absolute; z-index: 5; top: 5.2rem; left: 50%; margin: 0; padding: .45rem .7rem; border: 2px solid #5d3d75; border-radius: .8rem; background: #fff; color: #493568; font-size: .78rem; font-weight: 900; transform: translateX(-50%); animation: reaction-pop .22s ease-out both; }
 .companion-click-sparkle { position: absolute; z-index: 6; bottom: 9.3rem; left: calc(50% + 3rem); color: #ffe581; font-size: 1.8rem; font-weight: 950; line-height: 1; pointer-events: none; text-shadow: 0 2px 0 #5d3d75, 0 0 .7rem rgba(255,229,129,.8); animation: click-sparkle .42s ease-out both; }
 .activity-walk { animation: companion-walk 1.8s ease-in-out infinite; }
@@ -508,7 +508,8 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .decoration-korean-lamp { top: 7rem; right: 1.1rem; font-size: 2rem; }
 .decoration-korean-lamp::before { content: "🏮"; }
 .decoration-fruit-cushion { right: 1.1rem; bottom: 3.8rem; font-size: 2.2rem; }
-.decoration-fruit-cushion::before { content: "🍓"; display: block; padding: .25rem .4rem; border: .2rem solid #5d3d75; border-radius: 50%; background: #ffe0d7; }
+.decoration-fruit-cushion { width: 3.4rem; height: 3.4rem; display: grid; place-items: center; overflow: visible; background: transparent !important; }
+.decoration-fruit-cushion::before { content: "🍓"; display: grid; width: 3.1rem; height: 3.1rem; place-items: center; border: .2rem solid #5d3d75; border-radius: 50%; background: #ffe0d7; box-sizing: border-box; line-height: 1; }
 .decoration-noodle-pot { bottom: 4rem; left: 1.25rem; font-size: 2.2rem; }
 .decoration-noodle-pot::before { content: "🍲"; }
 .decoration-season-wallpaper { z-index: -2; inset: 0 0 28%; background: radial-gradient(circle at 20% 25%, rgba(255,255,255,.6) 0 3%, transparent 3.5%), linear-gradient(135deg, #ffd6bf, #ffe9ad); }
