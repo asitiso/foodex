@@ -4,6 +4,7 @@ import type { FoodCard, FoodType } from '../../domain/types'
 import { useEffect, useMemo, useRef } from 'react'
 import type { ReactNode } from 'react'
 import type { ExperienceSettings } from '../../domain/companionTypes'
+import type { MealAdventureResult } from '../../domain/progression'
 import { directFeedback } from '../../domain/feedback'
 import { playFeedback } from '../../lib/gameFeedback'
 
@@ -13,6 +14,7 @@ interface CardRevealProps {
   imageData: string | null
   isSaving: boolean
   recovery?: ReactNode
+  adventureResult?: MealAdventureResult
   experienceSettings?: ExperienceSettings
   onSave: () => void
   onDiscard: () => void
@@ -45,6 +47,7 @@ export function CardReveal({
   imageData,
   isSaving,
   recovery,
+  adventureResult,
   experienceSettings = DEFAULT_EXPERIENCE_SETTINGS,
   onSave,
   onDiscard,
@@ -81,6 +84,37 @@ export function CardReveal({
           </div>
         </article>
       </div>
+      {adventureResult && (
+        <section className="adventure-result-card" aria-label="한 끼 모험 결과">
+          <p className="eyebrow">V5.1 QUEST CLEAR</p>
+          <strong className="adventure-result-headline">{adventureResult.headline}</strong>
+          <dl className="adventure-result-grid">
+            <div>
+              <dt>경험치</dt>
+              <dd>{adventureResult.xpText}</dd>
+            </div>
+            <div>
+              <dt>캐릭터</dt>
+              <dd>{adventureResult.levelText}</dd>
+            </div>
+            <div>
+              <dt>퀘스트</dt>
+              <dd>{adventureResult.questText}</dd>
+            </div>
+            <div>
+              <dt>박물관</dt>
+              <dd>{adventureResult.museumText}</dd>
+            </div>
+          </dl>
+          <p className="evolution-result">{adventureResult.evolutionText}</p>
+          {adventureResult.rewardTexts.length > 0 && (
+            <ul className="reward-result-list">
+              {adventureResult.rewardTexts.map((reward) => <li key={reward}>{reward}</li>)}
+            </ul>
+          )}
+          <strong className="next-goal-result">{adventureResult.nextGoalText}</strong>
+        </section>
+      )}
       <p className="reveal-copy">도감에 저장하고 다음 모험도 이어 가자!</p>
       <div className="reveal-actions">
         <button className="secondary-action" type="button" onClick={onDiscard} disabled={isSaving}>다시 선택</button>

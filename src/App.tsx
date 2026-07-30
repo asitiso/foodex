@@ -6,7 +6,7 @@ import type { FoodexRepository } from './data/foodexDb'
 import { createSupabaseRepository } from './data/supabaseRepository'
 import { createSyncRepository } from './data/syncRepository'
 import { createCard } from './domain/cardRules'
-import { buildProgression } from './domain/progression'
+import { buildMealAdventureResult, buildProgression } from './domain/progression'
 import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG as V3_FOOD_CATALOG, REGIONS } from './domain/v3Content'
 import { FOOD_CATALOG as NAMED_FOOD_CATALOG } from './domain/foodCatalog'
 import { buildCompanionContext } from './domain/companionContext'
@@ -134,6 +134,14 @@ export function App({
     }
   }, [discovery, entries, progression])
   const roomUnlocks = useMemo(() => deriveRoomUnlocks(progression), [progression])
+  const pendingAdventureResult = useMemo(() => pending
+    ? buildMealAdventureResult({
+      previousEntries: entries,
+      currentEntry: pending,
+      unlockedRewardIds: rewards.map((reward) => reward.rewardId),
+    })
+    : undefined,
+  [entries, pending, rewards])
 
   const refresh = useCallback(async () => {
     const refreshId = ++latestRefresh.current
@@ -424,6 +432,7 @@ export function App({
           imageData={pending.meal.imageData}
           isSaving={isSaving}
           recovery={saveRecovery}
+          adventureResult={pendingAdventureResult}
           experienceSettings={experienceSettings}
           onSave={() => void savePending('withPhoto')}
           onDiscard={() => { setPending(undefined); navigate('record') }}

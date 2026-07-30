@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildProgression } from './progression'
+import { buildMealAdventureResult, buildProgression } from './progression'
 import type { FoodCard, MealRecord } from './types'
 import { catalogForFoodType } from './v3Content'
 
@@ -130,5 +130,29 @@ describe('progression', () => {
 
     expect(progression.v3.completedSetIds).toContain('sunny-bites')
     expect(progression.v3.newRewards).toEqual([])
+  })
+
+  it('summarizes a saved meal as a V5 adventure turn', () => {
+    const now = new Date(2026, 6, 30, 12).getTime()
+    const previousEntries = [
+      entry('ramen', 30, now - 86_400_000, 'rare'),
+      entry('rice', 20, now - 172_800_000),
+    ]
+    const currentEntry = entry('fruit', 30, now, 'epic')
+
+    const result = buildMealAdventureResult({
+      previousEntries,
+      currentEntry,
+      now,
+      unlockedRewardIds: [],
+    })
+
+    expect(result.headline).toBe('과일 카드로 오늘의 모험을 진행했어요')
+    expect(result.xpText).toBe('+30 XP')
+    expect(result.levelText).toBe('캐릭터 Lv.3')
+    expect(result.questText).toBe('오늘 퀘스트 3/3 완료')
+    expect(result.museumText).toBe('음식 박물관 3/11 전시')
+    expect(result.evolutionText).toBe('햇살 과일단 1/3 성장')
+    expect(result.nextGoalText).toBe('다음 목표: 햇살 과일단 2번 더 기록하면 진화')
   })
 })

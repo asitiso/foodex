@@ -213,6 +213,31 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .sparkles span:nth-child(2) { top: 36%; right: 12%; animation-delay: .55s; }
 .sparkles span:nth-child(3) { bottom: 14%; left: 16%; animation-delay: 1.1s; }
 
+.adventure-result-card {
+  display: grid;
+  gap: .8rem;
+  padding: 1rem;
+  border: 2px solid #5d3d75;
+  border-radius: 1.1rem;
+  background: #fffef8;
+  color: #493568;
+  text-align: left;
+  box-shadow: 0 .28rem 0 #5d3d75;
+}
+.adventure-result-headline { display: block; font-size: 1.05rem; line-height: 1.35; }
+.adventure-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .55rem;
+  margin: 0;
+}
+.adventure-result-grid div { min-width: 0; padding: .65rem; border-radius: .75rem; background: #f7f2ff; }
+.adventure-result-grid dt { color: #776b87; font-size: .72rem; font-weight: 900; }
+.adventure-result-grid dd { margin: .2rem 0 0; color: #493568; font-size: .88rem; font-weight: 950; line-height: 1.25; }
+.evolution-result, .reward-result-list { margin: 0; color: #675d72; font-weight: 850; line-height: 1.45; }
+.reward-result-list { display: grid; gap: .35rem; padding-left: 1.2rem; }
+.next-goal-result { display: block; padding: .75rem; border-radius: .85rem; background: #fff7dc; color: #493568; line-height: 1.45; }
+
 @keyframes card-flip { from { transform: rotateY(92deg) scale(.9); opacity: 0; } to { transform: rotateY(0) scale(1); opacity: 1; } }
 @keyframes sparkle { 50% { transform: scale(1.45) rotate(20deg); opacity: .5; } }
 

@@ -1,3 +1,4 @@
+import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG } from './v3Content'
 import { FOOD_META } from './types'
 import type { FoodCard, FoodType, MealRecord } from './types'
 import { buildV3Progress } from './v3Progression'
@@ -79,6 +80,19 @@ export interface Progression {
   v3: V3Progress
 }
 
+type Entry = { card: FoodCard; meal: MealRecord }
+
+export interface MealAdventureResult {
+  headline: string
+  xpText: string
+  levelText: string
+  questText: string
+  museumText: string
+  evolutionText: string
+  nextGoalText: string
+  rewardTexts: string[]
+}
+
 const levelThresholds = [0, 30, 60, 100, 150, 210, 280, 360]
 const totalFoods = Object.keys(FOOD_META).length
 
@@ -130,7 +144,7 @@ function buildEvolution(foodType: FoodType, count: number): FoodEvolution {
 }
 
 export function buildProgression(
-  entries: Array<{ card: FoodCard; meal: MealRecord }>,
+  entries: Entry[],
   now = Date.now(),
   unlockedRewardIds: readonly string[] = [],
 ): Progression {
@@ -249,5 +263,52 @@ export function buildProgression(
     },
     collectionBonuses,
     v3: buildV3Progress(entries, unlockedRewardIds, now),
+  }
+}
+
+export function buildMealAdventureResult({
+  previousEntries,
+  currentEntry,
+  now = Date.now(),
+  unlockedRewardIds = [],
+}: {
+  previousEntries: Entry[]
+  currentEntry: Entry
+  now?: number
+  unlockedRewardIds?: readonly string[]
+}): MealAdventureResult {
+  const nextProgression = buildProgression(
+    [...previousEntries, currentEntry],
+    now,
+    unlockedRewardIds,
+  )
+  const completedQuests = nextProgression.dailyQuests.filter((quest) => quest.completed).length
+  const evolution = nextProgression.evolutions.find((item) => item.foodType === currentEntry.meal.foodType)
+  const baseName = FOOD_META[currentEntry.meal.foodType].variants[0].name
+  const remainingMeals = evolution?.nextCount ? evolution.nextCount - evolution.count : 0
+  const rewardTexts = nextProgression.v3.newRewards.flatMap((reward) => {
+    const set = COLLECTION_SETS.find((candidate) => candidate.reward.rewardId === reward.rewardId)
+    const cosmetic = COSMETICS.find((candidate) => candidate.id === reward.rewardId)
+    const food = FOOD_CATALOG.find((candidate) => candidate.id === reward.rewardId)
+
+    if (cosmetic) return [`새 장식 획득: ${cosmetic.title}`]
+    if (food) return [`이벤트 카드 획득: ${food.label}`]
+    if (set) return [`세트 완성 보상: ${set.title}`]
+    return []
+  })
+
+  return {
+    headline: `${FOOD_META[currentEntry.meal.foodType].label} 카드로 오늘의 모험을 진행했어요`,
+    xpText: `+${currentEntry.card.xp} XP`,
+    levelText: `캐릭터 Lv.${nextProgression.level.level}`,
+    questText: `오늘 퀘스트 ${completedQuests}/${nextProgression.dailyQuests.length} 완료`,
+    museumText: `음식 박물관 ${nextProgression.collection.discoveredFoods}/${nextProgression.collection.totalFoods} 전시`,
+    evolutionText: evolution?.nextCount
+      ? `${baseName} ${evolution.count}/${evolution.nextCount} 성장`
+      : `${baseName} 최종 진화 완료`,
+    nextGoalText: remainingMeals > 0
+      ? `다음 목표: ${baseName} ${remainingMeals}번 더 기록하면 진화`
+      : '다음 목표: 새로운 음식을 발견해 박물관을 넓히기',
+    rewardTexts,
   }
 }
