@@ -308,7 +308,7 @@ export function App({
         unlockedAt,
       }))
 
-      await repository.saveMealAndCard(meal, pending.card, newRewards)
+      await repository.saveMealAndCard(meal, pending.card, newRewards, integratedResult.coinTransaction)
       const region = REGIONS.find((candidate) => candidate.id === pending.card.regionId)
       const completedSetTitles = nextProgression.v3.completedSetIds
         .filter((id) => !progression.v3.completedSetIds.includes(id))

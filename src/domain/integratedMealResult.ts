@@ -4,6 +4,8 @@ import type { MealOutcome } from './mealOutcome'
 import type { Progression } from './progression'
 import type { FoodCard, MealRecord } from './types'
 import type { UserReward } from '../data/foodexDb'
+import { mealCoinKey } from './coinWallet'
+import type { CoinTransaction } from './coinWallet'
 
 export interface IntegratedReward {
   id: string
@@ -16,6 +18,7 @@ export interface IntegratedMealResult {
   mealId: string
   cardId: string
   outcome: MealOutcome
+  coinTransaction: CoinTransaction
   primaryRewards: IntegratedReward[]
   detailRewards: Array<{ id: string; label: string }>
   persistedRewards: Array<{
@@ -113,6 +116,14 @@ export function buildIntegratedMealResult({
     mealId: meal.id,
     cardId: card.id,
     outcome,
+    coinTransaction: {
+      id: meal.id,
+      key: mealCoinKey(meal.id),
+      kind: 'meal-earned',
+      amount: outcome.coins,
+      mealId: meal.id,
+      createdAt: meal.recordedAt,
+    },
     primaryRewards: [
       { id: `meal:${meal.id}:card`, label: '음식 카드', value: card.name, kind: 'card' },
       { id: `meal:${meal.id}:xp`, label: '성장 경험치', value: `+${outcome.xp} XP`, kind: 'xp' },

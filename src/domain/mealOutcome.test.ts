@@ -19,5 +19,13 @@ describe('meal outcome', () => {
     expect(outcome.xp).toBeGreaterThan(20)
     expect(outcome.bossDamage).toBe(35)
     expect(outcome.discoveredNewSlot).toBe(true)
+    expect(outcome.coins).toBe(8)
+  })
+
+  it('awards 5 coins for the first meal of the local day', () => {
+    const now = new Date(2026, 0, 1, 8).getTime()
+    const previousDay = meal('밥', 'rice', new Date(2025, 11, 31, 20).getTime())
+
+    expect(buildMealOutcome(meal('죽', 'rice', now), [previousDay]).coins).toBe(5)
   })
 })

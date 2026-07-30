@@ -44,6 +44,12 @@ describe('integrated meal result', () => {
     expect(result.mealId).toBe(meal.id)
     expect(result.primaryRewards.map((reward) => reward.kind)).toEqual(['card', 'xp', 'coin'])
     expect(result.primaryRewards).toHaveLength(3)
+    expect(result.coinTransaction).toEqual(expect.objectContaining({
+      key: `meal:${meal.id}:coins`,
+      kind: 'meal-earned',
+      amount: 5,
+      mealId: meal.id,
+    }))
     expect(result.completedQuestIds).toContain('today-card')
     expect(result.unlockedAchievementIds).toContain('first-meal')
     expect(result.nextGoal).toEqual({

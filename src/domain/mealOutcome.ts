@@ -1,6 +1,7 @@
 import type { CompanionClassId } from './companionClasses'
 import type { FoodTag, MealRecord } from './types'
 import { tagsForMeal } from './foodCatalog'
+import { coinsForMeal } from './coinWallet'
 
 export type MealSlot = 'breakfast' | 'lunch' | 'dinner' | 'late'
 
@@ -35,7 +36,7 @@ export function buildMealOutcome(meal: MealRecord, history: readonly MealRecord[
     slot: mealSlot(meal.recordedAt),
     tags,
     xp: Math.round((meal.amount === 'taste' ? 20 : 12) * classBonus) + combo * 5,
-    coins: 5 + combo * 3,
+    coins: coinsForMeal(meal, history),
     combo,
     bossDamage: 25 + combo * 10,
     discoveredNewSlot: !history.some((item) => item.foodName === meal.foodName),
