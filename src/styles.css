@@ -140,6 +140,23 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .collection-screen .collection-tabs button[aria-selected="true"] { background: #6543eb; color: #fff; box-shadow: 0 .2rem 0 #4528a9; }
 .collection-growth-stack { display: grid; gap: .8rem; }
 .collection-screen .achievement-list { gap: .7rem; }
+.world-map-board { display: grid; gap: .9rem; padding: 1rem; border: 2px solid #e4d8ef; border-radius: 1.35rem; background: radial-gradient(circle at 88% 8%, #fff0a7 0 5%, transparent 5.5%), linear-gradient(145deg, #fffdf6, #f3efff); box-shadow: 0 .28rem 0 #ded1eb; }
+.world-map-copy { margin: 0; color: #6d617b; font-size: .88rem; font-weight: 750; }
+.world-map-board .world-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.world-map-board .world-region { position: relative; min-height: 11.3rem; align-content: start; gap: .6rem; padding: .9rem; border: 2px solid #e4d8ef; border-radius: 1.15rem; background: #fff; box-shadow: 0 .2rem 0 #e6dceb; }
+.world-map-board .world-region::before { content: ''; position: absolute; top: 1.9rem; right: -.85rem; width: .9rem; border-top: 2px dashed #c9b7e1; }
+.world-map-board .world-region:nth-child(even)::before { display: none; }
+.world-region-marker { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: .85rem; background: #f1ecff; color: #998aa9; font-size: 1.25rem; }
+.world-region.discovered { border-color: #d6b45b; background: linear-gradient(145deg, #fff7d8, #f5efff); box-shadow: 0 .25rem 0 #d5c3e7; }
+.world-region.discovered .world-region-marker { background: #6543eb; color: #fff; box-shadow: 0 .18rem 0 #4b2ca0; }
+.world-map-board .world-region h2 { color: #392050; font-size: 1rem; }
+.world-map-board .world-region p { font-size: .78rem; }
+.world-map-board .world-region small { color: #816fa0; font-size: .72rem; font-weight: 850; }
+.adventure-screen .achievement-list { grid-template-columns: 1fr; gap: .75rem; }
+.adventure-screen .achievement { position: relative; min-height: 5.4rem; padding: .85rem .9rem; border: 2px solid #e6dcef; background: linear-gradient(145deg, #fff, #faf6ff); box-shadow: 0 .2rem 0 #e3d7ee; }
+.adventure-screen .achievement::after { content: '진행'; position: absolute; top: .7rem; right: .75rem; padding: .2rem .45rem; border-radius: 999px; background: #eee8ff; color: #7150db; font-size: .68rem; font-weight: 900; }
+.adventure-screen .achievement.unlocked { border-color: #e7c65d; background: linear-gradient(145deg, #fff9dd, #fff1be); box-shadow: 0 .22rem 0 #dec06b; }
+.adventure-screen .achievement.unlocked::after { content: '완료'; background: #6543eb; color: #fff; }
 
 /* Game room presentation: lead with the companion, then the next action. */
 .home-room-screen { display: grid; gap: 1rem; }
