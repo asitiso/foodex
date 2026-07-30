@@ -69,7 +69,7 @@ describe('HomeScreen', () => {
 
   it('keeps the main recording action visible', () => {
     render(<HomeScreen {...props} />)
-    expect(screen.getByRole('button', { name: '식사 카드 획득하기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
   })
 
   it('shows the meal gauge and the next meal goal', () => {

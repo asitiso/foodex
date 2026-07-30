@@ -499,6 +499,16 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .dungeon-rooms { display: grid; grid-template-columns: repeat(3,1fr); gap: .35rem; }
 .dungeon-rooms span { padding: .45rem .25rem; border-radius: .55rem; background: #eee8f4; color: #8c8094; text-align: center; font-size: .7rem; }
 .dungeon-rooms span.cleared { background: #7150db; color: #fff; }
+.home-dungeon-map { display: grid; grid-template-columns: repeat(3,1fr); gap: .35rem; margin-top: .65rem; padding-top: .65rem; border-top: 2px dashed #e5d8ee; }
+.home-dungeon-map span { display: grid; gap: .15rem; padding: .5rem .2rem; border-radius: .7rem; background: rgba(255,255,255,.7); color: #8d8195; text-align: center; font-size: .68rem; }
+.home-dungeon-map span.cleared { background: #7150db; color: #fff; box-shadow: 0 .16rem 0 #4c329d; }
+.home-dungeon-map b { font-size: 1rem; }
+.reward-cta { position: relative; overflow: hidden; background: linear-gradient(135deg,#ff8c70,#f05d7e 55%,#7150db); }
+.reward-cta::after { content: "✦  ✧  ✦"; position: absolute; right: .8rem; top: .35rem; color: #ffe581; opacity: .9; animation: reward-stars 1.8s ease-in-out infinite; }
+.collection-grid .collection-card { position: relative; overflow: hidden; border: 3px solid #e1d4ef; background: linear-gradient(145deg,#fff,#fff7df); box-shadow: 0 .25rem 0 #d3c2e5; transition: transform .16s ease, box-shadow .16s ease; }
+.collection-grid .collection-card:hover { transform: translateY(-4px) rotate(-1deg); box-shadow: 0 .48rem 0 #bda5dc; }
+.collection-grid .collection-card::after { content: "✦"; position: absolute; top: .35rem; right: .45rem; color: #ffe581; opacity: .8; }
+.achievement-panel, .evolution-panel, .bonus-panel, .tag-progress-panel { background: linear-gradient(135deg,#fffdf6,#f8f1ff); box-shadow: 0 .2rem 0 #eadcf4; }
 .character-evolution-card { display: grid; gap: .4rem; padding: 1rem; border: 2px solid #ffe581; border-radius: 1.2rem; background: #fff8dc; }
 .character-evolution-card h2, .character-evolution-card p { margin: 0; }
 .character-evolution-card p, .character-evolution-card small { color: #6e5d72; }
@@ -701,6 +711,7 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 @keyframes companion-blink { 0%, 43%, 47%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.12); } }
 @keyframes achievement-pop { from { transform: scale(.96); } 60% { transform: scale(1.03); } to { transform: scale(1); } }
 @keyframes reward-burst { from { opacity: 0; transform: scale(.4) rotate(-12deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes reward-stars { 0%,100% { transform: translateY(0); opacity: .65; } 50% { transform: translateY(-3px) scale(1.08); opacity: 1; } }
 
 @media (max-width: 43.75rem) {
   .set-grid { grid-template-columns: 1fr; }

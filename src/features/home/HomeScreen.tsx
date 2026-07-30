@@ -4,6 +4,7 @@ import type { MealAdventureState } from '../../domain/mealAdventure'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
 import type { CompanionClass } from '../../domain/companionClasses'
+import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
 import { CompanionRoom } from './CompanionRoom'
 import type { CompanionEmotion } from './CompanionRoom'
 import { HomeStatusGrid } from './HomeStatusGrid'
@@ -24,6 +25,7 @@ interface HomeScreenProps {
   characterId?: CompanionCharacterId
   evolution?: CompanionEvolution
   companionClass?: CompanionClass
+  advancedSystems?: AdvancedGameSystems
   companionLine: string
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
@@ -45,6 +47,7 @@ export function HomeScreen({
   characterId,
   evolution,
   companionClass,
+  advancedSystems,
   companionLine,
   companionEmotion,
   decorationIds,
@@ -118,6 +121,9 @@ export function HomeScreen({
           이번 주 원정 {mealGameLoop.weeklyMeals}/{mealGameLoop.weeklyTarget}끼
           {mealGameLoop.recoveryAvailable ? ' · 회복권 사용 가능' : ''}
         </p>
+        {advancedSystems && <div className="home-dungeon-map" aria-label="오늘의 식사 던전">
+          {advancedSystems.dungeon.rooms.map((room) => <span className={room.cleared ? 'cleared' : ''} key={room.id}><b>{room.cleared ? '✓' : '○'}</b>{room.name}</span>)}
+        </div>}
       </section>
 
       <section className="meal-adventure-panel" aria-label="식사 모험">
@@ -148,9 +154,9 @@ export function HomeScreen({
         <p>{adventureBoard.nextFocus}</p>
       </section>
 
-      <button className="primary-cta room-record-cta" type="button" onClick={onRecord}>
+      <button className="primary-cta room-record-cta reward-cta" type="button" onClick={onRecord}>
         <span aria-hidden="true">📷</span>
-        식사 카드 획득하기
+        오늘의 보상 받기
       </button>
     </section>
   )

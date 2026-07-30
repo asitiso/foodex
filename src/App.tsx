@@ -368,6 +368,7 @@ export function App({
           characterId={characterId}
           evolution={companionEvolution}
           companionClass={companionClasses.find((item) => item.recommended)}
+          advancedSystems={advancedSystems}
           companionLine={companion.line}
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}

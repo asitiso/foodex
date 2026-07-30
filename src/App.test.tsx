@@ -107,7 +107,7 @@ describe('App', () => {
   it('uses the specified home call to action copy', () => {
     render(<App repository={createMemoryRepository()} />)
 
-    expect(screen.getByRole('button', { name: '식사 카드 획득하기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
   })
 
   it('shows an empty collection without blaming the user', async () => {
