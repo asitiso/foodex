@@ -15,8 +15,14 @@ describe('tag progression', () => {
 
   it('generates stable tag achievement ids and pair event progress', () => {
     const achievements = buildTagAchievements([entry('밀크카라멜'), entry('쿠키')])
-    expect(achievements.some((item) => item.id === 'tag-snack-3')).toBe(true)
-    const event = buildTagEvents([entry('커피', 'drink'), entry('크루아상', 'bread')]).find((item) => item.id === 'cafe-run')!
+    expect(achievements.some((item) => item.id === 'tag-snack-5')).toBe(true)
+    const event = buildTagEvents([entry('라면', 'ramen'), entry('사과', 'fruit')]).find((item) => item.id === 'meal-and-fruit')!
     expect(event.completed).toBe(2)
+  })
+
+  it('prioritizes meal and balance achievements before snack bonuses', () => {
+    const ids = buildTagAchievements([]).map((item) => item.id)
+    expect(ids.slice(0, 3).every((id) => id.startsWith('tag-meal-'))).toBe(true)
+    expect(ids.findIndex((id) => id.startsWith('tag-snack-'))).toBeGreaterThan(10)
   })
 })

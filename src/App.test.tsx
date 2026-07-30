@@ -95,7 +95,6 @@ describe('App', () => {
     expect(screen.getByText('연속 기록')).toBeInTheDocument()
     expect(screen.getByText('1일')).toBeInTheDocument()
     expect(screen.getByText('오늘의 도전')).toBeInTheDocument()
-    expect(screen.getByText('상큼 카드')).toBeInTheDocument()
     expect(screen.queryByText('여름 한입 시즌')).not.toBeInTheDocument()
     expect(screen.queryByText('오늘의 상자')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '도감' }))

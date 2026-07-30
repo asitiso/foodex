@@ -36,6 +36,8 @@ const TRACKED_TAGS: readonly FoodTag[] = [
   'snack', 'candy', 'chocolate', 'coffee', 'soda', 'juice', 'dessert', 'convenience', 'fruit', 'bakery',
 ]
 
+const CORE_TAGS: readonly FoodTag[] = ['meal', 'noodle', 'bakery', 'fruit', 'healthy', 'dairy']
+const BONUS_TAGS: readonly FoodTag[] = ['snack', 'candy', 'chocolate', 'coffee', 'soda', 'juice', 'dessert', 'convenience']
 const TAG_MILESTONES = [3, 5, 10] as const
 
 function canonicalIdsForTag(tag: FoodTag) {
@@ -62,7 +64,7 @@ export function buildTagProgress(entries: readonly Entry[]): TagCollectionProgre
 }
 
 export function buildTagAchievements(entries: readonly Entry[]): TagAchievement[] {
-  return TRACKED_TAGS.flatMap((tag) => {
+  return CORE_TAGS.flatMap((tag) => {
     const count = discoveredIdsForTag(entries, tag).size
     return TAG_MILESTONES.map((target) => ({
       id: `tag-${tag}-${target}`,
@@ -70,14 +72,22 @@ export function buildTagAchievements(entries: readonly Entry[]): TagAchievement[
       description: `${TAG_LABELS[tag]} 음식 ${target}종을 도감에 등록하세요.`,
       unlocked: count >= target,
     }))
-  })
+  }).concat(BONUS_TAGS.flatMap((tag) => {
+    const count = discoveredIdsForTag(entries, tag).size
+    return [{
+      id: `tag-${tag}-5`,
+      title: `${TAG_LABELS[tag]} 보너스 탐험가`,
+      description: `${TAG_LABELS[tag]} 음식 5종을 발견하면 보너스를 받아요.`,
+      unlocked: count >= 5,
+    }]
+  }))
 }
 
 const TAG_EVENTS: readonly { id: string; title: string; tags: readonly FoodTag[] }[] = [
-  { id: 'sweet-break', title: '달콤한 간식 휴식', tags: ['snack', 'dessert'] },
-  { id: 'cafe-run', title: '카페 한 바퀴', tags: ['coffee', 'bakery'] },
-  { id: 'convenience-hunt', title: '편의점 보물찾기', tags: ['convenience', 'soda'] },
-  { id: 'juice-bar', title: '주스 바 탐험', tags: ['fruit', 'juice'] },
+  { id: 'meal-and-fruit', title: '든든한 한 끼와 과일', tags: ['meal', 'fruit'] },
+  { id: 'breakfast-balance', title: '아침 균형 챌린지', tags: ['bakery', 'fruit'] },
+  { id: 'noodle-meal', title: '따뜻한 면 한 그릇', tags: ['meal', 'noodle'] },
+  { id: 'sweet-break', title: '식사 후 달콤한 보너스', tags: ['meal', 'snack'] },
 ]
 
 export function buildTagEvents(entries: readonly Entry[]): TagEvent[] {

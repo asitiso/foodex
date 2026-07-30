@@ -251,7 +251,7 @@ export function buildProgression(
   const completedQuestCount = [
     todayEntries.length > 0,
     todayEntries.some(({ card }) => card.isNew),
-    todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
+    todayEntries.some(({ meal }) => ['ramen', 'rice', 'bread', 'side', 'dumpling', 'sushi', 'pasta'].includes(meal.foodType)),
   ].filter(Boolean).length
   const dailyQuests: DailyQuest[] = [
     {
@@ -267,12 +267,17 @@ export function buildProgression(
       completed: todayEntries.some(({ card }) => card.isNew),
     },
     {
-      id: 'fruit-or-drink',
+      id: 'meal-anchor',
       title: '상큼 카드',
       description: '과일이나 음료 카드를 모아요.',
-      completed: todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
+      completed: todayEntries.some(({ meal }) => ['ramen', 'rice', 'bread', 'side', 'dumpling', 'sushi', 'pasta'].includes(meal.foodType)),
     },
   ]
+  dailyQuests[2] = {
+    ...dailyQuests[2],
+    title: '든든한 한 끼',
+    description: '밥·면·빵·반찬 중 하나를 오늘 기록하세요.',
+  }
   const tagProgress = buildTagProgress(entries)
   const tagAchievements = buildTagAchievements(entries)
   const tagEvents = buildTagEvents(entries)

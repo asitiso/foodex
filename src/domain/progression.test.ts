@@ -77,7 +77,7 @@ describe('progression', () => {
     expect(progression.dailyQuests.map((quest) => [quest.id, quest.completed])).toEqual([
       ['today-card', true],
       ['new-discovery', true],
-      ['fruit-or-drink', true],
+      ['meal-anchor', false],
     ])
   })
 
@@ -150,7 +150,7 @@ describe('progression', () => {
     expect(result.headline).toBe('과일 카드로 오늘의 모험을 진행했어요')
     expect(result.xpText).toBe('+30 XP')
     expect(result.levelText).toBe('캐릭터 Lv.3')
-    expect(result.questText).toBe('오늘 퀘스트 3/3 완료')
+    expect(result.questText).toBe('오늘 퀘스트 2/3 완료')
     expect(result.museumText).toBe('음식 박물관 3/11 전시')
     expect(result.evolutionText).toBe('햇살 과일단 1/3 성장')
     expect(result.nextGoalText).toBe('다음 목표: 햇살 과일단 2번 더 기록하면 진화')
