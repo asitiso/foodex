@@ -6,6 +6,12 @@ import { isNativeApp, nativeHapticsAdapter } from './lib/nativePlatform'
 
 if (isNativeApp()) setNativeHapticsAdapter(nativeHapticsAdapter)
 
+if ('serviceWorker' in navigator && !isNativeApp()) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js')
+  })
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

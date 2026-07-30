@@ -362,6 +362,8 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .sync-local-only { border-color: #d8b350; background: #fff9df; }
 .sync-failed { border-color: #c77a65; background: #fff0eb; }
 .sync-status button { min-height: 2.5rem; border: 0; border-radius: .65rem; padding-inline: .75rem; background: #6543eb; color: #fff; font-weight: 900; }
+.pwa-install-button { position: fixed; z-index: 20; right: 1rem; bottom: 5.8rem; display: inline-flex; align-items: center; gap: .4rem; min-height: 2.7rem; border: 2px solid #5d3d75; border-radius: 999px; padding: .35rem .7rem .35rem .4rem; background: #fff; color: #493568; font-size: .78rem; font-weight: 950; box-shadow: 0 .25rem 0 #5d3d75, 0 .6rem 1rem rgba(52,31,83,.14); }
+.pwa-install-button img { width: 1.8rem; height: 1.8rem; border-radius: .55rem; }
 
 .account-protection { width: min(calc(100% - 2.5rem), 28.5rem); margin: -1rem auto 1rem; }
 .protect-collection { display: grid; gap: .75rem; padding: 1rem; border: 1px solid #dcd2e8; border-radius: 1rem; background: #fff; }

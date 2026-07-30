@@ -30,6 +30,7 @@ import type { MealDraft } from './features/record/RecordFlow'
 import { CardReveal } from './features/reveal/CardReveal'
 import type { V3DiscoveryResult } from './features/reveal/V3DiscoverySummary'
 import { SyncStatus } from './features/sync/SyncStatus'
+import { InstallAppButton } from './features/pwa/InstallAppButton'
 import type { SyncState } from './features/sync/SyncStatus'
 import { BottomNav } from './ui/BottomNav'
 import './styles.css'
@@ -421,6 +422,7 @@ export function App({
             .catch(() => setSyncState('failed'))
         } : undefined}
       />
+      <InstallAppButton />
       {readError === 'load' && (
         <RecoveryAlert className="app-read-error">
           <p>불러오지 못했어요. 다시 시도해 주세요.</p>
