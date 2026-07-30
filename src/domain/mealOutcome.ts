@@ -8,6 +8,7 @@ export interface MealOutcome {
   slot: MealSlot
   tags: readonly FoodTag[]
   xp: number
+  coins: number
   combo: number
   bossDamage: number
   discoveredNewSlot: boolean
@@ -30,5 +31,13 @@ export function buildMealOutcome(meal: MealRecord, history: readonly MealRecord[
     : classId === 'forest-explorer' && tags.some((tag) => tag === 'fruit' || tag === 'healthy') ? 1.15
       : classId === 'balance-alchemist' && combo > 0 ? 1.25
         : classId === 'full-meal-knight' && sameDay.length >= 2 ? 1.5 : 1
-  return { slot: mealSlot(meal.recordedAt), tags, xp: Math.round((meal.amount === 'taste' ? 20 : 12) * classBonus) + combo * 5, combo, bossDamage: 25 + combo * 10, discoveredNewSlot: !history.some((item) => item.foodName === meal.foodName) }
+  return {
+    slot: mealSlot(meal.recordedAt),
+    tags,
+    xp: Math.round((meal.amount === 'taste' ? 20 : 12) * classBonus) + combo * 5,
+    coins: 5 + combo * 3,
+    combo,
+    bossDamage: 25 + combo * 10,
+    discoveredNewSlot: !history.some((item) => item.foodName === meal.foodName),
+  }
 }
