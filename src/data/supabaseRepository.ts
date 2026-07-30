@@ -40,7 +40,7 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
       rewards: UserReward[],
       photoPath: string | null,
     ) {
-      const mealResult = await client.from('meal_records').upsert({
+      const mealPayload = {
         id: meal.id,
         user_id: userId,
         food_type: meal.foodType,
@@ -49,8 +49,23 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
         recorded_at: new Date(meal.recordedAt).toISOString(),
         photo_path: photoPath,
         client_created_at: new Date(meal.recordedAt).toISOString(),
-      }, { onConflict: 'id' })
-      throwIfError(mealResult)
+      }
+      const mealResult = await client.from('meal_records').upsert(mealPayload, { onConflict: 'id' })
+      const missingFoodName = mealResult.error
+        && typeof mealResult.error === 'object'
+        && mealResult.error !== null
+        && 'code' in mealResult.error
+        && mealResult.error.code === 'PGRST204'
+        && 'message' in mealResult.error
+        && typeof mealResult.error.message === 'string'
+        && mealResult.error.message.includes('food_name')
+      if (missingFoodName) {
+        const { food_name: _foodName, ...legacyMealPayload } = mealPayload
+        const legacyResult = await client.from('meal_records').upsert(legacyMealPayload, { onConflict: 'id' })
+        throwIfError(legacyResult)
+      } else {
+        throwIfError(mealResult)
+      }
 
       const cardResult = await client.from('food_cards').upsert({
         id: card.id,

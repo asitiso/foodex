@@ -119,4 +119,20 @@ describe('Supabase Foodex repository', () => {
       { onConflict: 'user_id,id' },
     )
   })
+
+  it('retries meal storage without food_name when an older remote schema is still active', async () => {
+    const mealUpsert = vi.fn()
+      .mockResolvedValueOnce({ error: { code: 'PGRST204', message: "Could not find the 'food_name' column" } })
+      .mockResolvedValueOnce({ data: {}, error: null })
+    const client = {
+      storage: { from: vi.fn(() => ({ upload: vi.fn().mockResolvedValue({ data: {}, error: null }) })) },
+      from: vi.fn((table: string) => ({ upsert: table === 'meal_records' ? mealUpsert : vi.fn().mockResolvedValue({ data: {}, error: null }) })),
+    }
+    const repository = createSupabaseRepository(client as never, 'user-1')
+
+    await repository.upsertMealBundle(meal, card, [], null)
+
+    expect(mealUpsert).toHaveBeenCalledTimes(2)
+    expect(mealUpsert.mock.calls[1][0]).not.toHaveProperty('food_name')
+  })
 })
