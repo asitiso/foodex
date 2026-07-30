@@ -234,6 +234,8 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .record-progress span { height: .4rem; border-radius: 999px; background: #e4ddeb; transition: background .25s ease, transform .25s ease; }
 .record-progress span.active { background: #6543eb; transform: scaleY(1.35); }
 .record-progress span.complete { background: #f4bb3f; }
+.record-stage-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; color: #9a8eaa; font-size: .72rem; font-weight: 900; text-align: center; }
+.record-stage-labels span.active { color: #6543eb; }
 .record-step { display: grid; gap: 1rem; }
 h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em; line-height: 1.2; }
 .record-step > p, .reveal-copy { margin: 0; color: #675d72; line-height: 1.55; }

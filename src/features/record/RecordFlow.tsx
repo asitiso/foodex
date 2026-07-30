@@ -94,6 +94,7 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
           <span key={stage} className={stage === step ? 'active' : index < ['photo', 'food', 'amount'].indexOf(step) ? 'complete' : ''} />
         ))}
       </div>
+      <div className="record-stage-labels" aria-hidden="true"><span className={step === 'photo' ? 'active' : ''}>📸 사진</span><span className={step === 'food' ? 'active' : ''}>🍽️ 음식</span><span className={step === 'amount' ? 'active' : ''}>🎁 보상</span></div>
       {step === 'photo' && (
         <div className="record-step">
           <h1>오늘 먹은 것을 찍어 볼까?</h1>
