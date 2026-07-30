@@ -40,7 +40,7 @@ export function createCard(
   const copy = composeCardCopy({ food, rarity, seed: input.mealId })
 
   return {
-    id: `card-${input.mealId}`,
+    id: input.mealId,
     mealId: input.mealId,
     catalogId: catalog.id,
     name: copy.name,

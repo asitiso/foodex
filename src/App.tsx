@@ -9,6 +9,7 @@ import { createCard } from './domain/cardRules'
 import { buildMealAdventureResult, buildProgression } from './domain/progression'
 import { buildWorldProgress } from './domain/v6WorldProgression'
 import { buildGameLoop } from './domain/v61GameLoop'
+import { makeMealId } from './domain/ids'
 import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG as V3_FOOD_CATALOG, REGIONS } from './domain/v3Content'
 import { FOOD_CATALOG as NAMED_FOOD_CATALOG } from './domain/foodCatalog'
 import { buildCompanionContext } from './domain/companionContext'
@@ -47,10 +48,6 @@ const emptySummary = {
   todayCount: 0,
   discoveredCount: 0,
   totalXp: 0,
-}
-
-function makeMealId(now: number) {
-  return `meal-${now}-${Math.random().toString(36).slice(2, 8)}`
 }
 
 function isQuotaError(error: unknown) {
@@ -230,7 +227,7 @@ export function App({
   const completeRecord = async (draft: MealDraft) => {
     const now = Date.now()
     const meal: MealRecord = {
-      id: makeMealId(now),
+      id: makeMealId(),
       imageData: draft.imageData,
       foodType: draft.foodType,
       foodName: draft.foodName,
