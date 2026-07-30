@@ -69,8 +69,8 @@ export function CardReveal({
       data-feedback-visual={feedback.visual}
     >
       <p className="eyebrow">새 카드 발견!</p>
-      <div className="card-scene">
-        <article className={`food-card rarity-${card.rarity}`}>
+      <div className="card-scene card-scene-reveal">
+        <article className={`food-card rarity-${card.rarity} card-arrival-pop`}>
           <div className="sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span></div>
           <div className="food-card-face food-card-front">
             <span className="rarity-badge">{card.rarity.toUpperCase()}</span>
@@ -85,7 +85,7 @@ export function CardReveal({
         </article>
       </div>
       {adventureResult && (
-        <section className="adventure-result-card" aria-label="한 끼 모험 결과">
+        <section className="adventure-result-card result-celebration" aria-label="한 끼 모험 결과">
           <p className="eyebrow">V5.1 QUEST CLEAR</p>
           <strong className="adventure-result-headline">{adventureResult.headline}</strong>
           <dl className="adventure-result-grid">
