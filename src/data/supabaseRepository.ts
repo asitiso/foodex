@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { FoodCard, MealRecord } from '../domain/types'
 import type { UserReward } from './foodexDb'
+import type { DialogueHistoryItem } from '../domain/dialogueEngine'
 
 export function dataUrlToBlob(dataUrl: string) {
   const [header, payload] = dataUrl.split(',')
@@ -43,6 +44,7 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
         id: meal.id,
         user_id: userId,
         food_type: meal.foodType,
+        food_name: meal.foodName,
         amount: meal.amount,
         recorded_at: new Date(meal.recordedAt).toISOString(),
         photo_path: photoPath,
@@ -86,6 +88,19 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
         )
         throwIfError(rewardResult)
       }
+    },
+
+    async upsertDialogueHistory(item: DialogueHistoryItem) {
+      const result = await client.from('dialogue_history').upsert({
+        id: item.id,
+        user_id: userId,
+        dialogue_id: item.dialogueId,
+        event_id: item.eventId,
+        opening_id: item.openingId,
+        modifier_id: item.modifierId,
+        used_at: new Date(item.usedAt).toISOString(),
+      }, { onConflict: 'user_id,id' })
+      throwIfError(result)
     },
   }
 }

@@ -7,6 +7,7 @@ const meal: MealRecord = {
   id: '11111111-1111-4111-8111-111111111111',
   imageData: 'data:image/jpeg;base64,dGVzdA==',
   foodType: 'ramen',
+  foodName: '라면',
   amount: 'taste',
   recordedAt: 1,
 }
@@ -82,7 +83,7 @@ describe('Supabase Foodex repository', () => {
     await repository.upsertMealBundle(meal, card, [reward], `user-1/${meal.id}/original.jpg`)
 
     expect(operations.get('meal_records')?.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ id: meal.id, user_id: 'user-1' }),
+      expect.objectContaining({ id: meal.id, user_id: 'user-1', food_name: '라면' }),
       { onConflict: 'id' },
     )
     expect(operations.get('food_cards')?.upsert).toHaveBeenCalledWith(
@@ -92,6 +93,30 @@ describe('Supabase Foodex repository', () => {
     expect(operations.get('user_rewards')?.upsert).toHaveBeenCalledWith(
       [expect.objectContaining({ reward_id: 'sunny-picnic', user_id: 'user-1' })],
       { ignoreDuplicates: true, onConflict: 'user_id,reward_type,reward_id' },
+    )
+  })
+
+  it('upserts dialogue history with the authenticated owner and event', async () => {
+    const { client, operations } = createClient()
+    const repository = createSupabaseRepository(client as never, 'user-1')
+
+    await repository.upsertDialogueHistory({
+      id: '44444444-4444-4444-8444-444444444444',
+      dialogueId: 'first-warm-discovery',
+      eventId: 'first-discovery',
+      openingId: 'first-find',
+      modifierId: 'warm-bowl',
+      usedAt: 1,
+    })
+
+    expect(operations.get('dialogue_history')?.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: 'user-1',
+        dialogue_id: 'first-warm-discovery',
+        event_id: 'first-discovery',
+        used_at: new Date(1).toISOString(),
+      }),
+      { onConflict: 'user_id,id' },
     )
   })
 })

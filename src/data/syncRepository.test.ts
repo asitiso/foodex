@@ -9,6 +9,7 @@ const meal: MealRecord = {
   id: '11111111-1111-4111-8111-111111111111',
   imageData: 'data:image/jpeg;base64,dGVzdA==',
   foodType: 'fruit',
+  foodName: '사과',
   amount: 'half',
   recordedAt: 1,
 }
@@ -43,6 +44,9 @@ function createRemote(options: { fail?: boolean } = {}) {
       return `user-1/${meal.id}/original.jpg`
     }),
     upsertMealBundle: vi.fn(async () => {
+      if (options.fail) throw new Error('offline')
+    }),
+    upsertDialogueHistory: vi.fn(async () => {
       if (options.fail) throw new Error('offline')
     }),
   }
@@ -111,5 +115,24 @@ describe('local-first synchronization', () => {
 
     expect(await local.getSetting('migration_complete')).toBe('true')
     expect(await local.listPendingSync()).toEqual([])
+  })
+
+  it('stores dialogue locally before attempting its cloud copy', async () => {
+    const local = createFoodexRepository(databaseName)
+    const remote = createRemote()
+    const repository = createSyncRepository(local, remote)
+    const item = {
+      id: 'history-1',
+      dialogueId: 'first-warm-discovery',
+      eventId: 'first-discovery',
+      openingId: 'first-find',
+      modifierId: 'warm-bowl',
+      usedAt: 1,
+    }
+
+    await repository.saveDialogueHistory(item)
+
+    expect(await local.listDialogueHistory()).toEqual([item])
+    await vi.waitFor(() => expect(remote.upsertDialogueHistory).toHaveBeenCalledWith(item))
   })
 })

@@ -1,7 +1,11 @@
 import '../../styles.css'
 import { FOOD_META } from '../../domain/types'
 import type { FoodCard, FoodType } from '../../domain/types'
+import { useEffect, useMemo, useRef } from 'react'
 import type { ReactNode } from 'react'
+import type { ExperienceSettings } from '../../domain/companionTypes'
+import { directFeedback } from '../../domain/feedback'
+import { playFeedback } from '../../lib/gameFeedback'
 
 interface CardRevealProps {
   card: FoodCard
@@ -9,6 +13,7 @@ interface CardRevealProps {
   imageData: string | null
   isSaving: boolean
   recovery?: ReactNode
+  experienceSettings?: ExperienceSettings
   onSave: () => void
   onDiscard: () => void
 }
@@ -27,9 +32,39 @@ const FOOD_EMOJI: Record<FoodType, string> = {
   other: '✨',
 }
 
-export function CardReveal({ card, foodType, imageData, isSaving, recovery, onSave, onDiscard }: CardRevealProps) {
+const DEFAULT_EXPERIENCE_SETTINGS: ExperienceSettings = {
+  soundEnabled: true,
+  musicEnabled: false,
+  hapticsEnabled: true,
+  reducedMotion: false,
+}
+
+export function CardReveal({
+  card,
+  foodType,
+  imageData,
+  isSaving,
+  recovery,
+  experienceSettings = DEFAULT_EXPERIENCE_SETTINGS,
+  onSave,
+  onDiscard,
+}: CardRevealProps) {
+  const feedback = useMemo(() => directFeedback({ type: 'card', rarity: card.rarity }), [card.rarity])
+  const feedbackPlayed = useRef(false)
+
+  useEffect(() => {
+    if (feedbackPlayed.current) return
+    feedbackPlayed.current = true
+    void playFeedback(feedback, experienceSettings)
+  }, [experienceSettings, feedback])
+
   return (
-    <section className="card-reveal" aria-label="발견 카드" aria-busy={isSaving}>
+    <section
+      className={`card-reveal feedback-${feedback.visual}${experienceSettings.reducedMotion ? ' reduced-motion' : ''}`}
+      aria-label="발견 카드"
+      aria-busy={isSaving}
+      data-feedback-visual={feedback.visual}
+    >
       <p className="eyebrow">새 카드 발견!</p>
       <div className="card-scene">
         <article className={`food-card rarity-${card.rarity}`}>

@@ -70,6 +70,7 @@ describe('RecordFlow', () => {
 
     await user.upload(screen.getByLabelText('식사 사진 선택'), file)
     await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.type(screen.getByRole('searchbox', { name: '음식 검색' }), '라면')
     await user.click(screen.getByRole('button', { name: '라면' }))
     await user.click(screen.getByRole('button', { name: '다음' }))
     await user.click(screen.getByRole('button', { name: '맛보기' }))
@@ -78,6 +79,7 @@ describe('RecordFlow', () => {
     expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({
       imageData: 'data:image/jpeg;base64,dGVzdA==',
       foodType: 'ramen',
+      foodName: '라면',
       amount: 'taste',
     }))
   })

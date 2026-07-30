@@ -31,5 +31,7 @@ describe('CardReveal', () => {
     )
 
     expect(screen.getByLabelText('과일')).toHaveTextContent('🍎')
+    expect(screen.getByLabelText('발견 카드')).toHaveAttribute('data-feedback-visual', 'rare-rings')
+    expect(screen.getByRole('button', { name: '도감에 저장' })).toBeEnabled()
   })
 })

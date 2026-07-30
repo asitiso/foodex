@@ -28,6 +28,7 @@ describe('CollectionScreen', () => {
       id: 'meal-ramen',
       imageData: 'data:image/jpeg;base64,dGVzdA==',
       foodType: 'ramen' as const,
+      foodName: '라면',
       amount: 'taste' as const,
       recordedAt: 1,
     },
@@ -114,7 +115,7 @@ describe('CollectionScreen', () => {
     expect(screen.getByText('도감 절반')).toBeInTheDocument()
   })
 
-  it('switches between card, world, and set views', async () => {
+  it('switches between card, world, set, and fusion views', async () => {
     const user = userEvent.setup()
     const entries = [ramenEntry]
     render(<CollectionScreen entries={entries} progression={buildProgression(entries)} />)
@@ -125,6 +126,9 @@ describe('CollectionScreen', () => {
 
     await user.click(screen.getByRole('tab', { name: '세트 도감' }))
     expect(screen.getByRole('tabpanel', { name: '세트 도감' })).toHaveTextContent('분식 탐험대')
+
+    await user.click(screen.getByRole('tab', { name: '퓨전' }))
+    expect(screen.getByRole('tabpanel', { name: '퓨전' })).toHaveTextContent('두 친구를 만나게 해볼까?')
   })
 
   it('combines region and rarity filters in the card view', async () => {

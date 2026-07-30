@@ -1,20 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { foodexRepository } from './data/foodexDb'
+import { DEFAULT_EXPERIENCE_SETTINGS, foodexRepository } from './data/foodexDb'
 import type { FoodexRepository } from './data/foodexDb'
 import { createSupabaseRepository } from './data/supabaseRepository'
 import { createSyncRepository } from './data/syncRepository'
 import { createCard } from './domain/cardRules'
 import { buildProgression } from './domain/progression'
-import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG, REGIONS } from './domain/v3Content'
-import type { CosmeticType, FoodCard, MealRecord } from './domain/types'
-import type { FusionRecord, UserReward } from './data/foodexDb'
+import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG as V3_FOOD_CATALOG, REGIONS } from './domain/v3Content'
+import { FOOD_CATALOG as NAMED_FOOD_CATALOG } from './domain/foodCatalog'
+import { buildCompanionContext } from './domain/companionContext'
+import { rankCompanionEvents } from './domain/companionEvents'
+import { composeDialogue } from './domain/dialogueEngine'
+import { deriveRoomUnlocks } from './domain/roomProgression'
+import type { FoodCard, MealRecord } from './domain/types'
+import type { UserReward } from './data/foodexDb'
+import type { ExperienceSettings } from './domain/companionTypes'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
+import { AdventureScreen } from './features/adventure/AdventureScreen'
 import { CollectionScreen } from './features/collection/CollectionScreen'
 import { ProtectCollection } from './features/account/ProtectCollection'
+import { CompanionScreen } from './features/companion/CompanionScreen'
 import { HomeScreen } from './features/home/HomeScreen'
-import { PlayScreen } from './features/play/PlayScreen'
 import { RecordFlow } from './features/record/RecordFlow'
 import type { MealDraft } from './features/record/RecordFlow'
 import { CardReveal } from './features/reveal/CardReveal'
@@ -24,7 +31,7 @@ import type { SyncState } from './features/sync/SyncStatus'
 import { BottomNav } from './ui/BottomNav'
 import './styles.css'
 
-type Screen = 'home' | 'record' | 'collection' | 'play' | 'reveal'
+type Screen = 'home' | 'collection' | 'record' | 'adventure' | 'companion' | 'reveal'
 type SaveError = 'quota' | 'generic' | undefined
 type SaveMode = 'withPhoto' | 'withoutPhoto'
 type ReadError = 'load' | 'history' | undefined
@@ -79,6 +86,10 @@ export function App({
   const [readError, setReadError] = useState<ReadError>()
   const [failedDraft, setFailedDraft] = useState<MealDraft>()
   const [rewards, setRewards] = useState<UserReward[]>([])
+  const [experienceSettings, setExperienceSettings] = useState<ExperienceSettings>(() => ({
+    ...DEFAULT_EXPERIENCE_SETTINGS,
+    reducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
+  }))
   const [discovery, setDiscovery] = useState<V3DiscoveryResult>()
   const [syncState, setSyncState] = useState<SyncState>(
     initialAuthResult?.mode === 'local' ? 'local-only' : 'idle',
@@ -93,21 +104,53 @@ export function App({
     () => buildProgression(entries, Date.now(), rewards.map((reward) => reward.rewardId)),
     [entries, rewards],
   )
+  const companion = useMemo(() => {
+    const now = Date.now()
+    const context = buildCompanionContext(entries, progression, now)
+    const events = rankCompanionEvents(context)
+    const latest = entries[0]
+    const food = NAMED_FOOD_CATALOG.find((candidate) => candidate.name === latest?.meal.foodName)
+      ?? NAMED_FOOD_CATALOG[0]
+    const dialogue = composeDialogue({
+      mealId: latest?.meal.id ?? 'home',
+      food,
+      context,
+      events,
+      history: [],
+      now,
+    })
+    const emotion = {
+      calm: 'calm',
+      expectant: 'expectant',
+      happy: 'happy',
+      surprised: 'surprised',
+      celebratory: 'celebrating',
+      positive: 'expectant',
+    } as const
+
+    return {
+      line: discovery ? `${discovery.regionTitle}에 새 친구가 나타났어요` : dialogue.text,
+      emotion: emotion[events.primary.tone],
+    }
+  }, [discovery, entries, progression])
+  const roomUnlocks = useMemo(() => deriveRoomUnlocks(progression), [progression])
 
   const refresh = useCallback(async () => {
     const refreshId = ++latestRefresh.current
 
     try {
-      const [nextEntries, nextSummary, nextRewards] = await Promise.all([
+      const [nextEntries, nextSummary, nextRewards, nextExperienceSettings] = await Promise.all([
         repository.listCards(),
         repository.getSummary(Date.now()),
         repository.listRewards?.() ?? Promise.resolve(undefined),
+        repository.getExperienceSettings?.() ?? Promise.resolve(undefined),
       ])
       if (refreshId !== latestRefresh.current) return
 
       setEntries([...nextEntries].sort((left, right) => right.card.createdAt - left.card.createdAt))
       setSummary(nextSummary)
       if (nextRewards) setRewards(nextRewards)
+      if (nextExperienceSettings) setExperienceSettings(nextExperienceSettings)
       setReadError((error) => error === 'load' ? undefined : error)
     } catch {
       if (refreshId === latestRefresh.current) setReadError('load')
@@ -178,12 +221,19 @@ export function App({
       id: makeMealId(now),
       imageData: draft.imageData,
       foodType: draft.foodType,
+      foodName: draft.foodName,
       amount: draft.amount,
       recordedAt: now,
     }
     try {
       const history = await repository.getHistory()
-      const card = createCard({ mealId: meal.id, foodType: meal.foodType, amount: meal.amount, now }, history)
+      const card = createCard({
+        mealId: meal.id,
+        foodType: meal.foodType,
+        foodName: meal.foodName,
+        amount: meal.amount,
+        now,
+      }, history)
 
       setPending({ meal, card })
       setFailedDraft(undefined)
@@ -230,7 +280,7 @@ export function App({
         })
       const rewardTitles = newRewards.flatMap((reward) => {
         const cosmetic = COSMETICS.find((candidate) => candidate.id === reward.rewardId)
-        const food = FOOD_CATALOG.find((candidate) => candidate.id === reward.rewardId)
+        const food = V3_FOOD_CATALOG.find((candidate) => candidate.id === reward.rewardId)
         return cosmetic ? [cosmetic.title] : food ? [food.label] : []
       })
       const seasonTitles = { spring: '봄', summer: '여름', autumn: '가을', winter: '겨울' } as const
@@ -286,35 +336,52 @@ export function App({
           level={progression.level}
           streak={progression.streak}
           dailyQuests={progression.dailyQuests}
-          season={progression.season}
-          rewardBox={progression.rewardBox}
-          latestCards={entries}
-          discovery={discovery}
-          activeEvent={progression.v3.activeEvent}
+          companionLine={companion.line}
+          companionEmotion={companion.emotion}
+          decorationIds={roomUnlocks.map((unlock) => unlock.id)}
+          reducedMotion={experienceSettings.reducedMotion}
           onRecord={() => navigate('record')}
           onOpenCollection={() => navigate('collection')}
+          onOpenAdventure={() => navigate('adventure')}
+          onOpenCompanion={() => navigate('companion')}
         />
       )}
-      {screen === 'record' && <RecordFlow onComplete={completeRecord} onCancel={() => navigate('home')} recovery={historyRecovery} />}
-      {screen === 'collection' && <CollectionScreen entries={entries} progression={progression} />}
-      {screen === 'play' && (
-        <PlayScreen
+      {screen === 'record' && <RecordFlow onComplete={completeRecord} onCancel={() => navigate('home')} recovery={historyRecovery} recentMeals={entries.map(({ meal }) => meal)} />}
+      {screen === 'collection' && (
+        <CollectionScreen
           entries={entries}
+          progression={progression}
           rewards={rewards}
-          onFuse={(fusion: FusionRecord, reward: UserReward) => {
-            setRewards((current) => current.some((item) => item.key === reward.key) ? current : [...current, reward])
+          onFuse={(fusion, reward) => {
             void repository.saveFusion?.(fusion)
             void repository.saveRewards?.([reward])
+            setRewards((current) => current.some((item) => item.key === reward.key)
+              ? current
+              : [...current, reward])
           }}
-          onApplyCosmetic={(cardId: string, cosmetic: { type: CosmeticType; id: string }) => {
-            setEntries((current) => current.map((entry) => {
-              if (entry.card.id !== cardId) return entry
-              const card = cosmetic.type === 'skin'
-                ? { ...entry.card, skinId: cosmetic.id }
-                : { ...entry.card, backgroundId: cosmetic.id }
-              void repository.updateCard?.(card)
-              return { ...entry, card }
-            }))
+          onApplyCosmetic={(cardId, cosmetic) => {
+            const entry = entries.find(({ card }) => card.id === cardId)
+            if (!entry) return
+            const card = cosmetic.type === 'skin'
+              ? { ...entry.card, skinId: cosmetic.id }
+              : { ...entry.card, backgroundId: cosmetic.id }
+            void repository.updateCard?.(card)
+            setEntries((current) => current.map((item) =>
+              item.card.id === cardId ? { ...item, card } : item))
+          }}
+        />
+      )}
+      {screen === 'adventure' && <AdventureScreen progression={progression} />}
+      {screen === 'companion' && (
+        <CompanionScreen
+          entries={entries}
+          roomUnlocks={roomUnlocks}
+          progression={progression}
+          rewards={rewards}
+          experienceSettings={experienceSettings}
+          onExperienceSettingsChange={(value) => {
+            setExperienceSettings(value)
+            void repository.saveExperienceSettings?.(value)
           }}
         />
       )}
@@ -357,6 +424,7 @@ export function App({
           imageData={pending.meal.imageData}
           isSaving={isSaving}
           recovery={saveRecovery}
+          experienceSettings={experienceSettings}
           onSave={() => void savePending('withPhoto')}
           onDiscard={() => { setPending(undefined); navigate('record') }}
         />

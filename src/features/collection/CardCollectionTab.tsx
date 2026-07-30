@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import type { Progression } from '../../domain/progression'
 import { filterCollection } from '../../domain/v3Progression'
 import { AMOUNT_META, FOOD_META } from '../../domain/types'
-import type { FoodCard, FoodCategory, MealRecord, Rarity, RegionId } from '../../domain/types'
+import type { CosmeticType, FoodCard, FoodCategory, MealRecord, Rarity, RegionId } from '../../domain/types'
 import { REGIONS } from '../../domain/v3Content'
+import type { UserReward } from '../../data/foodexDb'
+import { Wardrobe } from '../play/Wardrobe'
 
 const categories: Array<{ id: FoodCategory | 'all'; label: string }> = [
   { id: 'all', label: '전체' },
@@ -33,9 +35,13 @@ function formatRecordedDate(recordedAt: number) {
 export function CardCollectionTab({
   entries,
   progression,
+  rewards = [],
+  onApplyCosmetic = () => undefined,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   progression: Progression
+  rewards?: UserReward[]
+  onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
 }) {
   const [category, setCategory] = useState<FoodCategory | 'all'>('all')
   const [regionId, setRegionId] = useState<RegionId | ''>('')
@@ -197,6 +203,10 @@ export function CardCollectionTab({
           <h2>{selected.card.name}</h2>
           <p>{formatRecordedDate(selected.meal.recordedAt)} · {FOOD_META[selected.meal.foodType].label} · {AMOUNT_META[selected.meal.amount].label}</p>
           <blockquote>“{selected.card.quote}”</blockquote>
+          <details className="card-wardrobe">
+            <summary>꾸미기</summary>
+            <Wardrobe card={selected.card} rewards={rewards} onApply={onApplyCosmetic} />
+          </details>
         </dialog>
       )}
     </>

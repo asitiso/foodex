@@ -35,6 +35,7 @@ function createMemoryRepository(options: { failSave?: (meal: MealRecord) => Erro
     async getHistory(): Promise<FoodHistory> {
       return {
         foodTypes: [...new Set(meals.map((meal) => meal.foodType))],
+        foodNames: [...new Set(meals.map((meal) => meal.foodName))],
         categories: [],
       }
     },
@@ -61,9 +62,10 @@ function deferred<T>() {
 }
 
 async function completeRecordFlow(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: '기록' }))
+  await user.click(screen.getByRole('button', { name: '촬영' }))
   await user.upload(screen.getByLabelText('식사 사진 선택'), new File(['image'], 'meal.jpg', { type: 'image/jpeg' }))
   await user.click(screen.getByRole('button', { name: '다음' }))
+  await user.type(screen.getByRole('searchbox', { name: '음식 검색' }), '라면')
   await user.click(screen.getByRole('button', { name: '라면' }))
   await user.click(screen.getByRole('button', { name: '다음' }))
   await user.click(screen.getByRole('button', { name: '맛보기' }))
@@ -87,17 +89,17 @@ describe('App', () => {
     await completeRecordFlow(user)
     await user.click(screen.getByRole('button', { name: '도감에 저장' }))
 
-    expect(await screen.findByText('오늘 카드 1장')).toBeInTheDocument()
-    expect(screen.getByText('레벨 1')).toBeInTheDocument()
-    expect(screen.getByText('다음 레벨까지 10 XP')).toBeInTheDocument()
-    expect(screen.getByText('연속 1일')).toBeInTheDocument()
-    expect(screen.getByText('오늘 퀘스트')).toBeInTheDocument()
-    expect(screen.getByText('식사 카드 1장')).toBeInTheDocument()
-    expect(screen.getAllByText('완료')).toHaveLength(2)
-    expect(screen.getByText('여름 한입 시즌')).toBeInTheDocument()
-    expect(screen.getByText('오늘의 상자')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /오늘의 카드 1장/ })).toBeInTheDocument()
+    expect(screen.getByText('레벨')).toBeInTheDocument()
+    expect(screen.getByText('LV.1')).toBeInTheDocument()
+    expect(screen.getByText('연속 기록')).toBeInTheDocument()
+    expect(screen.getByText('1일')).toBeInTheDocument()
+    expect(screen.getByText('오늘의 도전')).toBeInTheDocument()
+    expect(screen.getByText('상큼 카드')).toBeInTheDocument()
+    expect(screen.queryByText('여름 한입 시즌')).not.toBeInTheDocument()
+    expect(screen.queryByText('오늘의 상자')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '도감' }))
-    expect((await screen.findAllByText('불꽃 라면')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText(/라면/)).length).toBeGreaterThan(0)
     expect(await screen.findByText('도감 완성률 9%')).toBeInTheDocument()
     expect(screen.getByText('첫 식사')).toBeInTheDocument()
     expect(screen.getByText('면 스타터')).toBeInTheDocument()
@@ -123,35 +125,38 @@ describe('App', () => {
     render(<App repository={createMemoryRepository()} />)
 
     expect(screen.getByRole('button', { name: '홈' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('button', { name: '기록' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('button', { name: '촬영' })).not.toHaveAttribute('aria-current')
 
-    await user.click(screen.getByRole('button', { name: '기록' }))
+    await user.click(screen.getByRole('button', { name: '촬영' }))
 
-    expect(screen.getByRole('button', { name: '기록' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: '촬영' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('button', { name: '홈' })).not.toHaveAttribute('aria-current')
   })
 
-  it('opens the V3 play area from the fourth navigation destination', async () => {
+  it('opens the adventure and companion destinations', async () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    await user.click(screen.getByRole('button', { name: '놀이' }))
+    await user.click(screen.getByRole('button', { name: '모험' }))
+    expect(screen.getByRole('region', { name: '모험' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '모험' })).toHaveAttribute('aria-current', 'page')
 
-    expect(screen.getByRole('heading', { name: '모은 카드로 새로운 재미를!' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '놀이' })).toHaveAttribute('aria-current', 'page')
+    await user.click(screen.getByRole('button', { name: '친구' }))
+    expect(screen.getByRole('region', { name: 'AI 친구' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '친구' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('names every V3 destination and collection tab', async () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    for (const destination of ['홈', '기록', '도감', '놀이']) {
+    for (const destination of ['홈', '도감', '촬영', '모험', '친구']) {
       expect(screen.getByRole('button', { name: destination })).toHaveAccessibleName()
     }
 
     await user.click(screen.getByRole('button', { name: '도감' }))
     const tabs = screen.getAllByRole('tab')
-    expect(tabs).toHaveLength(3)
+    expect(tabs).toHaveLength(4)
     tabs.forEach((tab) => expect(tab).toHaveAccessibleName())
   })
 
@@ -174,7 +179,7 @@ describe('App', () => {
     }
 
     expectNamedVisibleButtons()
-    await user.click(screen.getByRole('button', { name: '기록' }))
+    await user.click(screen.getByRole('button', { name: '촬영' }))
 
     expectNamedVisibleButtons()
     expect(screen.getByLabelText('식사 사진 선택')).toHaveAttribute('type', 'file')
@@ -184,6 +189,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: '다음' }))
     expectNamedVisibleButtons()
 
+    await user.type(screen.getByRole('searchbox', { name: '음식 검색' }), '라면')
     await user.click(screen.getByRole('button', { name: '라면' }))
     await user.click(screen.getByRole('button', { name: '다음' }))
     expectNamedVisibleButtons()
@@ -205,7 +211,7 @@ describe('App', () => {
     expect(await screen.findByText('사진 저장 공간이 부족해요. 카드만 저장할까요?')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '카드만 저장' }))
-    expect(await screen.findByText('오늘 카드 1장')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /오늘의 카드 1장/ })).toBeInTheDocument()
   })
 
   it('preserves card-only mode when its first save fails and refreshes the photo-less card', async () => {
@@ -229,14 +235,14 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: '다시 저장' }))
 
-    expect(await screen.findByText('오늘 카드 1장')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /오늘의 카드 1장/ })).toBeInTheDocument()
     expect(attemptedMeals.map((meal) => meal.imageData)).toEqual([
       'data:image/jpeg;base64,dGVzdA==',
       null,
       null,
     ])
     await user.click(screen.getByRole('button', { name: '도감' }))
-    await user.click(await screen.findByRole('button', { name: /불꽃 라면/ }))
+    await user.click(await screen.findByRole('button', { name: /라면/ }))
     expect(screen.getByLabelText('사진 없이 저장한 카드')).toBeInTheDocument()
   })
 
@@ -259,10 +265,10 @@ describe('App', () => {
     expect(saveButton).toBeDisabled()
     expect(discardButton).toBeDisabled()
     fireEvent.click(discardButton)
-    expect(screen.getByRole('heading', { name: '불꽃 라면' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /라면/ })).toBeInTheDocument()
 
     saving.resolve(undefined)
-    expect(await screen.findByText('오늘 카드 1장')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /오늘의 카드 1장/ })).toBeInTheDocument()
   })
 
   it('keeps a retry action available after a non-quota save failure', async () => {
@@ -307,7 +313,7 @@ describe('App', () => {
     repository.getHistory = async () => {
       historyReads += 1
       if (historyReads === 1) throw new Error('history failed')
-      return { foodTypes: [], categories: [] }
+      return { foodTypes: [], foodNames: [], categories: [] }
     }
     render(<App repository={repository} />)
 
@@ -318,7 +324,7 @@ describe('App', () => {
     expect(error.closest('.record-flow')).not.toBeNull()
 
     await user.click(screen.getByRole('button', { name: '다시 카드 열기' }))
-    expect(await screen.findByText('불꽃 라면')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /라면/ })).toBeInTheDocument()
   })
 
   it('keeps post-save data when an earlier refresh finishes last', async () => {
@@ -337,7 +343,7 @@ describe('App', () => {
         return listReadCount === 1 ? initialCards.promise : saved ? [saved] : []
       },
       async getHistory() {
-        return { foodTypes: [], categories: [] }
+        return { foodTypes: [], foodNames: [], categories: [] }
       },
       async getSummary() {
         summaryReadCount += 1
@@ -350,7 +356,7 @@ describe('App', () => {
 
     await completeRecordFlow(user)
     await user.click(screen.getByRole('button', { name: '도감에 저장' }))
-    expect(await screen.findByText('오늘 카드 1장')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /오늘의 카드 1장/ })).toBeInTheDocument()
 
     await act(async () => {
       initialCards.resolve([])
@@ -358,6 +364,6 @@ describe('App', () => {
       await Promise.all([initialCards.promise, initialSummary.promise])
     })
 
-    expect(screen.getByText('오늘 카드 1장')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /오늘의 카드 1장/ })).toBeInTheDocument()
   })
 })
