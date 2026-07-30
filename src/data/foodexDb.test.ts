@@ -99,6 +99,25 @@ describe('Foodex repository', () => {
     expect(await repo.getSetting('migration_complete')).toBe('true')
   })
 
+  it('saves a retried meal bundle without duplicating its reward', async () => {
+    const repo = createFoodexRepository(databaseName)
+    const reward = {
+      key: 'background:sunny-picnic',
+      id: 'reward-1',
+      rewardType: 'background' as const,
+      rewardId: 'sunny-picnic',
+      sourceType: 'set' as const,
+      sourceId: 'sunny-bites',
+      unlockedAt: 1,
+    }
+
+    await repo.saveMealAndCard(mealAt(1), cardAt(1), [reward])
+    await repo.saveMealAndCard(mealAt(1), cardAt(1), [reward])
+
+    expect(await repo.listCards()).toHaveLength(1)
+    expect((await repo.listRewards()).filter((item) => item.key === reward.key)).toHaveLength(1)
+  })
+
   it('stores dialogue history and experience settings in the V4 database', async () => {
     const repo = createFoodexRepository(databaseName)
     const settings: ExperienceSettings = {

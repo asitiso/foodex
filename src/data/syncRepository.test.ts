@@ -106,6 +106,20 @@ describe('local-first synchronization', () => {
     expect(await local.listPendingSync()).toEqual([])
   })
 
+  it('does not resend an existing reward when the same meal save is retried', async () => {
+    const local = createFoodexRepository(databaseName)
+    const remote = createRemote()
+    const repository = createSyncRepository(local, remote)
+    const retryMeal = { ...meal, imageData: null }
+
+    await repository.saveMealAndCard(retryMeal, card, [reward])
+    await vi.waitFor(async () => expect(await local.listPendingSync()).toEqual([]))
+    await repository.saveMealAndCard(retryMeal, card, [reward])
+    await vi.waitFor(() => expect(remote.upsertMealBundle).toHaveBeenCalledTimes(2))
+
+    expect(remote.upsertMealBundle.mock.calls[1]?.[2]).toEqual([])
+  })
+
   it('marks legacy migration complete only after all queued records sync', async () => {
     const local = createFoodexRepository(databaseName)
     await local.saveMealAndCard(meal, card)

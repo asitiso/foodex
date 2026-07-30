@@ -64,13 +64,16 @@ export function createSyncRepository(
     ...local,
 
     async saveMealAndCard(meal: MealRecord, card: FoodCard, rewards: UserReward[] = []) {
-      await local.saveMealAndCard(meal, card)
-      await local.saveRewards(rewards)
+      const existingRewardKeys = new Set(
+        (await local.getRewards(rewards.map((reward) => reward.key))).map((reward) => reward.key),
+      )
+      const newRewards = rewards.filter((reward) => !existingRewardKeys.has(reward.key))
+      await local.saveMealAndCard(meal, card, newRewards)
       const item: SyncQueueItem = {
         kind: 'meal-card',
         mealId: meal.id,
         attempts: 0,
-        rewardKeys: rewards.map((reward) => reward.key),
+        rewardKeys: newRewards.map((reward) => reward.key),
       }
       await local.enqueueSync(item)
       void scheduleSync(item)

@@ -171,12 +171,13 @@ async function withDatabase<T>(name: string, action: (database: IDBPDatabase<Foo
 
 export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): LocalFoodexRepository {
   return {
-    async saveMealAndCard(meal, card) {
+    async saveMealAndCard(meal, card, rewards = []) {
       await withDatabase(databaseName, async (database) => {
-        const transaction = database.transaction(['meals', 'cards'], 'readwrite')
+        const transaction = database.transaction(['meals', 'cards', 'rewards'], 'readwrite')
         await Promise.all([
           transaction.objectStore('meals').put(meal),
           transaction.objectStore('cards').put(card),
+          ...rewards.map((reward) => transaction.objectStore('rewards').put(reward)),
           transaction.done,
         ])
       })
