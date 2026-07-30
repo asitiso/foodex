@@ -133,6 +133,43 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .collection-card.album-locked { align-content: center; justify-items: center; min-height: 12.5rem; border: 3px dashed #d5c9e4; background: repeating-linear-gradient(135deg, #f3eef9 0 10px, #ebe4f4 10px 20px); color: #9a8eaa; text-align: center; box-shadow: none; }
 .collection-card.album-locked > span { position: static; font-size: 3.2rem; filter: grayscale(1); opacity: .45; transform: none; }
 .collection-card.album-locked small, .collection-card.album-locked strong { text-shadow: none; }
+
+/* Game room presentation: lead with the companion, then the next action. */
+.home-room-screen { display: grid; gap: 1rem; }
+.room-home-header { position: relative; z-index: 1; align-items: end; padding: .25rem .2rem .4rem; }
+.room-home-header h1 { font-size: clamp(1.8rem, 8vw, 2.5rem); }
+.room-level-pill { border: 3px solid #4a2a76; box-shadow: 0 .3rem 0 #3a205f, 0 0 1.4rem rgba(255,220,95,.45); }
+.home-room-screen .companion-room { order: 1; min-height: 27rem; }
+.home-room-screen .meal-game-loop { order: 2; position: relative; overflow: hidden; border: 3px solid #68459a; box-shadow: 0 .35rem 0 #49306f, 0 .8rem 1.4rem rgba(79,47,115,.12); }
+.home-room-screen .meal-game-loop::before { content: '오늘의 던전'; display: inline-flex; margin-bottom: .35rem; padding: .25rem .6rem; border-radius: 999px; background: #6543eb; color: #fff; font-size: .7rem; font-weight: 950; letter-spacing: .08em; }
+.home-room-screen .home-status-grid { order: 3; }
+.home-room-screen .meal-adventure-panel, .home-room-screen .home-adventure-board { order: 4; }
+.home-room-screen .room-record-cta { order: 5; position: sticky; bottom: calc(.7rem + env(safe-area-inset-bottom)); z-index: 5; min-height: 4.4rem; border: 3px solid #4b2b80; background: linear-gradient(135deg, #ffcf54, #ff8b63 55%, #7650ed); box-shadow: 0 .4rem 0 #47266f, 0 .7rem 1.2rem rgba(88,46,130,.24); font-size: 1.08rem; }
+.home-room-screen .room-record-cta::after { content: '✦'; position: absolute; right: 1.2rem; top: .4rem; color: #fff4a6; animation: reward-stars 1.4s ease-in-out infinite; }
+.home-room-screen .home-dungeon-map { margin-top: .8rem; padding-top: .75rem; border-top: 2px dashed #d5c5e9; }
+.home-room-screen .home-dungeon-map span { min-height: 3.2rem; border: 2px solid #e5d8f5; background: #fff; box-shadow: 0 .2rem 0 #ded1ee; }
+.home-room-screen .home-dungeon-map span:not(.cleared) { animation: dungeon-await 1.8s ease-in-out infinite; }
+
+/* Shared game feedback: every interactive surface has a tactile response. */
+.home-room-screen button, .companion-screen button, .collection-screen button, .record-flow button { transition: transform .16s ease, box-shadow .16s ease, filter .16s ease; }
+.home-room-screen button:active, .companion-screen button:active, .collection-screen button:active, .record-flow button:active { transform: translateY(3px) scale(.98); filter: saturate(1.15); }
+.reward-cta { animation: reward-cta-breathe 2.2s ease-in-out infinite; }
+.reward-cta:active { animation: none; }
+
+/* RPG job screen: turn text-heavy information into a visual progression board. */
+.companion-screen .character-evolution-card { position: relative; overflow: hidden; border: 3px solid #604090; background: linear-gradient(145deg, #fff6c8, #eee6ff); box-shadow: 0 .35rem 0 #49306f; }
+.companion-screen .character-evolution-card::after { content: '✦'; position: absolute; right: 1rem; top: .7rem; color: #f2bb3e; font-size: 2rem; animation: reward-stars 1.6s ease-in-out infinite; }
+.companion-screen .class-picker { border: 3px solid #e2d4f3; background: linear-gradient(145deg, #fff, #f8f2ff); }
+.companion-screen .class-picker-grid button { min-height: 7rem; border-width: 3px; background: #fff; box-shadow: 0 .3rem 0 #ded1ed; }
+.companion-screen .class-picker-grid button.selected { border-color: #6543eb; background: linear-gradient(145deg, #eee8ff, #fff7cf); box-shadow: 0 .3rem 0 #6543eb; }
+.companion-screen .advanced-systems-panel { border: 3px solid #604090; background: radial-gradient(circle at 85% 10%, #ffe67b 0 4%, transparent 4.5%), linear-gradient(145deg, #fff8dc, #f0e9ff); box-shadow: 0 .35rem 0 #49306f; }
+
+@keyframes reward-cta-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes dungeon-await { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) {
+  .reward-cta, .home-room-screen .home-dungeon-map span:not(.cleared), .home-room-screen .room-record-cta::after, .companion-screen .character-evolution-card::after { animation: none; }
+  .home-room-screen button, .companion-screen button, .collection-screen button, .record-flow button { transition: none; }
+}
 .tag-progress-panel { display: grid; gap: .7rem; padding: 1rem; border: 1px solid #e7deef; border-radius: 1rem; background: #fff; }
 .tag-progress-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem .8rem; }
 .tag-progress-item { display: grid; gap: .3rem; }

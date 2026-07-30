@@ -186,7 +186,7 @@ export function CardCollectionTab({
         <div className="album-progress-track" aria-hidden="true"><span style={{ width: `${albumSlots.length ? Math.round((albumSlots.filter(({ entry }) => entry).length / albumSlots.length) * 100) : 0}%` }} /></div>
         <small>빈칸을 채워 다음 카드를 발견해 보세요 ✨</small>
       </section>
-      {albumSlots.length === 0 ? (
+      {entries.length === 0 || albumSlots.length === 0 ? (
         <div className="collection-empty">
           <span aria-hidden="true">🧺</span>
           <p>{entries.length === 0
