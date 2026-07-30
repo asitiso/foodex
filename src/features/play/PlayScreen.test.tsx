@@ -11,7 +11,7 @@ function entry(catalogId: 'ramen' | 'rice', name: string) {
   const meal: MealRecord = {
     id: `meal-${catalogId}`,
     imageData: null,
-    foodName: '라면',
+    foodName: catalogId === 'ramen' ? '라면' : '밥',
     foodType: catalogId,
     amount: 'taste',
     recordedAt: 1,
