@@ -68,6 +68,8 @@ export function CardReveal({
       aria-busy={isSaving}
       data-feedback-visual={feedback.visual}
     >
+      <div className="reward-spotlight" aria-hidden="true"><span>✦</span><span>✦</span><span>✦</span></div>
+      <p className="reward-headline">식사 카드 획득!</p>
       <p className="eyebrow">새 카드 발견!</p>
       <div className="card-scene card-scene-reveal">
         <article className={`food-card rarity-${card.rarity} card-arrival-pop`}>

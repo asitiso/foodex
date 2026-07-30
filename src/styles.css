@@ -140,21 +140,32 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .room-home-header h1 { font-size: clamp(1.8rem, 8vw, 2.5rem); }
 .room-level-pill { border: 3px solid #4a2a76; box-shadow: 0 .3rem 0 #3a205f, 0 0 1.4rem rgba(255,220,95,.45); }
 .home-room-screen .companion-room { order: 1; min-height: 27rem; }
-.home-room-screen .meal-game-loop { order: 2; position: relative; overflow: hidden; border: 3px solid #68459a; box-shadow: 0 .35rem 0 #49306f, 0 .8rem 1.4rem rgba(79,47,115,.12); }
+.home-room-screen .meal-game-loop { order: 3; position: relative; overflow: hidden; border: 3px solid #68459a; box-shadow: 0 .35rem 0 #49306f, 0 .8rem 1.4rem rgba(79,47,115,.12); }
 .home-room-screen .meal-game-loop::before { content: '오늘의 던전'; display: inline-flex; margin-bottom: .35rem; padding: .25rem .6rem; border-radius: 999px; background: #6543eb; color: #fff; font-size: .7rem; font-weight: 950; letter-spacing: .08em; }
-.home-room-screen .home-status-grid { order: 3; }
-.home-room-screen .meal-adventure-panel, .home-room-screen .home-adventure-board { order: 4; }
-.home-room-screen .room-record-cta { order: 5; position: sticky; bottom: calc(.7rem + env(safe-area-inset-bottom)); z-index: 5; min-height: 4.4rem; border: 3px solid #4b2b80; background: linear-gradient(135deg, #ffcf54, #ff8b63 55%, #7650ed); box-shadow: 0 .4rem 0 #47266f, 0 .7rem 1.2rem rgba(88,46,130,.24); font-size: 1.08rem; }
+.home-room-screen .home-status-grid { order: 4; }
+.home-room-screen .meal-adventure-panel, .home-room-screen .home-adventure-board { order: 5; }
+.home-room-screen .room-record-cta { order: 6; position: sticky; bottom: calc(.7rem + env(safe-area-inset-bottom)); z-index: 5; min-height: 4.4rem; border: 3px solid #4b2b80; background: linear-gradient(135deg, #ffcf54, #ff8b63 55%, #7650ed); box-shadow: 0 .4rem 0 #47266f, 0 .7rem 1.2rem rgba(88,46,130,.24); font-size: 1.08rem; }
 .home-room-screen .room-record-cta::after { content: '✦'; position: absolute; right: 1.2rem; top: .4rem; color: #fff4a6; animation: reward-stars 1.4s ease-in-out infinite; }
 .home-room-screen .home-dungeon-map { margin-top: .8rem; padding-top: .75rem; border-top: 2px dashed #d5c5e9; }
 .home-room-screen .home-dungeon-map span { min-height: 3.2rem; border: 2px solid #e5d8f5; background: #fff; box-shadow: 0 .2rem 0 #ded1ee; }
 .home-room-screen .home-dungeon-map span:not(.cleared) { animation: dungeon-await 1.8s ease-in-out infinite; }
+.home-hero-mission { order: 2; display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .9rem 1rem; border: 2px solid #f0d578; border-radius: 1rem; background: linear-gradient(135deg, #fff8d6, #fff); box-shadow: 0 .25rem 0 #e9d69c; }
+.home-hero-mission > div { display: flex; align-items: center; gap: .65rem; }
+.home-hero-mission-icon { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: .8rem; background: #6543eb; font-size: 1.35rem; }
+.home-hero-mission strong, .home-hero-mission p { display: block; margin: 0; }
+.home-hero-mission p { margin-top: .2rem; color: #6d617b; font-size: .8rem; font-weight: 800; }
+.home-hero-mission-reward { padding: .35rem .55rem; border-radius: 999px; background: #ffe47f; color: #533a6f; font-size: .75rem; font-weight: 950; }
 
 /* Shared game feedback: every interactive surface has a tactile response. */
 .home-room-screen button, .companion-screen button, .collection-screen button, .record-flow button { transition: transform .16s ease, box-shadow .16s ease, filter .16s ease; }
 .home-room-screen button:active, .companion-screen button:active, .collection-screen button:active, .record-flow button:active { transform: translateY(3px) scale(.98); filter: saturate(1.15); }
 .reward-cta { animation: reward-cta-breathe 2.2s ease-in-out infinite; }
 .reward-cta:active { animation: none; }
+.card-reveal { position: relative; overflow: hidden; }
+.reward-headline { margin: -.35rem 0 0; color: #4c2d81; font-size: clamp(1.4rem, 6vw, 2rem); font-weight: 950; letter-spacing: -.05em; animation: reward-headline-pop .55s cubic-bezier(.2,.9,.25,1) both; }
+.reward-spotlight { position: absolute; top: 4.7rem; right: 1.2rem; left: 1.2rem; height: 5rem; pointer-events: none; }
+.reward-spotlight span { position: absolute; color: #f5c94e; font-size: 1.5rem; animation: reward-spotlight 1.5s ease-out infinite; }
+.reward-spotlight span:nth-child(1) { left: 12%; animation-delay: .1s; }.reward-spotlight span:nth-child(2) { right: 15%; animation-delay: .45s; }.reward-spotlight span:nth-child(3) { left: 50%; animation-delay: .8s; }
 
 /* RPG job screen: turn text-heavy information into a visual progression board. */
 .companion-screen .character-evolution-card { position: relative; overflow: hidden; border: 3px solid #604090; background: linear-gradient(145deg, #fff6c8, #eee6ff); box-shadow: 0 .35rem 0 #49306f; }
@@ -166,8 +177,10 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 
 @keyframes reward-cta-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 @keyframes dungeon-await { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes reward-headline-pop { from { opacity: 0; transform: translateY(8px) scale(.92); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes reward-spotlight { 0% { opacity: 0; transform: translateY(18px) scale(.4) rotate(-20deg); } 45% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px) scale(1.2) rotate(20deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .reward-cta, .home-room-screen .home-dungeon-map span:not(.cleared), .home-room-screen .room-record-cta::after, .companion-screen .character-evolution-card::after { animation: none; }
+  .reward-cta, .home-room-screen .home-dungeon-map span:not(.cleared), .home-room-screen .room-record-cta::after, .companion-screen .character-evolution-card::after, .reward-headline, .reward-spotlight span { animation: none; }
   .home-room-screen button, .companion-screen button, .collection-screen button, .record-flow button { transition: none; }
 }
 .tag-progress-panel { display: grid; gap: .7rem; padding: 1rem; border: 1px solid #e7deef; border-radius: 1rem; background: #fff; }
