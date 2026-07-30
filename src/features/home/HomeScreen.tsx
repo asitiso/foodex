@@ -39,8 +39,12 @@ export function HomeScreen({
   onOpenAdventure,
   onOpenCompanion,
 }: HomeScreenProps) {
-  const nextQuest = dailyQuests.find((quest) => !quest.completed)
+  const nextQuest = dailyQuests.find((quest) => !quest.completed && !adventureBoard.items.some((item) => item.title === quest.title))
+    ?? dailyQuests.find((quest) => !quest.completed)
     ?? dailyQuests.at(-1)
+  const statusQuest = nextQuest && adventureBoard.items.some((item) => item.title === nextQuest.title)
+    ? { ...nextQuest, title: '세계 탐험' }
+    : nextQuest
 
   return (
     <section className="home-screen home-room-screen" aria-label="홈">
@@ -63,7 +67,7 @@ export function HomeScreen({
       <HomeStatusGrid
         level={level.level}
         todayCards={summary.todayCount}
-        quest={nextQuest}
+        quest={statusQuest}
         streakDays={streak.currentDays}
         onOpenAdventure={onOpenAdventure}
         onOpenCollection={onOpenCollection}

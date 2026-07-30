@@ -7,6 +7,7 @@ import { createSupabaseRepository } from './data/supabaseRepository'
 import { createSyncRepository } from './data/syncRepository'
 import { createCard } from './domain/cardRules'
 import { buildMealAdventureResult, buildProgression } from './domain/progression'
+import { buildWorldProgress } from './domain/v6WorldProgression'
 import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG as V3_FOOD_CATALOG, REGIONS } from './domain/v3Content'
 import { FOOD_CATALOG as NAMED_FOOD_CATALOG } from './domain/foodCatalog'
 import { buildCompanionContext } from './domain/companionContext'
@@ -104,6 +105,7 @@ export function App({
     () => buildProgression(entries, Date.now(), rewards.map((reward) => reward.rewardId)),
     [entries, rewards],
   )
+  const worldProgress = useMemo(() => buildWorldProgress(entries.map(({ meal }) => ({ meal }))), [entries])
   const companion = useMemo(() => {
     const now = Date.now()
     const context = buildCompanionContext(entries, progression, now)
@@ -380,7 +382,7 @@ export function App({
           }}
         />
       )}
-      {screen === 'adventure' && <AdventureScreen progression={progression} />}
+      {screen === 'adventure' && <AdventureScreen progression={progression} worldProgress={worldProgress} />}
       {screen === 'companion' && (
         <CompanionScreen
           entries={entries}
