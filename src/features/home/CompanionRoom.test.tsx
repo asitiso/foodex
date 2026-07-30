@@ -36,4 +36,23 @@ describe('CompanionRoom', () => {
 
     expect(screen.getByLabelText('차분한 푸디').closest('.companion-room')).toHaveClass('reduced-motion')
   })
+
+  it('lets the character and room objects react to taps', async () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="오늘도 같이 놀자!"
+        decorationIds={['small-plant']}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    await userEvent.click(screen.getAllByRole('button', { name: /푸디/ }).at(-1)!)
+    expect(screen.getByText(/꼬리/)).toBeInTheDocument()
+    await userEvent.click(screen.getAllByRole('button', { name: /창문/ }).at(-1)!)
+    expect(screen.getByText(/바람/)).toBeInTheDocument()
+    await userEvent.click(screen.getAllByTestId('decoration-small-plant').at(-1)!)
+    expect(screen.getByText(/화분/)).toBeInTheDocument()
+  })
 })
