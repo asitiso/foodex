@@ -124,6 +124,18 @@ export function CardCollectionTab({
         </div>
       </section>
 
+      <section className="tag-progress-panel" aria-labelledby="tag-progress-title">
+        <div className="section-title-row"><h2 id="tag-progress-title">분류별 수집 현황</h2></div>
+        <div className="tag-progress-grid">
+          {progression.tagProgress.map((item) => (
+            <article className="tag-progress-item" key={item.tag}>
+              <div><strong>{item.label}</strong><span>{item.discovered}/{item.total}</span></div>
+              <div className="tag-progress-track" aria-hidden="true"><span style={{ width: `${item.total ? Math.min(100, Math.round((item.discovered / item.total) * 100)) : 0}%` }} /></div>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <div className="collection-filters">
         <label>지역
           <select value={regionId} onChange={(event) => setRegionId(event.target.value as RegionId | '')}>

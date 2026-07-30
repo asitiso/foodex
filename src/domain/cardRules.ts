@@ -36,6 +36,7 @@ export function createCard(
     foodType: input.foodType,
     flavor: 'neutral',
     periods: ['morning', 'lunch', 'dinner', 'snack'],
+    tags: ['other'],
   }
   const copy = composeCardCopy({ food, rarity, seed: input.mealId })
 

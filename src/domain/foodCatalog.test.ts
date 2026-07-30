@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FOOD_CATALOG, searchFoods, suggestFoods } from './foodCatalog'
+import { FOOD_CATALOG, searchFoods, suggestFoods, tagsForMeal } from './foodCatalog'
 
 describe('food catalog', () => {
   it('starts with enough named foods to avoid repetitive generic choices', () => {
@@ -8,6 +8,12 @@ describe('food catalog', () => {
 
   it('finds a food by a common alias', () => {
     expect(searchFoods('돈까스')[0]?.name).toBe('돈가스')
+  })
+
+  it('includes representative snack and drink entries with stable tags', () => {
+    expect(searchFoods('밀크카라멜')[0]?.id).toBe('milk-caramel')
+    expect(tagsForMeal('아메리카노', 'drink')).toEqual(expect.arrayContaining(['coffee', 'drink']))
+    expect(tagsForMeal('탄산음료', 'drink')).toEqual(expect.arrayContaining(['soda', 'drink']))
   })
 
   it('puts a recent dinner food before generic dinner suggestions', () => {

@@ -49,7 +49,7 @@ describe('CompanionRoom', () => {
     )
 
     await userEvent.click(screen.getAllByRole('button', { name: /푸디/ }).at(-1)!)
-    expect(screen.getByText(/꼬리/)).toBeInTheDocument()
+    expect(screen.getByText(/통통/)).toBeInTheDocument()
     await userEvent.click(screen.getAllByRole('button', { name: /창문/ }).at(-1)!)
     expect(screen.getByText(/바람/)).toBeInTheDocument()
     await userEvent.click(screen.getAllByTestId('decoration-small-plant').at(-1)!)
@@ -69,5 +69,23 @@ describe('CompanionRoom', () => {
 
     await userEvent.click(screen.getAllByRole('button', { name: /푸디/ }).at(-1)!)
     expect(screen.getAllByTestId('companion-click-sparkle').at(-1)).toBeInTheDocument()
+  })
+
+  it('varies the character motion on consecutive clicks', async () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="click me"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    const character = () => screen.getAllByRole('button', { name: /푸디/ }).at(-1)!
+    await userEvent.click(character())
+    const firstMotion = character().className
+    await userEvent.click(character())
+    expect(character().className).not.toBe(firstMotion)
   })
 })

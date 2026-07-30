@@ -3,6 +3,8 @@ import { FOOD_META } from './types'
 import type { FoodCard, FoodType, MealRecord } from './types'
 import { buildV3Progress } from './v3Progression'
 import type { V3Progress } from './v3Progression'
+import { buildTagAchievements, buildTagEvents, buildTagProgress } from './tagProgression'
+import type { TagAchievement, TagCollectionProgress, TagEvent } from './tagProgression'
 
 export interface PlayerLevel {
   level: number
@@ -91,6 +93,9 @@ export interface Progression {
   season: SeasonEvent
   rewardBox: RewardBox
   collectionBonuses: CollectionBonus[]
+  tagProgress: TagCollectionProgress[]
+  tagAchievements: TagAchievement[]
+  tagEvents: TagEvent[]
   v3: V3Progress
 }
 
@@ -268,6 +273,9 @@ export function buildProgression(
       completed: todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
     },
   ]
+  const tagProgress = buildTagProgress(entries)
+  const tagAchievements = buildTagAchievements(entries)
+  const tagEvents = buildTagEvents(entries)
 
   return {
     level: buildLevel(totalXp),
@@ -301,6 +309,7 @@ export function buildProgression(
         description: '레어 이상 카드를 만났어요.',
         unlocked: hasRareOrBetter,
       },
+      ...tagAchievements,
     ],
     streak: buildStreak(entries, now),
     dailyQuests,
@@ -320,6 +329,9 @@ export function buildProgression(
       rewardPreview: 'XP 보너스 또는 시즌 조각',
     },
     collectionBonuses,
+    tagProgress,
+    tagAchievements,
+    tagEvents,
     v3: buildV3Progress(entries, unlockedRewardIds, now),
   }
 }

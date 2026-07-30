@@ -1,4 +1,4 @@
-import type { FoodType, MealRecord } from './types'
+import type { FoodTag, FoodType, MealRecord } from './types'
 
 export type FoodFlavor = 'warm' | 'spicy' | 'cool' | 'sweet' | 'fresh' | 'savory' | 'neutral'
 export type MealPeriod = 'morning' | 'lunch' | 'dinner' | 'snack'
@@ -10,6 +10,7 @@ export interface FoodDefinition {
   foodType: FoodType
   flavor: FoodFlavor
   periods: readonly MealPeriod[]
+  tags: readonly FoodTag[]
 }
 
 type FoodRow = readonly [id: string, name: string, aliases?: readonly string[]]
@@ -20,7 +21,24 @@ function defineFoods(
   periods: readonly MealPeriod[],
   rows: readonly FoodRow[],
 ): FoodDefinition[] {
-  return rows.map(([id, name, aliases = []]) => ({ id, name, aliases, foodType, flavor, periods }))
+  return rows.map(([id, name, aliases = []]) => ({
+    id, name, aliases, foodType, flavor, periods, tags: tagsForFood(foodType, id),
+  }))
+}
+
+const BASE_TAGS: Record<FoodType, readonly FoodTag[]> = {
+  ramen: ['meal', 'noodle'], rice: ['meal'], fruit: ['fruit', 'healthy'], bread: ['bakery'],
+  side: ['meal'], snack: ['snack', 'convenience'], drink: ['drink'], dumpling: ['meal'],
+  sushi: ['meal', 'healthy'], pasta: ['meal', 'noodle'], other: ['meal'],
+}
+
+function tagsForFood(foodType: FoodType, id: string): readonly FoodTag[] {
+  const special: Record<string, readonly FoodTag[]> = {
+    'milk-caramel': ['snack', 'candy', 'dairy', 'convenience'], coffee: ['drink', 'coffee', 'convenience'],
+    cola: ['drink', 'soda', 'convenience'], 'grape-juice': ['drink', 'juice'], chips: ['snack', 'convenience'],
+    cookie: ['snack', 'dessert'], chocolate: ['snack', 'chocolate', 'dessert'], 'ice-cream': ['snack', 'dessert', 'dairy'],
+  }
+  return special[id] ?? BASE_TAGS[foodType]
 }
 
 export const FOOD_CATALOG: readonly FoodDefinition[] = [
@@ -57,10 +75,13 @@ export const FOOD_CATALOG: readonly FoodDefinition[] = [
     ['tteokbokki', '떡볶이'], ['rice-cake', '떡'], ['cookie', '쿠키'], ['chocolate', '초콜릿'],
     ['ice-cream', '아이스크림'], ['cake', '케이크'], ['yogurt', '요거트'],
     ['cereal', '시리얼'], ['chips', '감자칩'], ['popcorn', '팝콘'], ['jelly', '젤리'],
+    ['milk-caramel', '밀크카라멜', ['카라멜', '밀크 캐러멜']], ['pepero', '빼빼로', ['초코과자']],
+    ['potato-snack', '감자스낵', ['감자칩']], ['mint-candy', '민트캔디', ['민트사탕']],
   ]),
   ...defineFoods('drink', 'cool', ['morning', 'lunch', 'dinner', 'snack'], [
     ['water', '물'], ['milk', '우유'], ['soy-milk', '두유'], ['orange-juice', '오렌지주스'],
-    ['apple-juice', '사과주스'], ['smoothie', '스무디'], ['cocoa', '코코아'],
+    ['apple-juice', '사과주스'], ['grape-juice', '포도주스', ['포도 주스']], ['smoothie', '스무디'], ['cocoa', '코코아'],
+    ['coffee', '커피', ['아메리카노', '라떼']], ['cola', '콜라', ['탄산음료']],
     ['tea', '차'], ['lemonade', '레모네이드'], ['sparkling-water', '탄산수'],
   ]),
   ...defineFoods('dumpling', 'warm', ['lunch', 'dinner', 'snack'], [
@@ -102,6 +123,15 @@ export function searchFoods(query: string): FoodDefinition[] {
   return FOOD_CATALOG.filter((food) =>
     [food.name, ...food.aliases].some((candidate) => normalize(candidate).includes(normalized)),
   ).slice(0, 12)
+}
+
+export function tagsForMeal(foodName: string, foodType: FoodType): readonly FoodTag[] {
+  const normalized = normalize(foodName)
+  if (!normalized) return BASE_TAGS[foodType]
+  const match = FOOD_CATALOG.find((food) =>
+    [food.name, ...food.aliases].some((candidate) => normalize(candidate) === normalized),
+  )
+  return match?.tags ?? BASE_TAGS[foodType]
 }
 
 export function suggestFoods({

@@ -11,6 +11,7 @@ const kimchiRice: FoodDefinition = {
   foodType: 'rice',
   flavor: 'spicy',
   periods: ['lunch', 'dinner'],
+  tags: ['meal'],
 }
 
 describe('FoodQuickPicker', () => {
