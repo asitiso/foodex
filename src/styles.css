@@ -116,6 +116,11 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .collection-empty p { margin: 0; font-weight: 800; }
 .collection-empty::after { content: '첫 카드는 식사 기록 한 번으로 등장해요 ✨'; color: #7254bd; font-size: .82rem; font-weight: 800; }
 .collection-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .85rem; }
+.album-summary { display: grid; gap: .55rem; margin: .8rem 0 1rem; padding: .9rem 1rem; border: 2px solid #eadcf8; border-radius: 1rem; background: linear-gradient(135deg, #fff9df, #f7efff); color: #493568; }
+.album-summary strong { color: #6543eb; font-size: 1.2rem; }
+.album-summary small { color: #756980; font-weight: 800; }
+.album-progress-track { height: .55rem; overflow: hidden; border-radius: 999px; background: #e8e0f2; }
+.album-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f3bd45, #6543eb); transition: width .4s ease; }
 .collection-card { min-height: 12.5rem; overflow: hidden; display: grid; align-content: end; gap: .3rem; position: relative; padding: .8rem; border: 0; border-radius: 1.2rem; color: #fff; background: linear-gradient(150deg, #6746f6, #3a1f8a); text-align: left; box-shadow: 0 .3rem 0 rgba(58,31,138,.28); }
 .collection-card.rarity-rare { background: linear-gradient(150deg, #167db7, #11407a); }
 .collection-card.rarity-epic { background: linear-gradient(150deg, #a942a7, #47238f); }
@@ -125,6 +130,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .collection-card small, .collection-card strong { position: relative; z-index: 1; text-shadow: 0 .1rem .2rem rgba(0,0,0,.35); }
 .collection-card small { font-size: .72rem; font-weight: 900; }
 .collection-card strong { font-size: 1rem; }
+.collection-card.album-locked { align-content: center; justify-items: center; min-height: 12.5rem; border: 3px dashed #d5c9e4; background: repeating-linear-gradient(135deg, #f3eef9 0 10px, #ebe4f4 10px 20px); color: #9a8eaa; text-align: center; box-shadow: none; }
+.collection-card.album-locked > span { position: static; font-size: 3.2rem; filter: grayscale(1); opacity: .45; transform: none; }
+.collection-card.album-locked small, .collection-card.album-locked strong { text-shadow: none; }
 .tag-progress-panel { display: grid; gap: .7rem; padding: 1rem; border: 1px solid #e7deef; border-radius: 1rem; background: #fff; }
 .tag-progress-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem .8rem; }
 .tag-progress-item { display: grid; gap: .3rem; }

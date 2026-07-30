@@ -6,6 +6,7 @@ import type { CosmeticType, FoodCard, FoodCategory, MealRecord, Rarity, RegionId
 import { REGIONS } from '../../domain/v3Content'
 import type { UserReward } from '../../data/foodexDb'
 import { Wardrobe } from '../play/Wardrobe'
+import { FOOD_CATALOG } from '../../domain/foodCatalog'
 
 const categories: Array<{ id: FoodCategory | 'all'; label: string }> = [
   { id: 'all', label: '전체' },
@@ -56,6 +57,15 @@ export function CardCollectionTab({
   const visibleEntries = filtered.filter(({ meal }) =>
     category === 'all' || FOOD_META[meal.foodType].category === category,
   )
+  const normalizeFood = (value: string) => value.toLocaleLowerCase('ko-KR').replace(/\s+/g, '')
+  const catalogSlots = FOOD_CATALOG.filter((food) => category === 'all' || FOOD_META[food.foodType].category === category).map((food) => ({
+    food,
+    entry: visibleEntries.find(({ meal, card }) => normalizeFood(meal.foodName) === normalizeFood(food.name) || normalizeFood(card.name) === normalizeFood(food.name)),
+  }))
+  const matchedIds = new Set(catalogSlots.flatMap(({ entry }) => entry ? [entry.card.id] : []))
+  const albumSlots = visibleEntries.length === 0 && entries.length > 0
+    ? []
+    : [...catalogSlots, ...visibleEntries.filter(({ card }) => !matchedIds.has(card.id)).map((entry) => ({ food: { id: `custom-${entry.card.id}`, name: entry.card.name, foodType: entry.meal.foodType }, entry }))]
 
   const closeDetail = () => {
     const dialog = detailDialog.current
@@ -171,7 +181,12 @@ export function CardCollectionTab({
         ))}
       </div>
 
-      {visibleEntries.length === 0 ? (
+      <section className="album-summary" aria-label="음식 앨범 진행률">
+        <div><strong>{albumSlots.filter(({ entry }) => entry).length} / {albumSlots.length}</strong><span> 음식 앨범 수집</span></div>
+        <div className="album-progress-track" aria-hidden="true"><span style={{ width: `${albumSlots.length ? Math.round((albumSlots.filter(({ entry }) => entry).length / albumSlots.length) * 100) : 0}%` }} /></div>
+        <small>빈칸을 채워 다음 카드를 발견해 보세요 ✨</small>
+      </section>
+      {albumSlots.length === 0 ? (
         <div className="collection-empty">
           <span aria-hidden="true">🧺</span>
           <p>{entries.length === 0
@@ -180,23 +195,28 @@ export function CardCollectionTab({
         </div>
       ) : (
         <div className="collection-grid">
-          {visibleEntries.map((entry) => (
+          {albumSlots.filter(({ entry }) => entry).map(({ entry }) => (
             <button
               className={[
                 'collection-card',
-                `rarity-${entry.card.rarity}`,
-                entry.card.skinId ? `skin-${entry.card.skinId}` : '',
-                entry.card.backgroundId ? `background-${entry.card.backgroundId}` : '',
+                `rarity-${entry!.card.rarity}`,
+                entry!.card.skinId ? `skin-${entry!.card.skinId}` : '',
+                entry!.card.backgroundId ? `background-${entry!.card.backgroundId}` : '',
               ].filter(Boolean).join(' ')}
               type="button"
-              key={entry.card.id}
-              onClick={() => setSelected(entry)}
+              key={entry!.card.id}
+              onClick={() => setSelected(entry!)}
             >
-              {entry.meal.imageData ? <img src={entry.meal.imageData} alt="" /> : <span aria-hidden="true">🍽️</span>}
-              {entry.card.isNew && <span className="new-card-badge">새 카드</span>}
-              <small>{rarityLabels[entry.card.rarity]}</small>
-              <strong>{entry.card.name}</strong>
+              {entry!.meal.imageData ? <img src={entry!.meal.imageData} alt="" /> : <span aria-hidden="true">🍽️</span>}
+              {entry!.card.isNew && <span className="new-card-badge">NEW · 새 카드</span>}
+              <small>{rarityLabels[entry!.card.rarity]}</small>
+              <strong>{entry!.card.name}</strong>
             </button>
+          ))}
+          {albumSlots.filter(({ entry }) => !entry).map(({ food }) => (
+            <div className="collection-card album-locked" key={food.id} aria-label={`${food.name} 미획득`}>
+              <span aria-hidden="true">?</span><small>미발견</small><strong>???</strong>
+            </div>
           ))}
         </div>
       )}
