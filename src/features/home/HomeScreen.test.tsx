@@ -24,6 +24,11 @@ const props = {
     gaugeSteps: [true, false, false] as [boolean, boolean, boolean],
     nextMealTarget: 2 as 1 | 2 | 3,
     nextMealRemaining: 1,
+    comboLabel: '첫 끼 출발 콤보',
+    comboReward: 5,
+    weeklyMeals: 1,
+    weeklyTarget: 5 as 5 | 10 | 15,
+    recoveryAvailable: false,
     totalMeals: 1,
     growth: { current: 0, next: 3, remaining: 2 },
   },
@@ -63,6 +68,7 @@ describe('HomeScreen', () => {
     expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('1끼')
     expect(screen.getByText('다음 한 끼까지 1끼 남았어요')).toBeInTheDocument()
     expect(screen.getByText('다음 성장까지 2끼')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('첫 끼 출발 콤보')
   })
 
   it('shows the V5.2 adventure board with rewards and the next evolution focus', () => {

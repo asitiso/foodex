@@ -664,10 +664,21 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 }
 
 .meal-next-goal,
-.meal-growth-goal {
+.meal-growth-goal,
+.meal-combo-goal,
+.meal-weekly-goal {
   margin: .35rem 0 0;
   color: #5f536d;
   font-size: .85rem;
+}
+
+.meal-combo-goal {
+  color: #6d48d7;
+  font-weight: 800;
+}
+
+.meal-weekly-goal {
+  color: #8a6131;
 }
 
 @media (prefers-reduced-motion: reduce) {

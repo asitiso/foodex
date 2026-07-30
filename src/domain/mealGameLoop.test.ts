@@ -15,6 +15,8 @@ describe('meal game loop', () => {
     expect(state.gaugeSteps).toEqual([true, true, true])
     expect(state.nextMealTarget).toBe(3)
     expect(state.nextMealRemaining).toBe(0)
+    expect(state.comboLabel).toBe('하루 완식 콤보')
+    expect(state.comboReward).toBe(30)
   })
 
   it('counts cumulative meals toward the next growth threshold', () => {
@@ -25,5 +27,14 @@ describe('meal game loop', () => {
     expect(state.growth.current).toBe(7)
     expect(state.growth.next).toBe(14)
     expect(state.growth.remaining).toBe(7)
+    expect(state.weeklyMeals).toBe(7)
+    expect(state.weeklyTarget).toBe(10)
+    expect(state.recoveryAvailable).toBe(false)
+  })
+
+  it('offers a recovery when the latest meal day has a one-day gap', () => {
+    const now = new Date(2026, 6, 30, 12).getTime()
+    const state = buildMealGameLoop([entry(now), entry(now - 2 * 86_400_000)], now)
+    expect(state.recoveryAvailable).toBe(true)
   })
 })

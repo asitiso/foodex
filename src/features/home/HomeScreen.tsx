@@ -98,6 +98,11 @@ export function HomeScreen({
             ? `다음 성장까지 ${mealGameLoop.growth.remaining}끼`
             : '전설의 식사 기록을 달성했어요'}
         </p>
+        <p className="meal-combo-goal">{mealGameLoop.comboLabel} · +{mealGameLoop.comboReward} XP</p>
+        <p className="meal-weekly-goal">
+          이번 주 원정 {mealGameLoop.weeklyMeals}/{mealGameLoop.weeklyTarget}끼
+          {mealGameLoop.recoveryAvailable ? ' · 회복권 사용 가능' : ''}
+        </p>
       </section>
 
       <section className="home-adventure-board" aria-label={adventureBoard.title}>
