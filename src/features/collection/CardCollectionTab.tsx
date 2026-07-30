@@ -46,6 +46,7 @@ export function CardCollectionTab({
   const [category, setCategory] = useState<FoodCategory | 'all'>('all')
   const [regionId, setRegionId] = useState<RegionId | ''>('')
   const [rarity, setRarity] = useState<Rarity | ''>('')
+  const [achievementsExpanded, setAchievementsExpanded] = useState(true)
   const [selected, setSelected] = useState<{ card: FoodCard; meal: MealRecord }>()
   const detailDialog = useRef<HTMLDialogElement>(null)
   const filtered = filterCollection(entries, {
@@ -84,15 +85,20 @@ export function CardCollectionTab({
   return (
     <>
       <section className="achievement-panel" aria-labelledby="achievement-title">
-        <div className="section-title-row"><h2 id="achievement-title">업적</h2></div>
-        <div className="achievement-list">
+        <div className="section-title-row">
+          <h2 id="achievement-title">업적</h2>
+          <button className="inline-button achievement-toggle" type="button" aria-expanded={achievementsExpanded} aria-controls="achievement-list" onClick={() => setAchievementsExpanded((expanded) => !expanded)}>
+            {achievementsExpanded ? '업적 접기' : '업적 펼치기'}
+          </button>
+        </div>
+        {achievementsExpanded && <div className="achievement-list" id="achievement-list">
           {progression.achievements.map((achievement) => (
             <article className={achievement.unlocked ? 'achievement unlocked' : 'achievement'} key={achievement.id}>
               <span aria-hidden="true">{achievement.unlocked ? '★' : '☆'}</span>
               <div><strong>{achievement.title}</strong><small>{achievement.description}</small></div>
             </article>
           ))}
-        </div>
+        </div>}
       </section>
 
       {progression.evolutions.length > 0 && (

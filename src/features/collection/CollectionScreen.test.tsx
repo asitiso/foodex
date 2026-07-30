@@ -115,6 +115,19 @@ describe('CollectionScreen', () => {
     expect(screen.getByText('도감 절반')).toBeInTheDocument()
   })
 
+  it('collapses and expands the achievement list in the card tab', async () => {
+    const user = userEvent.setup()
+    render(<CollectionScreen entries={[ramenEntry]} progression={buildProgression([ramenEntry])} />)
+
+    expect(screen.getByRole('button', { name: '업적 접기' })).toHaveAttribute('aria-expanded', 'true')
+    await user.click(screen.getByRole('button', { name: '업적 접기' }))
+    expect(screen.getByRole('button', { name: '업적 펼치기' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('article', { name: /遺덇퐙/ })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '업적 펼치기' }))
+    expect(screen.getByRole('button', { name: '업적 접기' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
   it('switches between card, world, set, and fusion views', async () => {
     const user = userEvent.setup()
     const entries = [ramenEntry]
