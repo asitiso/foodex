@@ -21,6 +21,8 @@ import type { UserReward } from './data/foodexDb'
 import type { ExperienceSettings } from './domain/companionTypes'
 import type { CompanionCharacterId } from './domain/companionCharacters'
 import { buildCompanionEvolution } from './domain/companionEvolution'
+import { buildCompanionClasses } from './domain/companionClasses'
+import type { CompanionClassId } from './domain/companionClasses'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
 import { AdventureScreen } from './features/adventure/AdventureScreen'
 import { CollectionScreen } from './features/collection/CollectionScreen'
@@ -96,6 +98,10 @@ export function App({
     const saved = window.localStorage.getItem('foodex-companion-character')
     return saved === 'berry' || saved === 'noodle' || saved === 'cocoa' ? saved : 'foody'
   })
+  const [classId, setClassId] = useState<CompanionClassId | undefined>(() => {
+    const saved = window.localStorage.getItem('foodex-companion-class')
+    return saved as CompanionClassId | undefined
+  })
   const [discovery, setDiscovery] = useState<V3DiscoveryResult>()
   const [syncState, setSyncState] = useState<SyncState>(
     initialAuthResult?.mode === 'local' ? 'local-only' : 'idle',
@@ -111,6 +117,7 @@ export function App({
     [entries, rewards],
   )
   const companionEvolution = useMemo(() => buildCompanionEvolution(characterId, entries.map(({ meal }) => ({ meal }))), [characterId, entries])
+  const companionClasses = useMemo(() => buildCompanionClasses(entries.map(({ meal }) => ({ meal })), classId), [entries, classId])
   const worldProgress = useMemo(() => buildWorldProgress(entries.map(({ meal }) => ({ meal }))), [entries])
   const gameLoop = useMemo(() => buildGameLoop(entries, Date.now()), [entries])
   const companion = useMemo(() => {
@@ -358,6 +365,7 @@ export function App({
           mealAdventure={progression.mealAdventure}
           characterId={characterId}
           evolution={companionEvolution}
+          companionClass={companionClasses.find((item) => item.recommended)}
           companionLine={companion.line}
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}
@@ -408,6 +416,8 @@ export function App({
           characterId={characterId}
           onCharacterChange={(id) => { setCharacterId(id); window.localStorage.setItem('foodex-companion-character', id) }}
           evolution={companionEvolution}
+          companionClasses={companionClasses}
+          onClassChange={(id) => { setClassId(id); window.localStorage.setItem('foodex-companion-class', id) }}
         />
       )}
       {screen === 'home' && canProtectCollection && (

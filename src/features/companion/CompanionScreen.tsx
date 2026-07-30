@@ -9,6 +9,7 @@ import { ExperienceSettings } from '../settings/ExperienceSettings'
 import { COMPANION_CHARACTERS } from '../../domain/companionCharacters'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
+import type { CompanionClass, CompanionClassId } from '../../domain/companionClasses'
 
 type CompanionTab = 'journal' | 'report' | 'room'
 
@@ -28,6 +29,8 @@ export function CompanionScreen({
   characterId = 'foody',
   onCharacterChange = () => undefined,
   evolution,
+  companionClasses = [],
+  onClassChange = () => undefined,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   roomUnlocks: readonly RoomUnlock[]
@@ -38,6 +41,8 @@ export function CompanionScreen({
   characterId?: CompanionCharacterId
   onCharacterChange?: (id: CompanionCharacterId) => void
   evolution?: CompanionEvolution
+  companionClasses?: CompanionClass[]
+  onClassChange?: (id: CompanionClassId) => void
 }) {
   const [activeTab, setActiveTab] = useState<CompanionTab>('journal')
   const now = Date.now()
@@ -113,6 +118,13 @@ export function CompanionScreen({
           <small>식사 기록 {evolution.stage}/4단계</small>
         </section>
       )}
+      <section className="class-picker" aria-label="푸디 전직 선택">
+        <h2>전직 선택</h2>
+        <p>식사 행동으로 열린 직업을 선택하면 고유 스킬과 보너스를 얻어요.</p>
+        <div className="class-picker-grid">
+          {companionClasses.map((job) => <button key={job.id} type="button" disabled={!job.unlocked} className={job.recommended ? 'selected' : ''} aria-pressed={job.recommended} onClick={() => onClassChange(job.id)}><strong>{job.name}</strong><small>{job.unlocked ? `${job.skill} · ${job.bonus}` : `🔒 ${job.requirement}`}</small></button>)}
+        </div>
+      </section>
       <section className="character-picker" aria-label="푸디 캐릭터 선택">
         <h2>푸디 캐릭터 선택</h2>
         <div className="character-picker-grid">

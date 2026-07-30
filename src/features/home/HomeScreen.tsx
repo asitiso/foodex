@@ -3,6 +3,7 @@ import type { MealGameLoopState } from '../../domain/mealGameLoop'
 import type { MealAdventureState } from '../../domain/mealAdventure'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
+import type { CompanionClass } from '../../domain/companionClasses'
 import { CompanionRoom } from './CompanionRoom'
 import type { CompanionEmotion } from './CompanionRoom'
 import { HomeStatusGrid } from './HomeStatusGrid'
@@ -22,6 +23,7 @@ interface HomeScreenProps {
   mealAdventure: MealAdventureState
   characterId?: CompanionCharacterId
   evolution?: CompanionEvolution
+  companionClass?: CompanionClass
   companionLine: string
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
@@ -42,6 +44,7 @@ export function HomeScreen({
   mealAdventure,
   characterId,
   evolution,
+  companionClass,
   companionLine,
   companionEmotion,
   decorationIds,
@@ -75,6 +78,7 @@ export function HomeScreen({
         reducedMotion={reducedMotion}
         characterId={characterId}
         evolution={evolution}
+        companionClass={companionClass}
         onOpenCompanion={onOpenCompanion}
       />
 

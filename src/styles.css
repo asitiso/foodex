@@ -485,6 +485,14 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .emotion-celebrating .companion-body { background: #e8aa37; }
 
 .character-picker { display: grid; gap: .75rem; padding: 1rem; border: 2px solid #eadcf8; border-radius: 1.2rem; background: #fff; }
+.class-picker { display: grid; gap: .65rem; padding: 1rem; border: 2px solid #ffe581; border-radius: 1.2rem; background: linear-gradient(135deg,#fff8dc,#f7efff); }
+.class-picker h2, .class-picker p { margin: 0; }
+.class-picker p { color: #6e5d72; font-size: .82rem; }
+.class-picker-grid { display: grid; gap: .55rem; }
+.class-picker-grid button { display: grid; gap: .2rem; padding: .7rem; border: 2px solid #e2d7f0; border-radius: .8rem; background: #fff; color: #493568; text-align: left; }
+.class-picker-grid button.selected { border-color: #7150db; box-shadow: 0 .18rem 0 #7150db; }
+.class-picker-grid button:disabled { opacity: .58; }
+.class-picker-grid small { font-size: .72rem; color: #776982; }
 .character-evolution-card { display: grid; gap: .4rem; padding: 1rem; border: 2px solid #ffe581; border-radius: 1.2rem; background: #fff8dc; }
 .character-evolution-card h2, .character-evolution-card p { margin: 0; }
 .character-evolution-card p, .character-evolution-card small { color: #6e5d72; }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
+import type { CompanionClass } from '../../domain/companionClasses'
 
 export type CompanionEmotion = 'calm' | 'expectant' | 'happy' | 'surprised' | 'celebrating'
 
@@ -12,7 +13,7 @@ type Activity = 'idle' | 'walk' | 'jump' | 'sleep' | 'eat' | 'wiggle' | 'tail' |
 const CLICK_MOTIONS: readonly Activity[] = ['jump', 'wiggle', 'tail', 'ears', 'sparkle']
 
 export function CompanionRoom({
-  emotion, line, decorationIds, reducedMotion, characterId = 'foody', evolution, onOpenCompanion,
+  emotion, line, decorationIds, reducedMotion, characterId = 'foody', evolution, companionClass, onOpenCompanion,
 }: {
   emotion: CompanionEmotion
   line: string
@@ -20,6 +21,7 @@ export function CompanionRoom({
   reducedMotion: boolean
   characterId?: CompanionCharacterId
   evolution?: CompanionEvolution
+  companionClass?: CompanionClass
   onOpenCompanion: () => void
 }) {
   const [activity, setActivity] = useState<Activity>('idle')
@@ -66,7 +68,7 @@ export function CompanionRoom({
       ))}
       {reaction && <p className="companion-reaction" role="status">{reaction}</p>}
       {clickFeedback && <span className="companion-click-sparkle" data-testid="companion-click-sparkle" aria-label="click sparkle" role="status">✦</span>}
-      <button className="companion-speech" type="button" onClick={onOpenCompanion}>{line}</button>
+      <button className="companion-speech" type="button" onClick={onOpenCompanion}>{companionClass ? `${companionClass.name} · ${line}` : line}</button>
       <button type="button" className={`companion-character emotion-${emotion} activity-${activity}`} aria-label={`${EMOTION_LABELS[emotion]} 푸디`} onClick={reactToCharacter}>
         <span className="companion-ear left" aria-hidden="true" />
         <span className="companion-ear right" aria-hidden="true" />
