@@ -55,4 +55,19 @@ describe('CompanionRoom', () => {
     await userEvent.click(screen.getAllByTestId('decoration-small-plant').at(-1)!)
     expect(screen.getByText(/화분/)).toBeInTheDocument()
   })
+
+  it('shows a tactile sparkle when the character is clicked', async () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="click me"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    await userEvent.click(screen.getAllByRole('button', { name: /푸디/ }).at(-1)!)
+    expect(screen.getAllByTestId('companion-click-sparkle').at(-1)).toBeInTheDocument()
+  })
 })

@@ -19,6 +19,7 @@ export function CompanionRoom({
 }) {
   const [activity, setActivity] = useState<Activity>('idle')
   const [reaction, setReaction] = useState<string>()
+  const [clickFeedback, setClickFeedback] = useState(false)
 
   useEffect(() => {
     if (reducedMotion) return
@@ -34,7 +35,9 @@ export function CompanionRoom({
   const reactTo = (nextActivity: Activity, message: string) => {
     setActivity(nextActivity)
     setReaction(message)
+    setClickFeedback(true)
     window.setTimeout(() => setReaction(undefined), 2200)
+    window.setTimeout(() => setClickFeedback(false), 420)
   }
 
   return (
@@ -45,6 +48,7 @@ export function CompanionRoom({
         <button type="button" className={`room-decoration decoration-${id}`} data-decoration-id={id} data-testid={`decoration-${id}`} key={id} aria-label={`${id} 장식`} onClick={() => reactTo('eat', id === 'small-plant' ? '화분이 오늘도 쑥쑥 자라!' : '장식이 반짝반짝 빛나!')} />
       ))}
       {reaction && <p className="companion-reaction" role="status">{reaction}</p>}
+      {clickFeedback && <span className="companion-click-sparkle" data-testid="companion-click-sparkle" aria-label="click sparkle" role="status">✦</span>}
       <button className="companion-speech" type="button" onClick={onOpenCompanion}>{line}</button>
       <button type="button" className={`companion-character emotion-${emotion} activity-${activity}`} aria-label={`${EMOTION_LABELS[emotion]} 푸디`} onClick={() => reactTo('jump', '꼬리를 흔들며 반가워해!')}>
         <span className="companion-ear left" aria-hidden="true" />
