@@ -1,4 +1,5 @@
 import type { AdventureBoard, DailyQuest, MealStreak, PlayerLevel } from '../../domain/progression'
+import type { MealGameLoopState } from '../../domain/mealGameLoop'
 import { CompanionRoom } from './CompanionRoom'
 import type { CompanionEmotion } from './CompanionRoom'
 import { HomeStatusGrid } from './HomeStatusGrid'
@@ -14,6 +15,7 @@ interface HomeScreenProps {
   streak: MealStreak
   dailyQuests: DailyQuest[]
   adventureBoard: AdventureBoard
+  mealGameLoop: MealGameLoopState
   companionLine: string
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
@@ -30,6 +32,7 @@ export function HomeScreen({
   streak,
   dailyQuests,
   adventureBoard,
+  mealGameLoop,
   companionLine,
   companionEmotion,
   decorationIds,
@@ -72,6 +75,30 @@ export function HomeScreen({
         onOpenAdventure={onOpenAdventure}
         onOpenCollection={onOpenCollection}
       />
+
+      <section className="meal-game-loop" aria-label="오늘의 식사 게이지">
+        <div className="section-title-row">
+          <h2>오늘의 식사 게이지</h2>
+          <strong>{mealGameLoop.todayMeals}끼</strong>
+        </div>
+        <div className="meal-gauge-steps" aria-label={`${mealGameLoop.todayMeals}끼 기록됨`}>
+          {mealGameLoop.gaugeSteps.map((completed, index) => (
+            <span className={completed ? 'meal-gauge-step completed' : 'meal-gauge-step'} key={index}>
+              {completed ? '✓' : index + 1}
+            </span>
+          ))}
+        </div>
+        <p className="meal-next-goal">
+          {mealGameLoop.nextMealRemaining > 0
+            ? `다음 한 끼까지 ${mealGameLoop.nextMealRemaining}끼 남았어요`
+            : '오늘의 식사 게이지를 모두 채웠어요!'}
+        </p>
+        <p className="meal-growth-goal">
+          {mealGameLoop.growth.next
+            ? `다음 성장까지 ${mealGameLoop.growth.remaining}끼`
+            : '전설의 식사 기록을 달성했어요'}
+        </p>
+      </section>
 
       <section className="home-adventure-board" aria-label={adventureBoard.title}>
         <div className="section-title-row">

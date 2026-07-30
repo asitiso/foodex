@@ -628,3 +628,50 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
   .latest-cards { grid-template-columns: 1fr; }
   .bottom-nav button { font-size: .75rem; }
 }
+.meal-game-loop {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 2px solid #eadcf8;
+  border-radius: 1.2rem;
+  background: linear-gradient(135deg, #fff9df, #f7efff);
+}
+
+.meal-game-loop h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.meal-gauge-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .55rem;
+  margin: .8rem 0 .65rem;
+}
+
+.meal-gauge-step {
+  display: grid;
+  min-height: 2.4rem;
+  place-items: center;
+  border-radius: .75rem;
+  background: #f0edf5;
+  color: #8d849b;
+  font-weight: 800;
+}
+
+.meal-gauge-step.completed {
+  background: #7150db;
+  color: #fff;
+}
+
+.meal-next-goal,
+.meal-growth-goal {
+  margin: .35rem 0 0;
+  color: #5f536d;
+  font-size: .85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meal-gauge-step {
+    transition: none;
+  }
+}

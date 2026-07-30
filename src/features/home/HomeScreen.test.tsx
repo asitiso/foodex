@@ -19,6 +19,14 @@ const props = {
       { id: 'evolution', title: '라면 진화 준비', reward: '진화까지 1끼', completed: false },
     ],
   },
+  mealGameLoop: {
+    todayMeals: 1,
+    gaugeSteps: [true, false, false] as [boolean, boolean, boolean],
+    nextMealTarget: 2 as 1 | 2 | 3,
+    nextMealRemaining: 1,
+    totalMeals: 1,
+    growth: { current: 0, next: 3, remaining: 2 },
+  },
   companionLine: '새 친구를 환영해!',
   companionEmotion: 'happy' as const,
   decorationIds: [],
@@ -47,6 +55,14 @@ describe('HomeScreen', () => {
   it('keeps the main recording action visible', () => {
     render(<HomeScreen {...props} />)
     expect(screen.getByRole('button', { name: '식사 카드 획득하기' })).toBeInTheDocument()
+  })
+
+  it('shows the meal gauge and the next meal goal', () => {
+    render(<HomeScreen {...props} />)
+
+    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('1끼')
+    expect(screen.getByText('다음 한 끼까지 1끼 남았어요')).toBeInTheDocument()
+    expect(screen.getByText('다음 성장까지 2끼')).toBeInTheDocument()
   })
 
   it('shows the V5.2 adventure board with rewards and the next evolution focus', () => {

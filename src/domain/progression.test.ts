@@ -132,6 +132,15 @@ describe('progression', () => {
     expect(progression.v3.newRewards).toEqual([])
   })
 
+  it('exposes a meal-first game loop from the same saved entries', () => {
+    const now = new Date(2026, 6, 30, 12).getTime()
+    const progression = buildProgression([entry('rice', 10, now), entry('ramen', 10, now)], now)
+
+    expect(progression.mealGameLoop.todayMeals).toBe(2)
+    expect(progression.mealGameLoop.nextMealRemaining).toBe(1)
+    expect(progression.mealGameLoop.growth.next).toBe(3)
+  })
+
   it('summarizes a saved meal as a V5 adventure turn', () => {
     const now = new Date(2026, 6, 30, 12).getTime()
     const previousEntries = [
