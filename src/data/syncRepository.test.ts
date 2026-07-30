@@ -43,7 +43,12 @@ function createRemote(options: { fail?: boolean } = {}) {
       if (options.fail) throw new Error('offline')
       return `user-1/${meal.id}/original.jpg`
     }),
-    upsertMealBundle: vi.fn(async () => {
+    upsertMealBundle: vi.fn(async (
+      _meal: MealRecord,
+      _card: FoodCard,
+      _rewards: UserReward[],
+      _photoPath: string | null,
+    ) => {
       if (options.fail) throw new Error('offline')
     }),
     upsertDialogueHistory: vi.fn(async () => {
