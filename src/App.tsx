@@ -19,6 +19,7 @@ import { deriveRoomUnlocks } from './domain/roomProgression'
 import type { FoodCard, MealRecord } from './domain/types'
 import type { UserReward } from './data/foodexDb'
 import type { ExperienceSettings } from './domain/companionTypes'
+import type { CompanionCharacterId } from './domain/companionCharacters'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
 import { AdventureScreen } from './features/adventure/AdventureScreen'
 import { CollectionScreen } from './features/collection/CollectionScreen'
@@ -90,6 +91,10 @@ export function App({
     ...DEFAULT_EXPERIENCE_SETTINGS,
     reducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
   }))
+  const [characterId, setCharacterId] = useState<CompanionCharacterId>(() => {
+    const saved = window.localStorage.getItem('foodex-companion-character')
+    return saved === 'berry' || saved === 'noodle' || saved === 'cocoa' ? saved : 'foody'
+  })
   const [discovery, setDiscovery] = useState<V3DiscoveryResult>()
   const [syncState, setSyncState] = useState<SyncState>(
     initialAuthResult?.mode === 'local' ? 'local-only' : 'idle',
@@ -349,6 +354,7 @@ export function App({
           adventureBoard={progression.adventureBoard}
           mealGameLoop={progression.mealGameLoop}
           mealAdventure={progression.mealAdventure}
+          characterId={characterId}
           companionLine={companion.line}
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}
@@ -396,6 +402,8 @@ export function App({
             setExperienceSettings(value)
             void repository.saveExperienceSettings?.(value)
           }}
+          characterId={characterId}
+          onCharacterChange={(id) => { setCharacterId(id); window.localStorage.setItem('foodex-companion-character', id) }}
         />
       )}
       {screen === 'home' && canProtectCollection && (

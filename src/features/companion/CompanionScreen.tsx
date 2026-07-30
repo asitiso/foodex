@@ -6,6 +6,8 @@ import type { UserReward } from '../../data/foodexDb'
 import { buildDailyJournal, buildMonthlyReport } from '../../domain/journal'
 import type { ExperienceSettings as ExperienceSettingsValue } from '../../domain/companionTypes'
 import { ExperienceSettings } from '../settings/ExperienceSettings'
+import { COMPANION_CHARACTERS } from '../../domain/companionCharacters'
+import type { CompanionCharacterId } from '../../domain/companionCharacters'
 
 type CompanionTab = 'journal' | 'report' | 'room'
 
@@ -22,6 +24,8 @@ export function CompanionScreen({
   rewards,
   experienceSettings,
   onExperienceSettingsChange,
+  characterId = 'foody',
+  onCharacterChange = () => undefined,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   roomUnlocks: readonly RoomUnlock[]
@@ -29,6 +33,8 @@ export function CompanionScreen({
   rewards: readonly UserReward[]
   experienceSettings: ExperienceSettingsValue
   onExperienceSettingsChange: (value: ExperienceSettingsValue) => void
+  characterId?: CompanionCharacterId
+  onCharacterChange?: (id: CompanionCharacterId) => void
 }) {
   const [activeTab, setActiveTab] = useState<CompanionTab>('journal')
   const now = Date.now()
@@ -96,6 +102,18 @@ export function CompanionScreen({
         )}
       </div>
       <ExperienceSettings value={experienceSettings} onChange={onExperienceSettingsChange} />
+      <section className="character-picker" aria-label="푸디 캐릭터 선택">
+        <h2>푸디 캐릭터 선택</h2>
+        <div className="character-picker-grid">
+          {COMPANION_CHARACTERS.map((character) => (
+            <button key={character.id} type="button" className={characterId === character.id ? 'selected' : ''} aria-pressed={characterId === character.id} onClick={() => onCharacterChange(character.id)}>
+              <span className={`mini-companion mini-${character.id}`} aria-hidden="true" />
+              <strong>{character.name}</strong>
+              <small>{character.description}</small>
+            </button>
+          ))}
+        </div>
+      </section>
     </section>
   )
 }

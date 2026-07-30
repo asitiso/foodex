@@ -1,6 +1,7 @@
 import type { AdventureBoard, DailyQuest, MealStreak, PlayerLevel } from '../../domain/progression'
 import type { MealGameLoopState } from '../../domain/mealGameLoop'
 import type { MealAdventureState } from '../../domain/mealAdventure'
+import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import { CompanionRoom } from './CompanionRoom'
 import type { CompanionEmotion } from './CompanionRoom'
 import { HomeStatusGrid } from './HomeStatusGrid'
@@ -18,6 +19,7 @@ interface HomeScreenProps {
   adventureBoard: AdventureBoard
   mealGameLoop: MealGameLoopState
   mealAdventure: MealAdventureState
+  characterId?: CompanionCharacterId
   companionLine: string
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
@@ -36,6 +38,7 @@ export function HomeScreen({
   adventureBoard,
   mealGameLoop,
   mealAdventure,
+  characterId,
   companionLine,
   companionEmotion,
   decorationIds,
@@ -67,6 +70,7 @@ export function HomeScreen({
         line={companionLine}
         decorationIds={decorationIds}
         reducedMotion={reducedMotion}
+        characterId={characterId}
         onOpenCompanion={onOpenCompanion}
       />
 
