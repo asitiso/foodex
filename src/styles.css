@@ -463,6 +463,16 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .home-status-grid button > span { grid-row: 1 / 3; font-size: 1.75rem; text-align: center; }
 .home-status-grid small { align-self: end; color: #725f7c; font-size: .7rem; font-weight: 850; }
 .home-status-grid strong { align-self: start; overflow: hidden; font-size: .9rem; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.home-adventure-board { display: grid; gap: .75rem; padding: .95rem; border: 2px solid #5d3d75; border-radius: 1rem; background: #fffef8; color: #493568; box-shadow: 0 .25rem 0 #5d3d75; }
+.home-adventure-board .section-title-row h2 { font-size: 1rem; }
+.home-adventure-list { display: grid; gap: .5rem; }
+.home-adventure-item { display: flex; align-items: center; gap: .55rem; min-height: 3.1rem; padding: .6rem; border-radius: .75rem; background: #f7f2ff; }
+.home-adventure-item.completed { background: #fff7dc; }
+.home-adventure-item > span { color: #6543eb; font-weight: 950; }
+.home-adventure-item div { display: grid; gap: .1rem; min-width: 0; }
+.home-adventure-item strong { font-size: .88rem; line-height: 1.25; }
+.home-adventure-item small { color: #776b87; font-size: .73rem; font-weight: 850; line-height: 1.25; }
+.home-adventure-board > p { margin: 0; padding: .65rem; border-radius: .75rem; background: #fff7dc; color: #493568; font-size: .84rem; font-weight: 900; line-height: 1.4; }
 .room-record-cta { min-height: 3.8rem; display: flex; align-items: center; justify-content: center; gap: .55rem; border: 2px solid #5d3d75; background: linear-gradient(#ff8b70, #f16b64); box-shadow: 0 .32rem 0 #5d3d75; }
 .room-record-cta span { font-size: 1.25rem; }
 

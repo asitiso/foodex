@@ -344,6 +344,7 @@ export function App({
           level={progression.level}
           streak={progression.streak}
           dailyQuests={progression.dailyQuests}
+          adventureBoard={progression.adventureBoard}
           companionLine={companion.line}
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}

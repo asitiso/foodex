@@ -67,12 +67,26 @@ export interface CollectionBonus {
   unlocked: boolean
 }
 
+export interface AdventureBoardItem {
+  id: string
+  title: string
+  reward: string
+  completed: boolean
+}
+
+export interface AdventureBoard {
+  title: string
+  items: AdventureBoardItem[]
+  nextFocus: string
+}
+
 export interface Progression {
   level: PlayerLevel
   collection: CollectionProgress
   achievements: Achievement[]
   streak: MealStreak
   dailyQuests: DailyQuest[]
+  adventureBoard: AdventureBoard
   evolutions: FoodEvolution[]
   season: SeasonEvent
   rewardBox: RewardBox
@@ -143,6 +157,48 @@ function buildEvolution(foodType: FoodType, count: number): FoodEvolution {
   }
 }
 
+function buildAdventureBoard(
+  dailyQuests: DailyQuest[],
+  evolutions: FoodEvolution[],
+): AdventureBoard {
+  const evolutionTarget = evolutions.find((evolution) => evolution.nextCount)
+  const remainingMeals = evolutionTarget?.nextCount
+    ? evolutionTarget.nextCount - evolutionTarget.count
+    : 0
+  const nextEvolutionName = evolutionTarget?.nextCount
+    ? buildEvolution(evolutionTarget.foodType, evolutionTarget.nextCount).title
+    : undefined
+
+  return {
+    title: '오늘의 모험 보드',
+    items: [
+      {
+        id: dailyQuests[0]?.id ?? 'today-card',
+        title: dailyQuests[0]?.title ?? '식사 카드 1장',
+        reward: '보상: 20 XP',
+        completed: dailyQuests[0]?.completed ?? false,
+      },
+      {
+        id: dailyQuests[1]?.id ?? 'new-discovery',
+        title: dailyQuests[1]?.title ?? '새 음식 발견',
+        reward: '보상: 박물관 전시 +1',
+        completed: dailyQuests[1]?.completed ?? false,
+      },
+      {
+        id: 'evolution-focus',
+        title: evolutionTarget ? `${evolutionTarget.label} 진화 준비` : '새 음식 찾기',
+        reward: evolutionTarget && remainingMeals > 0
+          ? `진화까지 ${remainingMeals}끼`
+          : '보상: 박물관 전시 +1',
+        completed: false,
+      },
+    ],
+    nextFocus: evolutionTarget && remainingMeals > 0 && nextEvolutionName
+      ? `${evolutionTarget.label} ${remainingMeals}번 더 기록하면 ${nextEvolutionName}`
+      : '새로운 음식을 기록하면 박물관 전시가 늘어나요',
+  }
+}
+
 export function buildProgression(
   entries: Entry[],
   now = Date.now(),
@@ -192,6 +248,26 @@ export function buildProgression(
     todayEntries.some(({ card }) => card.isNew),
     todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
   ].filter(Boolean).length
+  const dailyQuests: DailyQuest[] = [
+    {
+      id: 'today-card',
+      title: '식사 카드 1장',
+      description: '오늘 식사를 한 번 기록해요.',
+      completed: todayEntries.length > 0,
+    },
+    {
+      id: 'new-discovery',
+      title: '새 음식 발견',
+      description: '처음 만나는 음식을 하나 모아요.',
+      completed: todayEntries.some(({ card }) => card.isNew),
+    },
+    {
+      id: 'fruit-or-drink',
+      title: '상큼 카드',
+      description: '과일이나 음료 카드를 모아요.',
+      completed: todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
+    },
+  ]
 
   return {
     level: buildLevel(totalXp),
@@ -227,26 +303,8 @@ export function buildProgression(
       },
     ],
     streak: buildStreak(entries, now),
-    dailyQuests: [
-      {
-        id: 'today-card',
-        title: '식사 카드 1장',
-        description: '오늘 식사를 한 번 기록해요.',
-        completed: todayEntries.length > 0,
-      },
-      {
-        id: 'new-discovery',
-        title: '새 음식 발견',
-        description: '처음 만나는 음식을 하나 모아요.',
-        completed: todayEntries.some(({ card }) => card.isNew),
-      },
-      {
-        id: 'fruit-or-drink',
-        title: '상큼 카드',
-        description: '과일이나 음료 카드를 모아요.',
-        completed: todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
-      },
-    ],
+    dailyQuests,
+    adventureBoard: buildAdventureBoard(dailyQuests, evolutions),
     evolutions,
     season: {
       id: 'summer-bite',

@@ -155,4 +155,20 @@ describe('progression', () => {
     expect(result.evolutionText).toBe('햇살 과일단 1/3 성장')
     expect(result.nextGoalText).toBe('다음 목표: 햇살 과일단 2번 더 기록하면 진화')
   })
+
+  it('builds a V5.2 home adventure board with rewards and an evolution target', () => {
+    const now = new Date(2026, 6, 30, 12).getTime()
+    const progression = buildProgression([
+      entry('ramen', 30, now - 86_400_000, 'rare'),
+      entry('ramen', 20, now - 172_800_000),
+    ], now)
+
+    expect(progression.adventureBoard.title).toBe('오늘의 모험 보드')
+    expect(progression.adventureBoard.items.map((item) => [item.title, item.reward, item.completed])).toEqual([
+      ['식사 카드 1장', '보상: 20 XP', false],
+      ['새 음식 발견', '보상: 박물관 전시 +1', false],
+      ['라면 진화 준비', '진화까지 1끼', false],
+    ])
+    expect(progression.adventureBoard.nextFocus).toBe('라면 1번 더 기록하면 불꽃 라면 Lv.2')
+  })
 })

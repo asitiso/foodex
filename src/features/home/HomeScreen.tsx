@@ -1,4 +1,4 @@
-import type { DailyQuest, MealStreak, PlayerLevel } from '../../domain/progression'
+import type { AdventureBoard, DailyQuest, MealStreak, PlayerLevel } from '../../domain/progression'
 import { CompanionRoom } from './CompanionRoom'
 import type { CompanionEmotion } from './CompanionRoom'
 import { HomeStatusGrid } from './HomeStatusGrid'
@@ -13,6 +13,7 @@ interface HomeScreenProps {
   level: PlayerLevel
   streak: MealStreak
   dailyQuests: DailyQuest[]
+  adventureBoard: AdventureBoard
   companionLine: string
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
@@ -28,6 +29,7 @@ export function HomeScreen({
   level,
   streak,
   dailyQuests,
+  adventureBoard,
   companionLine,
   companionEmotion,
   decorationIds,
@@ -66,6 +68,25 @@ export function HomeScreen({
         onOpenAdventure={onOpenAdventure}
         onOpenCollection={onOpenCollection}
       />
+
+      <section className="home-adventure-board" aria-label={adventureBoard.title}>
+        <div className="section-title-row">
+          <h2>{adventureBoard.title}</h2>
+          <button className="inline-button" type="button" onClick={onOpenAdventure}>모험 보기</button>
+        </div>
+        <div className="home-adventure-list">
+          {adventureBoard.items.map((item) => (
+            <article className={item.completed ? 'home-adventure-item completed' : 'home-adventure-item'} key={item.id}>
+              <span aria-hidden="true">{item.completed ? '✓' : '□'}</span>
+              <div>
+                <strong>{item.title}</strong>
+                <small>{item.reward}</small>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p>{adventureBoard.nextFocus}</p>
+      </section>
 
       <button className="primary-cta room-record-cta" type="button" onClick={onRecord}>
         <span aria-hidden="true">📷</span>
