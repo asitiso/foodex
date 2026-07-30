@@ -114,6 +114,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .collection-empty { min-height: 17rem; display: grid; place-content: center; gap: .65rem; padding: 1.5rem; border: 2px dashed #d7cbea; border-radius: 1.3rem; background: #fbf9ff; text-align: center; color: #675d72; }
 .collection-empty span { font-size: 2.75rem; }
 .collection-empty p { margin: 0; font-weight: 800; }
+.collection-empty::after { content: '첫 카드는 식사 기록 한 번으로 등장해요 ✨'; color: #7254bd; font-size: .82rem; font-weight: 800; }
 .collection-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .85rem; }
 .collection-card { min-height: 12.5rem; overflow: hidden; display: grid; align-content: end; gap: .3rem; position: relative; padding: .8rem; border: 0; border-radius: 1.2rem; color: #fff; background: linear-gradient(150deg, #6746f6, #3a1f8a); text-align: left; box-shadow: 0 .3rem 0 rgba(58,31,138,.28); }
 .collection-card.rarity-rare { background: linear-gradient(150deg, #167db7, #11407a); }
@@ -166,6 +167,15 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 }
 .card-reveal { text-align: center; background: radial-gradient(circle at 50% 15%, #e3d9ff 0, #fff8ef 48%); }
 .eyebrow { margin: 0; color: #7254bd; font-size: .78rem; font-weight: 900; letter-spacing: .12em; }
+.record-stage-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 1rem; border: 2px solid #eadcf8; border-radius: 1rem; background: linear-gradient(135deg, #fff9df, #f5efff); }
+.record-stage-header > div { display: grid; gap: .2rem; }
+.record-stage-kicker { color: #7254bd; font-size: .72rem; font-weight: 900; letter-spacing: .08em; }
+.record-stage-header strong { color: #3e2c5e; font-size: .98rem; }
+.record-stage-count { flex: 0 0 auto; padding: .35rem .6rem; border-radius: 999px; background: #6543eb; color: #fff; font-size: .78rem; font-weight: 900; }
+.record-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+.record-progress span { height: .4rem; border-radius: 999px; background: #e4ddeb; transition: background .25s ease, transform .25s ease; }
+.record-progress span.active { background: #6543eb; transform: scaleY(1.35); }
+.record-progress span.complete { background: #f4bb3f; }
 .record-step { display: grid; gap: 1rem; }
 h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em; line-height: 1.2; }
 .record-step > p, .reveal-copy { margin: 0; color: #675d72; line-height: 1.55; }
@@ -732,6 +742,11 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
   border: 2px solid #eadcf8;
   border-radius: 1.2rem;
   background: linear-gradient(135deg, #fff9df, #f7efff);
+}
+@media (max-width: 32.5rem) {
+  .record-flow { padding-inline: 1rem; }
+  .record-actions { position: sticky; bottom: calc(.5rem + env(safe-area-inset-bottom)); z-index: 3; padding: .45rem; border: 1px solid #eadcf8; border-radius: 1rem; background: rgba(255,255,255,.92); backdrop-filter: blur(10px); }
+  .record-actions > button { min-height: 3rem; }
 }
 
 .meal-game-loop h2 {

@@ -82,6 +82,18 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
   return (
     <section className="record-flow" aria-label="식사 기록">
       <p className="eyebrow">FOODEX 기록하기</p>
+      <div className="record-stage-header">
+        <div>
+          <span className="record-stage-kicker">오늘의 식사 던전</span>
+          <strong>한 끼를 기록하고 보상을 받아요</strong>
+        </div>
+        <span className="record-stage-count">{step === 'photo' ? '1' : step === 'food' ? '2' : '3'} / 3</span>
+      </div>
+      <div className="record-progress" data-testid="record-progress" aria-label="식사 기록 진행률">
+        {(['photo', 'food', 'amount'] as RecordStep[]).map((stage, index) => (
+          <span key={stage} className={stage === step ? 'active' : index < ['photo', 'food', 'amount'].indexOf(step) ? 'complete' : ''} />
+        ))}
+      </div>
       {step === 'photo' && (
         <div className="record-step">
           <h1>오늘 먹은 것을 찍어 볼까?</h1>
