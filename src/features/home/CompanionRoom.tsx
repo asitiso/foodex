@@ -28,6 +28,7 @@ export function CompanionRoom({
   const [reaction, setReaction] = useState<string>()
   const [clickFeedback, setClickFeedback] = useState(false)
   const clickMotionIndex = useRef(-1)
+  const reactionTimers = useRef<number[]>([])
 
   useEffect(() => {
     if (reducedMotion) return
@@ -40,12 +41,19 @@ export function CompanionRoom({
     return () => window.clearInterval(timer)
   }, [reducedMotion])
 
+  useEffect(() => () => {
+    reactionTimers.current.forEach((timer) => window.clearTimeout(timer))
+  }, [])
+
   const reactTo = (nextActivity: Activity, message: string) => {
+    reactionTimers.current.forEach((timer) => window.clearTimeout(timer))
     setActivity(nextActivity)
     setReaction(message)
     setClickFeedback(true)
-    window.setTimeout(() => setReaction(undefined), 2200)
-    window.setTimeout(() => setClickFeedback(false), 420)
+    reactionTimers.current = [
+      window.setTimeout(() => setReaction(undefined), 2200),
+      window.setTimeout(() => setClickFeedback(false), 420),
+    ]
   }
 
   const reactToCharacter = () => {

@@ -1,9 +1,13 @@
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { CompanionRoom } from './CompanionRoom'
 
 describe('CompanionRoom', () => {
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+  })
   it('renders the emotion, line, and stable decoration layers', async () => {
     const onOpenCompanion = vi.fn()
     render(
@@ -87,5 +91,23 @@ describe('CompanionRoom', () => {
     const firstMotion = character().className
     await userEvent.click(character())
     expect(character().className).not.toBe(firstMotion)
+  })
+
+  it('clears pending click reactions when the room unmounts', async () => {
+    const clearTimeout = vi.spyOn(window, 'clearTimeout')
+    const view = render(
+      <CompanionRoom
+        emotion="happy"
+        line="click me"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: '기뻐하는 푸디' }))
+    view.unmount()
+
+    expect(clearTimeout).toHaveBeenCalledTimes(2)
   })
 })
