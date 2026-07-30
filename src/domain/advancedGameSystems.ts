@@ -1,5 +1,6 @@
 import type { CompanionClassId } from './companionClasses'
 import type { FoodType, MealRecord } from './types'
+import { buildMealOutcome } from './mealOutcome'
 
 type Entry = { meal: MealRecord }
 export interface AdvancedGameSystems {
@@ -28,7 +29,9 @@ export function buildAdvancedGameSystems(entries: Entry[], classId: CompanionCla
   const rooms = ['아침 방', '점심 방', '저녁 방'].map((name, index) => ({ id: String(index), name, cleared: todayMeals > index }))
   const total = meals.length
   const bossMax = 100
-  const bossHp = Math.max(0, bossMax - Math.min(100, total * 5))
+  const todayRecords = meals.filter((meal) => new Date(meal.recordedAt).toDateString() === new Date().toDateString())
+  const bossDamage = todayRecords.reduce((sum, meal, index) => sum + buildMealOutcome(meal, todayRecords.slice(0, index), classId).bossDamage, 0)
+  const bossHp = Math.max(0, bossMax - Math.min(100, bossDamage))
   const recipes = [types.has('rice') && types.has('side') ? '든든한 집밥' : '', types.has('bread') && types.has('fruit') ? '아침 탐험 세트' : '', types.has('ramen') && types.has('side') ? '면 요새 세트' : ''].filter(Boolean)
   const equipment = [total >= 3 ? '푸디 앞치마' : '', total >= 7 ? '탐험 배낭' : '', total >= 14 ? '빛나는 왕관' : ''].filter(Boolean)
   const npcs = [types.has('rice') ? '쌀 마을 이장' : '', types.has('fruit') ? '숲의 요정' : '', types.has('ramen') ? '국물 장인' : '', types.has('bread') ? '빵집 셰프' : ''].filter(Boolean)
