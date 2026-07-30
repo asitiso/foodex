@@ -94,7 +94,7 @@ export function CardCollectionTab({
         {achievementsExpanded && <div className="achievement-list" id="achievement-list">
           {progression.achievements.map((achievement) => (
             <article className={achievement.unlocked ? 'achievement unlocked' : 'achievement'} key={achievement.id}>
-              <span aria-hidden="true">{achievement.unlocked ? '★' : '☆'}</span>
+              <span className="achievement-badge" aria-hidden="true" data-progress={achievement.unlocked ? '100' : '0'}>{achievement.unlocked ? '★' : '☆'}</span>
               <div><strong>{achievement.title}</strong><small>{achievement.description}</small></div>
             </article>
           ))}

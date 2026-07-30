@@ -53,7 +53,8 @@ export function CompanionRoom({
       jump: '통통 뛰며 반가워해!', wiggle: '몸을 좌우로 흔들어!', tail: '꼬리를 살랑살랑 흔들어!',
       ears: '귀를 쫑긋 세워!', sparkle: '별가루를 톡톡 뿜어!', idle: '', walk: '', sleep: '', eat: '',
     }
-    reactTo(motion, messages[motion])
+    const prefix = characterId === 'berry' ? '상큼하게 ' : characterId === 'noodle' ? '후루룩! ' : characterId === 'cocoa' ? '달콤하게 ' : ''
+    reactTo(motion, prefix + messages[motion])
   }
 
   return (
