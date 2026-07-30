@@ -24,6 +24,8 @@ import { buildCompanionEvolution } from './domain/companionEvolution'
 import { buildCompanionClasses } from './domain/companionClasses'
 import type { CompanionClassId } from './domain/companionClasses'
 import { buildAdvancedGameSystems } from './domain/advancedGameSystems'
+import { buildIntegratedMealResult } from './domain/integratedMealResult'
+import type { IntegratedMealResult } from './domain/integratedMealResult'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
 import { AdventureScreen } from './features/adventure/AdventureScreen'
 import { CollectionScreen } from './features/collection/CollectionScreen'
@@ -87,6 +89,8 @@ export function App({
   const [entries, setEntries] = useState<Array<{ card: FoodCard; meal: MealRecord }>>([])
   const [summary, setSummary] = useState(emptySummary)
   const [pending, setPending] = useState<PendingDiscovery>()
+  const [lastIntegratedResult, setLastIntegratedResult] = useState<IntegratedMealResult>()
+  const [showIntegratedResult, setShowIntegratedResult] = useState(false)
   const [saveError, setSaveError] = useState<SaveError>()
   const [readError, setReadError] = useState<ReadError>()
   const [failedDraft, setFailedDraft] = useState<MealDraft>()
@@ -288,10 +292,18 @@ export function App({
         Date.now(),
         rewards.map((reward) => reward.rewardId),
       )
+      const integratedResult = buildIntegratedMealResult({
+        meal,
+        card: pending.card,
+        history: entries.map((entry) => entry.meal),
+        before: progression,
+        after: nextProgression,
+        classId,
+        existingRewardKeys: rewards.map((reward) => reward.key),
+      })
       const unlockedAt = Date.now()
-      const newRewards = nextProgression.v3.newRewards.map((reward) => ({
+      const newRewards = integratedResult.persistedRewards.map((reward) => ({
         ...reward,
-        key: `${reward.rewardType}:${reward.rewardId}`,
         id: crypto.randomUUID(),
         unlockedAt,
       }))
@@ -320,7 +332,8 @@ export function App({
         ...current,
         ...newRewards.filter((reward) => !current.some((item) => item.key === reward.key)),
       ])
-      setPending(undefined)
+      setLastIntegratedResult(integratedResult)
+      setShowIntegratedResult(true)
       await refresh()
       setScreen('home')
     } catch (error) {
@@ -332,6 +345,10 @@ export function App({
 
   const navigate = (tab: Exclude<Screen, 'reveal'>) => {
     setSaveError(undefined)
+    if (showIntegratedResult) {
+      setPending(undefined)
+      setShowIntegratedResult(false)
+    }
     setScreen(tab)
   }
 
@@ -373,6 +390,7 @@ export function App({
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}
           reducedMotion={experienceSettings.reducedMotion}
+          nextGoal={lastIntegratedResult?.nextGoal.label}
           onRecord={() => navigate('record')}
           onOpenCollection={() => navigate('collection')}
           onOpenAdventure={() => navigate('adventure')}
@@ -384,6 +402,7 @@ export function App({
         <CollectionScreen
           entries={entries}
           progression={progression}
+          recentCardId={lastIntegratedResult?.cardId}
           rewards={rewards}
           onFuse={(fusion, reward) => {
             void repository.saveFusion?.(fusion)
@@ -404,7 +423,7 @@ export function App({
           }}
         />
       )}
-      {screen === 'adventure' && <AdventureScreen progression={progression} worldProgress={worldProgress} gameLoop={gameLoop} />}
+      {screen === 'adventure' && <AdventureScreen progression={progression} worldProgress={worldProgress} gameLoop={gameLoop} recentQuestIds={lastIntegratedResult?.completedQuestIds} recentAchievementIds={lastIntegratedResult?.unlockedAchievementIds} />}
       {screen === 'companion' && (
         <CompanionScreen
           entries={entries}
@@ -457,7 +476,7 @@ export function App({
           <button type="button" onClick={() => void refresh()}>다시 불러오기</button>
         </RecoveryAlert>
       )}
-      {screen === 'reveal' && pending && (
+      {pending && (screen === 'reveal' || showIntegratedResult) && (
         <CardReveal
           card={pending.card}
           foodType={pending.meal.foodType}
@@ -465,9 +484,22 @@ export function App({
           isSaving={isSaving}
           recovery={saveRecovery}
           adventureResult={pendingAdventureResult}
+          integratedResult={lastIntegratedResult}
           experienceSettings={experienceSettings}
-          onSave={() => void savePending('withPhoto')}
-          onDiscard={() => { setPending(undefined); navigate('record') }}
+          onSave={() => {
+            if (lastIntegratedResult) {
+              setPending(undefined)
+              setShowIntegratedResult(false)
+              navigate('home')
+            } else {
+              void savePending('withPhoto')
+            }
+          }}
+          onDiscard={() => {
+            setPending(undefined)
+            setShowIntegratedResult(false)
+            navigate('record')
+          }}
         />
       )}
       {screen !== 'reveal' && <BottomNav active={activeTab} onNavigate={navigate} />}

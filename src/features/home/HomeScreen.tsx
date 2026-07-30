@@ -30,6 +30,7 @@ interface HomeScreenProps {
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
   reducedMotion: boolean
+  nextGoal?: string
   onRecord: () => void
   onOpenCollection: () => void
   onOpenAdventure: () => void
@@ -52,6 +53,7 @@ export function HomeScreen({
   companionEmotion,
   decorationIds,
   reducedMotion,
+  nextGoal,
   onRecord,
   onOpenCollection,
   onOpenAdventure,
@@ -86,7 +88,7 @@ export function HomeScreen({
       />
 
       <section className="home-hero-mission" aria-label="오늘의 다음 행동">
-        <div><span className="home-hero-mission-icon" aria-hidden="true">🗺️</span><div><strong>오늘의 다음 방</strong><p>{mealGameLoop.nextMealRemaining > 0 ? `다음 식사 기록까지 ${mealGameLoop.nextMealRemaining}끼 남았어요` : '오늘의 식사 던전을 모두 클리어했어요!'}</p></div></div>
+        <div><span className="home-hero-mission-icon" aria-hidden="true">🗺️</span><div><strong>오늘의 다음 방</strong><p>{nextGoal ?? (mealGameLoop.nextMealRemaining > 0 ? `다음 식사 기록까지 ${mealGameLoop.nextMealRemaining}끼 남았어요` : '오늘의 식사 던전을 모두 클리어했어요!')}</p></div></div>
         <span className="home-hero-mission-reward">+{mealGameLoop.comboReward} XP</span>
       </section>
 

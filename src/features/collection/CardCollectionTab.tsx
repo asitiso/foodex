@@ -39,12 +39,14 @@ export function CardCollectionTab({
   rewards = [],
   onApplyCosmetic = () => undefined,
   showProgression = false,
+  recentCardId,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   progression: Progression
   rewards?: UserReward[]
   onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
   showProgression?: boolean
+  recentCardId?: string
 }) {
   const [category, setCategory] = useState<FoodCategory | 'all'>('all')
   const [regionId, setRegionId] = useState<RegionId | ''>('')
@@ -204,7 +206,9 @@ export function CardCollectionTab({
                 `rarity-${entry!.card.rarity}`,
                 entry!.card.skinId ? `skin-${entry!.card.skinId}` : '',
                 entry!.card.backgroundId ? `background-${entry!.card.backgroundId}` : '',
+                entry!.card.id === recentCardId ? 'recently-unlocked' : '',
               ].filter(Boolean).join(' ')}
+              data-testid={`card-${entry!.card.id}`}
               type="button"
               key={entry!.card.id}
               onClick={() => setSelected(entry!)}

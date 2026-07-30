@@ -718,6 +718,59 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .card-reveal.reduced-motion .food-card,
 .card-reveal.reduced-motion .sparkles span { animation: none; }
 
+.integrated-reward-result {
+  position: relative;
+  z-index: 2;
+  margin: 1rem auto 0;
+  padding: 1rem;
+  max-width: 34rem;
+  border: 2px solid #6c48d7;
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, #fffdf8, #f2ebff);
+  box-shadow: 0 6px 0 #4c337f, 0 14px 26px rgb(76 51 127 / 14%);
+  text-align: left;
+}
+.integrated-reward-result h2 { margin: .2rem 0 .8rem; color: #2f194f; }
+.integrated-reward-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55rem; }
+.integrated-reward-list article {
+  min-width: 0;
+  padding: .7rem .55rem;
+  border: 1px solid #e4d8fa;
+  border-radius: 1rem;
+  background: #fff;
+  text-align: center;
+}
+.integrated-reward-list span { display: block; color: #766b82; font-size: .75rem; font-weight: 800; }
+.integrated-reward-list strong { display: block; margin-top: .25rem; color: #3c235f; overflow-wrap: anywhere; }
+.integrated-next-goal-title { display: block; margin-top: .9rem; color: #6c42df; }
+.integrated-reward-result > p:last-of-type { margin: .25rem 0 0; font-weight: 800; color: #30213d; }
+.integrated-reward-details { margin-top: .75rem; border-top: 1px solid #e8def4; padding-top: .6rem; color: #62576d; }
+.integrated-reward-details summary { cursor: pointer; font-weight: 800; }
+.integrated-reward-details ul { margin: .55rem 0 0; padding-left: 1.25rem; }
+
+@media (max-width: 360px) {
+  .integrated-reward-list { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .integrated-reward-result,
+  .integrated-reward-result * { animation: none !important; transition: none !important; }
+}
+
+.recently-unlocked {
+  border-color: #f2b84b !important;
+  box-shadow: 0 0 0 3px rgb(242 184 75 / 22%), 0 6px 0 #5b3d88 !important;
+  animation: recent-unlock-pop .55s ease-out both;
+}
+@keyframes recent-unlock-pop {
+  0% { transform: scale(.97); }
+  60% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recently-unlocked { animation: none; }
+}
+
 @keyframes companion-bob {
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50% { transform: translateX(-50%) translateY(-.35rem); }

@@ -14,6 +14,7 @@ interface CollectionScreenProps {
   onFuse?: (fusion: FusionRecord, reward: UserReward) => void
   rewards?: UserReward[]
   onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
+  recentCardId?: string
 }
 
 type CollectionTab = 'cards' | 'growth' | 'world' | 'sets' | 'fusion'
@@ -32,6 +33,7 @@ export function CollectionScreen({
   onFuse = () => undefined,
   rewards = [],
   onApplyCosmetic = () => undefined,
+  recentCardId,
 }: CollectionScreenProps) {
   const [activeTab, setActiveTab] = useState<CollectionTab>('cards')
 
@@ -82,6 +84,7 @@ export function CollectionScreen({
             rewards={rewards}
             onApplyCosmetic={onApplyCosmetic}
             showProgression={activeTab === 'growth'}
+            recentCardId={recentCardId}
           />
         )}
         {activeTab === 'world' && <WorldMapTab progress={progression.v3} />}

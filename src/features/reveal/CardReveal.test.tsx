@@ -1,6 +1,31 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { CardReveal } from './CardReveal'
+import type { IntegratedMealResult } from '../../domain/integratedMealResult'
+
+const integratedResult: IntegratedMealResult = {
+  mealId: 'meal-ramen',
+  cardId: 'card-ramen',
+  outcome: {
+    slot: 'lunch',
+    tags: ['meal', 'noodle'],
+    xp: 25,
+    coins: 8,
+    combo: 1,
+    bossDamage: 35,
+    discoveredNewSlot: true,
+  },
+  primaryRewards: [
+    { id: 'card', label: '음식 카드', value: '불꽃 라면', kind: 'card' },
+    { id: 'xp', label: '성장 경험치', value: '+25 XP', kind: 'xp' },
+    { id: 'coin', label: '모험 코인', value: '+8', kind: 'coin' },
+  ],
+  detailRewards: [{ id: 'quest', label: '점심 방 완료' }],
+  persistedRewards: [],
+  completedQuestIds: ['today-card'],
+  unlockedAchievementIds: ['first-meal'],
+  nextGoal: { kind: 'dungeon-room', label: '저녁 방을 열어보세요' },
+}
 
 describe('CardReveal', () => {
   afterEach(cleanup)
@@ -77,5 +102,37 @@ describe('CardReveal', () => {
     expect(screen.getByText('불꽃 라면 2/3 성장')).toBeInTheDocument()
     expect(screen.getByText('다음 목표: 불꽃 라면 1번 더 기록하면 진화')).toBeInTheDocument()
     expect(screen.getByText('새 장식 획득: 햇살 피크닉')).toBeInTheDocument()
+  })
+
+  it('keeps the card first, limits primary rewards, and folds extra results', () => {
+    render(
+      <CardReveal
+        card={{
+          id: 'card-ramen',
+          mealId: 'meal-ramen',
+          catalogId: 'ramen',
+          name: '불꽃 라면',
+          rarity: 'epic',
+          quote: '뜨거운 모험이야.',
+          xp: 30,
+          isNew: true,
+          regionId: 'korea',
+          evolutionStage: 1,
+          createdAt: 1,
+        }}
+        foodType="ramen"
+        imageData={null}
+        isSaving={false}
+        integratedResult={integratedResult}
+        onSave={vi.fn()}
+        onDiscard={vi.fn()}
+      />,
+    )
+
+    expect(screen.getAllByTestId('primary-reward')).toHaveLength(3)
+    expect(screen.getByText('저녁 방을 열어보세요')).toBeInTheDocument()
+    expect(screen.getByText('추가 보상 1개')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '보상 확인 완료' })).toBeEnabled()
+    expect(screen.queryByRole('button', { name: '다시 선택' })).not.toBeInTheDocument()
   })
 })

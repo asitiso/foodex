@@ -7,6 +7,7 @@ import type { ExperienceSettings } from '../../domain/companionTypes'
 import type { MealAdventureResult } from '../../domain/progression'
 import { directFeedback } from '../../domain/feedback'
 import { playFeedback } from '../../lib/gameFeedback'
+import type { IntegratedMealResult } from '../../domain/integratedMealResult'
 
 interface CardRevealProps {
   card: FoodCard
@@ -15,6 +16,7 @@ interface CardRevealProps {
   isSaving: boolean
   recovery?: ReactNode
   adventureResult?: MealAdventureResult
+  integratedResult?: IntegratedMealResult
   experienceSettings?: ExperienceSettings
   onSave: () => void
   onDiscard: () => void
@@ -48,6 +50,7 @@ export function CardReveal({
   isSaving,
   recovery,
   adventureResult,
+  integratedResult,
   experienceSettings = DEFAULT_EXPERIENCE_SETTINGS,
   onSave,
   onDiscard,
@@ -86,6 +89,30 @@ export function CardReveal({
           </div>
         </article>
       </div>
+      {integratedResult && (
+        <section className="integrated-reward-result" aria-label="통합 보상">
+          <p className="eyebrow">MEAL REWARD</p>
+          <h2>한 끼 모험 보상</h2>
+          <div className="integrated-reward-list">
+            {integratedResult.primaryRewards.map((reward) => (
+              <article data-testid="primary-reward" key={reward.id}>
+                <span>{reward.label}</span>
+                <strong>{reward.value}</strong>
+              </article>
+            ))}
+          </div>
+          <strong className="integrated-next-goal-title">다음 목표</strong>
+          <p>{integratedResult.nextGoal.label}</p>
+          {integratedResult.detailRewards.length > 0 && (
+            <details className="integrated-reward-details">
+              <summary>추가 보상 {integratedResult.detailRewards.length}개</summary>
+              <ul>
+                {integratedResult.detailRewards.map((reward) => <li key={reward.id}>{reward.label}</li>)}
+              </ul>
+            </details>
+          )}
+        </section>
+      )}
       {adventureResult && (
         <section className="adventure-result-card result-celebration" aria-label="한 끼 모험 결과">
           <p className="eyebrow">V5.1 QUEST CLEAR</p>
@@ -119,8 +146,8 @@ export function CardReveal({
       )}
       <p className="reveal-copy">도감에 저장하고 다음 모험도 이어 가자!</p>
       <div className="reveal-actions">
-        <button className="secondary-action" type="button" onClick={onDiscard} disabled={isSaving}>다시 선택</button>
-        <button type="button" onClick={onSave} disabled={isSaving}>도감에 저장</button>
+        {!integratedResult && <button className="secondary-action" type="button" onClick={onDiscard} disabled={isSaving}>다시 선택</button>}
+        <button type="button" onClick={onSave} disabled={isSaving}>{integratedResult ? '보상 확인 완료' : '도감에 저장'}</button>
       </div>
       {recovery}
     </section>

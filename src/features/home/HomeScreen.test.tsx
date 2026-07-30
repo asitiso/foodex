@@ -72,6 +72,11 @@ describe('HomeScreen', () => {
     expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
   })
 
+  it('shows the unified next goal in the existing hero mission', () => {
+    render(<HomeScreen {...props} nextGoal="저녁 방을 열어보세요" />)
+    expect(screen.getByRole('region', { name: '오늘의 다음 행동' })).toHaveTextContent('저녁 방을 열어보세요')
+  })
+
   it('shows the meal gauge and the next meal goal', () => {
     render(<HomeScreen {...props} />)
 

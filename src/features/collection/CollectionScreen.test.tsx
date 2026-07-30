@@ -132,6 +132,19 @@ describe('CollectionScreen', () => {
     expect(screen.getByRole('button', { name: '업적 접기' })).toHaveAttribute('aria-expanded', 'true')
   })
 
+  it('highlights the album slot filled by the latest meal result', () => {
+    const entries = [ramenEntry]
+    render(
+      <CollectionScreen
+        entries={entries}
+        progression={buildProgression(entries)}
+        recentCardId="card-ramen"
+      />,
+    )
+
+    expect(screen.getByTestId('card-card-ramen')).toHaveClass('recently-unlocked')
+  })
+
   it('switches between card, world, set, and fusion views', async () => {
     const user = userEvent.setup()
     const entries = [ramenEntry]
