@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 export type SyncState = 'idle' | 'syncing' | 'local-only' | 'failed'
 
 export function SyncStatus({
@@ -7,7 +9,16 @@ export function SyncStatus({
   state: SyncState
   onRetry?: () => void
 }) {
-  if (state === 'idle') return null
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    setVisible(true)
+    if (state !== 'local-only') return
+    const timer = window.setTimeout(() => setVisible(false), 4000)
+    return () => window.clearTimeout(timer)
+  }, [state])
+
+  if (state === 'idle' || !visible) return null
 
   return (
     <aside className={`sync-status sync-${state}`} role={state === 'failed' ? 'alert' : 'status'}>
