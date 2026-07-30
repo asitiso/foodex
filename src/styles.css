@@ -497,6 +497,11 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .world-museum-room.completed { background: #fff0b8; color: #6543eb; }
 .world-relationship-list article { padding: .65rem .75rem; border-radius: .7rem; background: #e7ddff; }
 .world-relationship-list span { color: #675d72; font-size: .78rem; }
+.world-section small { color: #675d72; font-size: .75rem; line-height: 1.35; }
+.world-next-action { margin: 0; padding: .65rem .75rem; border-radius: .7rem; background: #fff0b8; color: #493568; font-size: .82rem; font-weight: 900; }
+.expedition-steps { display: grid; gap: .4rem; }
+.expedition-step { padding: .45rem .6rem; border-radius: .6rem; background: #f5f1f8; color: #675d72; font-size: .76rem; font-weight: 800; }
+.expedition-step.completed { background: #e7f6ed; color: #357458; }
 .room-record-cta { min-height: 3.8rem; display: flex; align-items: center; justify-content: center; gap: .55rem; border: 2px solid #5d3d75; background: linear-gradient(#ff8b70, #f16b64); box-shadow: 0 .32rem 0 #5d3d75; }
 .room-record-cta span { font-size: 1.25rem; }
 

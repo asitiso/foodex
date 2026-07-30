@@ -8,6 +8,7 @@ import { createSyncRepository } from './data/syncRepository'
 import { createCard } from './domain/cardRules'
 import { buildMealAdventureResult, buildProgression } from './domain/progression'
 import { buildWorldProgress } from './domain/v6WorldProgression'
+import { buildGameLoop } from './domain/v61GameLoop'
 import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG as V3_FOOD_CATALOG, REGIONS } from './domain/v3Content'
 import { FOOD_CATALOG as NAMED_FOOD_CATALOG } from './domain/foodCatalog'
 import { buildCompanionContext } from './domain/companionContext'
@@ -106,6 +107,7 @@ export function App({
     [entries, rewards],
   )
   const worldProgress = useMemo(() => buildWorldProgress(entries.map(({ meal }) => ({ meal }))), [entries])
+  const gameLoop = useMemo(() => buildGameLoop(entries, Date.now()), [entries])
   const companion = useMemo(() => {
     const now = Date.now()
     const context = buildCompanionContext(entries, progression, now)
@@ -382,7 +384,7 @@ export function App({
           }}
         />
       )}
-      {screen === 'adventure' && <AdventureScreen progression={progression} worldProgress={worldProgress} />}
+      {screen === 'adventure' && <AdventureScreen progression={progression} worldProgress={worldProgress} gameLoop={gameLoop} />}
       {screen === 'companion' && (
         <CompanionScreen
           entries={entries}
