@@ -100,6 +100,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: '도감' }))
     expect((await screen.findAllByText(/라면/)).length).toBeGreaterThan(0)
     expect(await screen.findByText('도감 완성률 9%')).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: '성장' }))
     expect(screen.getByText('첫 식사')).toBeInTheDocument()
     expect(screen.getByText('면 스타터')).toBeInTheDocument()
   })
@@ -155,7 +156,7 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: '도감' }))
     const tabs = screen.getAllByRole('tab')
-    expect(tabs).toHaveLength(4)
+    expect(tabs).toHaveLength(5)
     tabs.forEach((tab) => expect(tab).toHaveAccessibleName())
   })
 
