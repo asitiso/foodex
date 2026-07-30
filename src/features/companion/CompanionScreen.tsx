@@ -8,6 +8,7 @@ import type { ExperienceSettings as ExperienceSettingsValue } from '../../domain
 import { ExperienceSettings } from '../settings/ExperienceSettings'
 import { COMPANION_CHARACTERS } from '../../domain/companionCharacters'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
+import type { CompanionEvolution } from '../../domain/companionEvolution'
 
 type CompanionTab = 'journal' | 'report' | 'room'
 
@@ -26,6 +27,7 @@ export function CompanionScreen({
   onExperienceSettingsChange,
   characterId = 'foody',
   onCharacterChange = () => undefined,
+  evolution,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   roomUnlocks: readonly RoomUnlock[]
@@ -35,6 +37,7 @@ export function CompanionScreen({
   onExperienceSettingsChange: (value: ExperienceSettingsValue) => void
   characterId?: CompanionCharacterId
   onCharacterChange?: (id: CompanionCharacterId) => void
+  evolution?: CompanionEvolution
 }) {
   const [activeTab, setActiveTab] = useState<CompanionTab>('journal')
   const now = Date.now()
@@ -102,6 +105,14 @@ export function CompanionScreen({
         )}
       </div>
       <ExperienceSettings value={experienceSettings} onChange={onExperienceSettingsChange} />
+      {evolution && (
+        <section className="character-evolution-card" aria-label="푸디 성장과 변신">
+          <h2>{evolution.formName}</h2>
+          <p>{evolution.title}</p>
+          <div className="evolution-progress-track" aria-label={`성장 진행 ${evolution.progress}%`}><span style={{ width: `${evolution.progress}%` }} /></div>
+          <small>식사 기록 {evolution.stage}/4단계</small>
+        </section>
+      )}
       <section className="character-picker" aria-label="푸디 캐릭터 선택">
         <h2>푸디 캐릭터 선택</h2>
         <div className="character-picker-grid">

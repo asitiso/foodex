@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
+import type { CompanionEvolution } from '../../domain/companionEvolution'
 
 export type CompanionEmotion = 'calm' | 'expectant' | 'happy' | 'surprised' | 'celebrating'
 
@@ -11,13 +12,14 @@ type Activity = 'idle' | 'walk' | 'jump' | 'sleep' | 'eat' | 'wiggle' | 'tail' |
 const CLICK_MOTIONS: readonly Activity[] = ['jump', 'wiggle', 'tail', 'ears', 'sparkle']
 
 export function CompanionRoom({
-  emotion, line, decorationIds, reducedMotion, characterId = 'foody', onOpenCompanion,
+  emotion, line, decorationIds, reducedMotion, characterId = 'foody', evolution, onOpenCompanion,
 }: {
   emotion: CompanionEmotion
   line: string
   decorationIds: readonly string[]
   reducedMotion: boolean
   characterId?: CompanionCharacterId
+  evolution?: CompanionEvolution
   onOpenCompanion: () => void
 }) {
   const [activity, setActivity] = useState<Activity>('idle')
@@ -55,7 +57,7 @@ export function CompanionRoom({
   }
 
   return (
-    <section className={`companion-room character-${characterId}${reducedMotion ? ' reduced-motion' : ''}`} aria-label="푸디의 방">
+    <section className={`companion-room character-${characterId} evolution-stage-${evolution?.stage ?? 1}${reducedMotion ? ' reduced-motion' : ''}`} aria-label="푸디의 방">
       <button className="room-window room-interactive" type="button" aria-label="창문" onClick={() => reactTo('walk', '창문 밖에서 바람이 불어와!')}><span /></button>
       <button className="room-shelf room-interactive" type="button" aria-label="카드 선반" onClick={() => reactTo('jump', '선반의 카드들이 반짝여!')}><i /><i /><i /></button>
       {decorationIds.map((id) => (

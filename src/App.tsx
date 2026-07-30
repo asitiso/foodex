@@ -20,6 +20,7 @@ import type { FoodCard, MealRecord } from './domain/types'
 import type { UserReward } from './data/foodexDb'
 import type { ExperienceSettings } from './domain/companionTypes'
 import type { CompanionCharacterId } from './domain/companionCharacters'
+import { buildCompanionEvolution } from './domain/companionEvolution'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
 import { AdventureScreen } from './features/adventure/AdventureScreen'
 import { CollectionScreen } from './features/collection/CollectionScreen'
@@ -109,6 +110,7 @@ export function App({
     () => buildProgression(entries, Date.now(), rewards.map((reward) => reward.rewardId)),
     [entries, rewards],
   )
+  const companionEvolution = useMemo(() => buildCompanionEvolution(characterId, entries.map(({ meal }) => ({ meal }))), [characterId, entries])
   const worldProgress = useMemo(() => buildWorldProgress(entries.map(({ meal }) => ({ meal }))), [entries])
   const gameLoop = useMemo(() => buildGameLoop(entries, Date.now()), [entries])
   const companion = useMemo(() => {
@@ -355,6 +357,7 @@ export function App({
           mealGameLoop={progression.mealGameLoop}
           mealAdventure={progression.mealAdventure}
           characterId={characterId}
+          evolution={companionEvolution}
           companionLine={companion.line}
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}
@@ -404,6 +407,7 @@ export function App({
           }}
           characterId={characterId}
           onCharacterChange={(id) => { setCharacterId(id); window.localStorage.setItem('foodex-companion-character', id) }}
+          evolution={companionEvolution}
         />
       )}
       {screen === 'home' && canProtectCollection && (
