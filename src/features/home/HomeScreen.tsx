@@ -5,17 +5,11 @@ import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
 import type { CompanionClass } from '../../domain/companionClasses'
 import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
-import { CompanionRoom } from './CompanionRoom'
 import type { CompanionEmotion } from '../companion/HeroCompanion'
-import { HomeStatusGrid } from './HomeStatusGrid'
+import { WorldHomeScene } from './WorldHomeScene'
 
-interface HomeScreenProps {
-  summary: {
-    todayCount: number
-    discoveredCount: number
-    totalXp: number
-    lastMealAt?: number
-  }
+export interface HomeScreenProps {
+  summary: { todayCount: number; discoveredCount: number; totalXp: number; lastMealAt?: number }
   coinBalance: number
   level: PlayerLevel
   streak: MealStreak
@@ -36,6 +30,8 @@ interface HomeScreenProps {
   onOpenCollection: () => void
   onOpenAdventure: () => void
   onOpenCompanion: () => void
+  onOpenLevel: () => void
+  onOpenCoins: () => void
 }
 
 export function HomeScreen({
@@ -43,133 +39,34 @@ export function HomeScreen({
   coinBalance,
   level,
   streak,
-  dailyQuests,
-  adventureBoard,
   mealGameLoop,
-  mealAdventure,
-  characterId,
-  evolution,
-  companionClass,
-  advancedSystems,
-  companionLine,
+  characterId = 'foody',
   companionEmotion,
-  decorationIds,
   reducedMotion,
-  nextGoal,
   onRecord,
   onOpenCollection,
   onOpenAdventure,
   onOpenCompanion,
+  onOpenLevel,
+  onOpenCoins,
 }: HomeScreenProps) {
-  const nextQuest = dailyQuests.find((quest) => !quest.completed && !adventureBoard.items.some((item) => item.title === quest.title))
-    ?? dailyQuests.find((quest) => !quest.completed)
-    ?? dailyQuests.at(-1)
-  const statusQuest = nextQuest && adventureBoard.items.some((item) => item.title === nextQuest.title)
-    ? { ...nextQuest, title: '세계 탐험' }
-    : nextQuest
-
   return (
-    <section className="home-screen home-room-screen" aria-label="홈">
-      <header className="room-home-header">
-        <div>
-          <p className="eyebrow">FOODEX ROOM</p>
-          <h1>푸디의 맛있는 방</h1>
-        </div>
-        <div className="home-wallet-cluster">
-          <span className="home-coin-pill" aria-label={`보유 코인 ${coinBalance}개`}>◆ {coinBalance}</span>
-          <span className="room-level-pill">LV.{level.level}</span>
-        </div>
-      </header>
-
-      <CompanionRoom
-        emotion={companionEmotion}
-        line={companionLine}
-        decorationIds={decorationIds}
-        reducedMotion={reducedMotion}
-        characterId={characterId}
-        evolution={evolution}
-        companionClass={companionClass}
-        onOpenCompanion={onOpenCompanion}
-      />
-
-      <section className="home-hero-mission" aria-label="오늘의 다음 행동">
-        <div><span className="home-hero-mission-icon" aria-hidden="true">🗺️</span><div><strong>오늘의 다음 방</strong><p>{nextGoal ?? (mealGameLoop.nextMealRemaining > 0 ? `다음 식사 기록까지 ${mealGameLoop.nextMealRemaining}끼 남았어요` : '오늘의 식사 던전을 모두 클리어했어요!')}</p></div></div>
-        <span className="home-hero-mission-reward">+{mealGameLoop.comboReward} XP</span>
-      </section>
-
-      <HomeStatusGrid
-        level={level.level}
-        todayCards={summary.todayCount}
-        quest={statusQuest}
-        streakDays={streak.currentDays}
-        onOpenAdventure={onOpenAdventure}
-        onOpenCollection={onOpenCollection}
-      />
-
-      <section className="meal-game-loop" aria-label="오늘의 식사 게이지">
-        <div className="section-title-row">
-          <h2>오늘의 식사 게이지</h2>
-          <strong>{mealGameLoop.todayMeals}끼</strong>
-        </div>
-        <div className="meal-gauge-steps" aria-label={`${mealGameLoop.todayMeals}끼 기록됨`}>
-          {mealGameLoop.gaugeSteps.map((completed, index) => (
-            <span className={completed ? 'meal-gauge-step completed' : 'meal-gauge-step'} key={index}>
-              {completed ? '✓' : index + 1}
-            </span>
-          ))}
-        </div>
-        <p className="meal-next-goal">
-          {mealGameLoop.nextMealRemaining > 0
-            ? `다음 한 끼까지 ${mealGameLoop.nextMealRemaining}끼 남았어요`
-            : '오늘의 식사 게이지를 모두 채웠어요!'}
-        </p>
-        <p className="meal-growth-goal">
-          {mealGameLoop.growth.next
-            ? `다음 성장까지 ${mealGameLoop.growth.remaining}끼`
-            : '전설의 식사 기록을 달성했어요'}
-        </p>
-        <p className="meal-combo-goal">{mealGameLoop.comboLabel} · +{mealGameLoop.comboReward} XP</p>
-        <p className="meal-weekly-goal">
-          이번 주 원정 {mealGameLoop.weeklyMeals}/{mealGameLoop.weeklyTarget}끼
-          {mealGameLoop.recoveryAvailable ? ' · 회복권 사용 가능' : ''}
-        </p>
-        {advancedSystems && <div className="home-dungeon-map" aria-label="오늘의 식사 던전">
-          {advancedSystems.dungeon.rooms.map((room) => <span className={room.cleared ? 'cleared' : ''} key={room.id}><b>{room.cleared ? '✓' : '○'}</b>{room.name}</span>)}
-        </div>}
-      </section>
-
-      <section className="meal-adventure-panel" aria-label="식사 모험">
-        <div className="section-title-row"><h2>{mealAdventure.chapter.title}</h2><strong>{mealAdventure.route.label}</strong></div>
-        <p>{mealAdventure.chapter.line}</p>
-        <p>푸디 상태: {mealAdventure.mood === 'bright' ? '최고 컨디션' : mealAdventure.mood === 'energized' ? '기운이 돌아왔어요' : '조금 배고파 보여요'}</p>
-        {mealAdventure.recipes.length > 0 && <p>발견한 조합: {mealAdventure.recipes.join(', ')}</p>}
-        <p>이번 달 컬렉션: 아침 {mealAdventure.monthly.breakfast} · 점심 {mealAdventure.monthly.lunch} · 저녁 {mealAdventure.monthly.dinner}</p>
-        <small>다음 보상: {mealAdventure.roomReward.title}까지 {mealAdventure.roomReward.remaining}끼</small>
-      </section>
-
-      <section className="home-adventure-board" aria-label={adventureBoard.title}>
-        <div className="section-title-row">
-          <h2>{adventureBoard.title}</h2>
-          <button className="inline-button" type="button" onClick={onOpenAdventure}>모험 보기</button>
-        </div>
-        <div className="home-adventure-list">
-          {adventureBoard.items.map((item) => (
-            <article className={item.completed ? 'home-adventure-item completed' : 'home-adventure-item'} key={item.id}>
-              <span aria-hidden="true">{item.completed ? '✓' : '□'}</span>
-              <div>
-                <strong>{item.title}</strong>
-                <small>{item.reward}</small>
-              </div>
-            </article>
-          ))}
-        </div>
-        <p>{adventureBoard.nextFocus}</p>
-      </section>
-
-      <button className="primary-cta room-record-cta reward-cta" type="button" onClick={onRecord}>
-        <span aria-hidden="true">📷</span>
-        오늘의 보상 받기
-      </button>
-    </section>
+    <WorldHomeScene
+      coinBalance={coinBalance}
+      level={level}
+      todayCards={summary.todayCount}
+      todayMeals={mealGameLoop.todayMeals}
+      mealTarget={mealGameLoop.gaugeSteps.length}
+      streakDays={streak.currentDays}
+      characterId={characterId}
+      emotion={companionEmotion}
+      reducedMotion={reducedMotion}
+      onRecord={onRecord}
+      onOpenCollection={onOpenCollection}
+      onOpenAdventure={onOpenAdventure}
+      onOpenCompanion={onOpenCompanion}
+      onOpenLevel={onOpenLevel}
+      onOpenCoins={onOpenCoins}
+    />
   )
 }
