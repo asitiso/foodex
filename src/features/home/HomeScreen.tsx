@@ -6,7 +6,7 @@ import type { CompanionEvolution } from '../../domain/companionEvolution'
 import type { CompanionClass } from '../../domain/companionClasses'
 import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
 import { CompanionRoom } from './CompanionRoom'
-import type { CompanionEmotion } from './CompanionRoom'
+import type { CompanionEmotion } from '../companion/HeroCompanion'
 import { HomeStatusGrid } from './HomeStatusGrid'
 
 interface HomeScreenProps {

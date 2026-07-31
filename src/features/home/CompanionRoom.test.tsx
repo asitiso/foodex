@@ -108,6 +108,6 @@ describe('CompanionRoom', () => {
     await userEvent.click(screen.getByRole('button', { name: '기뻐하는 푸디' }))
     view.unmount()
 
-    expect(clearTimeout).toHaveBeenCalledTimes(2)
+    expect(clearTimeout).toHaveBeenCalledTimes(3)
   })
 })
