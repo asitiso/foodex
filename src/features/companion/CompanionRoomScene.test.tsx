@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react'
+import { useState } from 'react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { CompanionRoomScene } from './CompanionRoomScene'
@@ -49,6 +50,28 @@ describe('CompanionRoomScene', () => {
     await user.click(screen.getByRole('button', { name: '꾸미기 상점 열기' }))
 
     expect(props.onPanelChange).toHaveBeenCalledWith('shop')
+  })
+
+  it('clears the active panel when the shared sheet closes', async () => {
+    const user = userEvent.setup()
+    const onPanelChange = vi.fn()
+
+    function RoomHarness() {
+      const [activePanel, setActivePanel] = useState<'wardrobe' | 'growth' | 'shop' | null>(null)
+      const handlePanelChange = (panel: 'wardrobe' | 'growth' | 'shop' | null) => {
+        onPanelChange(panel)
+        setActivePanel(panel)
+      }
+
+      return <CompanionRoomScene {...props} activePanel={activePanel} onPanelChange={handlePanelChange} />
+    }
+
+    render(<RoomHarness />)
+    await user.click(screen.getByRole('button', { name: '꾸미기 상점 열기' }))
+    await user.click(screen.getByRole('button', { name: '꾸미기 상점 닫기' }))
+
+    expect(onPanelChange).toHaveBeenLastCalledWith(null)
+    expect(screen.queryByRole('dialog', { name: '꾸미기 상점' })).not.toBeInTheDocument()
   })
 
   it('mounts only the active panel in its named sheet', () => {
