@@ -18,7 +18,7 @@
 button, input { font: inherit; }
 button { cursor: pointer; }
 body { font-size: 16px; }
-button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--game-purple); outline-offset: 3px; }
+:where(button, select, input):focus-visible { outline: 3px solid var(--game-purple); outline-offset: 3px; }
 
 .app-shell { width: min(100%, 72rem); min-height: 100dvh; margin: 0 auto; padding-bottom: 6.2rem; background: #fff8ef; }
 .home-screen, .collection-screen { min-height: calc(100dvh - 5.6rem); padding: 2rem 1.25rem 1.5rem; }
