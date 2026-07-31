@@ -160,16 +160,25 @@ describe('App', () => {
     expect(screen.getByRole('region', { name: '모험' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '모험' })).toHaveAttribute('aria-current', 'page')
 
-    await user.click(screen.getByRole('button', { name: '친구' }))
+    await user.click(screen.getByRole('button', { name: '버디' }))
     expect(screen.getByRole('region', { name: 'AI 친구' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '친구' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: '버디' })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('opens the same companion route from the home room action', async () => {
+    const user = userEvent.setup()
+    render(<App repository={createMemoryRepository()} />)
+
+    await user.click(screen.getByRole('button', { name: '버디 방으로 가기' }))
+
+    expect(screen.getByRole('region', { name: 'AI 친구' })).toBeInTheDocument()
   })
 
   it('names every V3 destination and collection tab', async () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    for (const destination of ['홈', '도감', '촬영', '모험', '친구']) {
+    for (const destination of ['홈', '도감', '촬영', '모험', '버디']) {
       expect(screen.getByRole('button', { name: destination })).toHaveAccessibleName()
     }
 

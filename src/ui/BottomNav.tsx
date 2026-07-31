@@ -10,7 +10,7 @@ const navItems: Array<{ tab: AppTab; label: string; icon: string; primary?: bool
   { tab: 'collection', label: '도감', icon: '▦' },
   { tab: 'record', label: '촬영', icon: '📷', primary: true },
   { tab: 'adventure', label: '모험', icon: '✦' },
-  { tab: 'companion', label: '친구', icon: '●' },
+  { tab: 'companion', label: '버디', icon: '●' },
 ]
 
 export function BottomNav({ active, onNavigate }: BottomNavProps) {
@@ -27,7 +27,7 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
           aria-current={active === item.tab ? 'page' : undefined}
           onClick={() => onNavigate(item.tab)}
         >
-          <span aria-hidden="true">{item.icon}</span>
+          <span className="bottom-nav-icon" aria-hidden="true">{item.icon}</span>
           {item.label}
         </button>
       ))}

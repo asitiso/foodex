@@ -29,6 +29,7 @@ export interface HomeScreenProps {
   onRecord: () => void
   onOpenCollection: () => void
   onOpenAdventure: () => void
+  onOpenMeals: () => void
   onOpenCompanion: () => void
   onOpenLevel: () => void
   onOpenCoins: () => void
@@ -46,6 +47,7 @@ export function HomeScreen({
   onRecord,
   onOpenCollection,
   onOpenAdventure,
+  onOpenMeals,
   onOpenCompanion,
   onOpenLevel,
   onOpenCoins,
@@ -64,6 +66,7 @@ export function HomeScreen({
       onRecord={onRecord}
       onOpenCollection={onOpenCollection}
       onOpenAdventure={onOpenAdventure}
+      onOpenMeals={onOpenMeals}
       onOpenCompanion={onOpenCompanion}
       onOpenLevel={onOpenLevel}
       onOpenCoins={onOpenCoins}

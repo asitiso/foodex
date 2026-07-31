@@ -13,8 +13,16 @@ describe('BottomNav', () => {
       '▦도감',
       '📷촬영',
       '✦모험',
-      '●친구',
+      '●버디',
     ])
     expect(screen.getByRole('button', { name: '촬영' })).toHaveClass('primary')
+  })
+
+  it('keeps all five routes and names the companion route 버디', () => {
+    render(<BottomNav active="home" onNavigate={vi.fn()} />)
+
+    expect(screen.getAllByRole('button')).toHaveLength(5)
+    expect(screen.getByRole('button', { name: '버디' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '촬영' })).toBeInTheDocument()
   })
 })

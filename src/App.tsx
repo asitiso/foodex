@@ -40,12 +40,14 @@ import { SyncStatus } from './features/sync/SyncStatus'
 import { InstallAppButton } from './features/pwa/InstallAppButton'
 import type { SyncState } from './features/sync/SyncStatus'
 import { BottomNav } from './ui/BottomNav'
+import { GameSheet } from './ui/GameSheet'
 import './styles.css'
 
 type Screen = 'home' | 'collection' | 'record' | 'adventure' | 'companion' | 'reveal'
 type SaveError = 'quota' | 'generic' | undefined
 type SaveMode = 'withPhoto' | 'withoutPhoto'
 type ReadError = 'load' | 'history' | undefined
+type HomeSheet = 'level' | 'meals' | 'coins' | null
 
 interface PendingDiscovery {
   meal: MealRecord
@@ -114,6 +116,7 @@ export function App({
   )
   const [canProtectCollection, setCanProtectCollection] = useState(false)
   const [showProtection, setShowProtection] = useState(false)
+  const [homeSheet, setHomeSheet] = useState<HomeSheet>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [saveMode, setSaveMode] = useState<SaveMode>('withPhoto')
   const latestRefresh = useRef(0)
@@ -348,6 +351,7 @@ export function App({
 
   const navigate = (tab: Exclude<Screen, 'reveal'>) => {
     setSaveError(undefined)
+    setHomeSheet(null)
     if (showIntegratedResult) {
       setPending(undefined)
       setShowIntegratedResult(false)
@@ -398,7 +402,10 @@ export function App({
           onRecord={() => navigate('record')}
           onOpenCollection={() => navigate('collection')}
           onOpenAdventure={() => navigate('adventure')}
+          onOpenMeals={() => setHomeSheet('meals')}
           onOpenCompanion={() => navigate('companion')}
+          onOpenLevel={() => setHomeSheet('level')}
+          onOpenCoins={() => setHomeSheet('coins')}
         />
       )}
       {screen === 'record' && <RecordFlow onComplete={completeRecord} onCancel={() => navigate('home')} recovery={historyRecovery} recentMeals={entries.map(({ meal }) => meal)} />}
@@ -514,6 +521,20 @@ export function App({
         />
       )}
       {screen !== 'reveal' && <BottomNav active={activeTab} onNavigate={navigate} />}
+      <GameSheet open={homeSheet === 'level'} title="성장 보기" onClose={() => setHomeSheet(null)}>
+        <p>레벨 {progression.level.level}</p>
+        <p>경험치 {progression.level.currentLevelXp} / {progression.level.nextLevelXp}</p>
+        <button type="button" onClick={() => { setHomeSheet(null); navigate('collection') }}>도감 보기</button>
+      </GameSheet>
+      <GameSheet open={homeSheet === 'meals'} title="식사 현황" onClose={() => setHomeSheet(null)}>
+        <p>오늘 식사 {progression.mealGameLoop.todayMeals} / {progression.mealGameLoop.gaugeSteps.length}</p>
+        <p>연속 기록 {progression.streak.currentDays}일</p>
+        <button type="button" onClick={() => { setHomeSheet(null); navigate('adventure') }}>모험 보기</button>
+      </GameSheet>
+      <GameSheet open={homeSheet === 'coins'} title="코인" onClose={() => setHomeSheet(null)}>
+        <p>보유 코인 {coinBalance}개</p>
+        <button type="button" onClick={() => { setHomeSheet(null); navigate('companion') }}>버디 방 보기</button>
+      </GameSheet>
     </main>
   )
 }

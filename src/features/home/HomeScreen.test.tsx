@@ -40,6 +40,7 @@ const props = {
   onRecord: vi.fn(),
   onOpenCollection: vi.fn(),
   onOpenAdventure: vi.fn(),
+  onOpenMeals: vi.fn(),
   onOpenCompanion: vi.fn(),
   onOpenLevel: vi.fn(),
   onOpenCoins: vi.fn(),

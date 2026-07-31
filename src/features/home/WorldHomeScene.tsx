@@ -20,6 +20,7 @@ export interface WorldHomeSceneProps {
   onRecord: () => void
   onOpenCollection: () => void
   onOpenAdventure: () => void
+  onOpenMeals: () => void
   onOpenCompanion: () => void
   onOpenLevel: () => void
   onOpenCoins: () => void
@@ -38,6 +39,7 @@ export function WorldHomeScene({
   onRecord,
   onOpenCollection,
   onOpenAdventure,
+  onOpenMeals,
   onOpenCompanion,
   onOpenLevel,
   onOpenCoins,
@@ -62,7 +64,7 @@ export function WorldHomeScene({
         streakDays={streakDays}
         onOpenLevel={onOpenLevel}
         onOpenCards={onOpenCollection}
-        onOpenMeals={onOpenAdventure}
+        onOpenMeals={onOpenMeals}
         onOpenCoins={onOpenCoins}
       />
       <HeroCompanion
