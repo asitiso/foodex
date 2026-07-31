@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { GameSheet } from './GameSheet'
 
 describe('GameSheet', () => {
-  afterEach(cleanup)
+  afterEach(() => {
+    cleanup()
+    window.sessionStorage.clear()
+  })
 
   it('opens as a modal dialog and closes from its control', async () => {
     const onClose = vi.fn()
@@ -36,6 +39,23 @@ describe('GameSheet', () => {
     render(<GameSheet open={false} title="코인" onClose={vi.fn()}><p>내용</p></GameSheet>)
 
     expect(screen.queryByRole('dialog', { name: '코인' })).not.toBeInTheDocument()
+  })
+
+  it('renames the coin action and records that the buddy shop should open', async () => {
+    const user = userEvent.setup()
+    render(
+      <GameSheet open title="코인" onClose={vi.fn()}>
+        <p>보유 코인 0개</p>
+        <button type="button">버디 방 보기</button>
+      </GameSheet>,
+    )
+
+    const shopButton = screen.getByRole('button', { name: '꾸미기 상점 열기' })
+    expect(screen.queryByRole('button', { name: '버디 방 보기' })).not.toBeInTheDocument()
+
+    await user.click(shopButton)
+
+    expect(window.sessionStorage.getItem('foodex-open-companion-shop')).toBe('1')
   })
 
   it('closes natively and returns focus to its opener when open changes to false', () => {
