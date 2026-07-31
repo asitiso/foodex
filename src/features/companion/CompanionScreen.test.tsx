@@ -4,31 +4,33 @@ import { describe, expect, it } from 'vitest'
 import { CompanionScreen } from './CompanionScreen'
 import { buildProgression } from '../../domain/progression'
 
+const props = {
+  entries: [],
+  roomUnlocks: [],
+  progression: buildProgression([]),
+  rewards: [],
+  experienceSettings: { soundEnabled: true, musicEnabled: false, hapticsEnabled: true, reducedMotion: false },
+  onExperienceSettingsChange: () => undefined,
+}
+
 describe('CompanionScreen', () => {
-  it('separates journal report and room without a fake chat input', async () => {
-    render(
-      <CompanionScreen
-        entries={[]}
-        roomUnlocks={[]}
-        progression={buildProgression([])}
-        rewards={[]}
-        experienceSettings={{
-          soundEnabled: true,
-          musicEnabled: false,
-          hapticsEnabled: true,
-          reducedMotion: false,
-        }}
-        onExperienceSettingsChange={() => undefined}
-      />,
-    )
+  it('opens on the room instead of the journal dashboard', () => {
+    const { container } = render(<CompanionScreen {...props} />)
 
-    expect(screen.getByRole('tab', { name: '식사 일기' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '월간 리포트' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '내 방' })).toBeInTheDocument()
+    expect(container.querySelector('.companion-room-scene')).toBeInTheDocument()
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument()
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
-    expect(screen.getByText('첫 기록을 남기면 푸드 친구가 오늘의 이야기를 써 줄게요.')).toBeInTheDocument()
+  })
 
-    await userEvent.click(screen.getByRole('tab', { name: '내 방' }))
-    expect(screen.getByRole('tabpanel', { name: '내 방' })).toHaveTextContent('다음 장식')
+  it('opens the shop in the room sheet and preserves preview behavior', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<CompanionScreen {...props} coinBalance={30} shopOnline />)
+    const shopButton = Array.from(screen.getAllByRole('button')).find((button) => button.classList.contains('room-hotspot-shop'))
+
+    expect(shopButton).toBeDefined()
+    await user.click(shopButton!)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    await user.click(screen.getAllByRole('button', { name: /미리보기/ })[0])
+    expect(container.querySelector('.shop-dialog')).toBeInTheDocument()
   })
 })

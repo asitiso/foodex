@@ -13,30 +13,14 @@ import type { CompanionClass, CompanionClassId } from '../../domain/companionCla
 import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
 import type { ShopProduct } from '../../domain/shopCatalog'
 import { CosmeticShop } from './CosmeticShop'
+import { CompanionRoomScene, type RoomPanel } from './CompanionRoomScene'
 
-type CompanionTab = 'journal' | 'report' | 'room'
-
-const TABS: readonly { id: CompanionTab; label: string }[] = [
-  { id: 'journal', label: '식사 일기' },
-  { id: 'report', label: '월간 리포트' },
-  { id: 'room', label: '내 방' },
-]
+type StoryPanel = 'journal' | 'report' | null
 
 export function CompanionScreen({
-  entries,
-  roomUnlocks,
-  progression,
-  rewards,
-  experienceSettings,
-  onExperienceSettingsChange,
-  characterId = 'foody',
-  onCharacterChange = () => undefined,
-  evolution,
-  companionClasses = [],
-  onClassChange = () => undefined,
-  advancedSystems,
-  coinBalance = 0,
-  shopOnline = false,
+  entries, roomUnlocks, progression, rewards, experienceSettings, onExperienceSettingsChange,
+  characterId = 'foody', onCharacterChange = () => undefined, evolution, companionClasses = [],
+  onClassChange = () => undefined, advancedSystems, coinBalance = 0, shopOnline = false,
   onPurchaseProduct = async () => undefined,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
@@ -55,119 +39,48 @@ export function CompanionScreen({
   shopOnline?: boolean
   onPurchaseProduct?: (product: ShopProduct) => Promise<void>
 }) {
-  const [activeTab, setActiveTab] = useState<CompanionTab>('journal')
-  const now = Date.now()
-  const day = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now)
-  const month = day.slice(0, 7)
+  const [activePanel, setActivePanel] = useState<RoomPanel>(null)
+  const [activeStory, setActiveStory] = useState<StoryPanel>(null)
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(Date.now())
   const journal = buildDailyJournal(entries, progression, day)
-  const report = buildMonthlyReport(entries, rewards, month)
+  const report = buildMonthlyReport(entries, rewards, day.slice(0, 7))
+  const ownedIds = rewards.filter((reward) => reward.sourceType === 'shop').map((reward) => reward.rewardId)
 
   return (
     <section className="companion-screen" aria-label="AI 친구">
-      <header>
-        <p className="eyebrow">FOODEX 친구</p>
-        <h1>푸디와 만든 맛있는 이야기</h1>
-      </header>
-      <div className="collection-tabs companion-tabs" role="tablist" aria-label="친구 보기">
-        {TABS.map((tab) => (
-          <button
-            id={`companion-tab-${tab.id}`}
-            role="tab"
-            type="button"
-            key={tab.id}
-            aria-selected={activeTab === tab.id}
-            aria-controls={`companion-panel-${tab.id}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      <div
-        className="companion-panel"
-        id={`companion-panel-${activeTab}`}
-        role="tabpanel"
-        aria-labelledby={`companion-tab-${activeTab}`}
-      >
-        {activeTab === 'journal' && (
-          <section className="friend-story-card">
-            <span aria-hidden="true">📖</span>
-            <h2>오늘의 식사 일기</h2>
-            <p>{journal.text}</p>
-          </section>
-        )}
-        {activeTab === 'report' && (
-          <section className="friend-story-card">
-            <span aria-hidden="true">📊</span>
-            <h2>이번 달 한눈에 보기</h2>
-            <p>{report.text}</p>
-            <strong>{report.suggestion}</strong>
-          </section>
-        )}
-        {activeTab === 'room' && (
-          <>
-            <section className="friend-story-card">
-              <span aria-hidden="true">🏠</span>
-              <h2>내 방 장식</h2>
-              {roomUnlocks.length > 0
-                ? <ul>{roomUnlocks.map((unlock) => <li key={unlock.id}>{unlock.title}</li>)}</ul>
-                : <p>아직 기본 방이에요. 모험을 이어 가면 장식이 생겨요!</p>}
-              <strong>다음 장식: 레벨 3 작은 화분</strong>
+      <CompanionRoomScene
+        characterId={characterId}
+        emotion="happy"
+        reducedMotion={experienceSettings.reducedMotion}
+        evolution={evolution}
+        coinBalance={coinBalance}
+        activePanel={activePanel}
+        onPanelChange={setActivePanel}
+        childrenByPanel={{
+          wardrobe: <>
+            <section className="character-picker" aria-label="친구 캐릭터 선택">
+              <div className="character-picker-grid">
+                {COMPANION_CHARACTERS.map((character) => <button key={character.id} type="button" className={characterId === character.id ? 'selected' : ''} aria-pressed={characterId === character.id} onClick={() => onCharacterChange(character.id)}><span className={`mini-companion mini-${character.id}`} aria-hidden="true" /><strong>{character.name}</strong><small>{character.description}</small></button>)}
+              </div>
             </section>
-            <CosmeticShop
-              balance={coinBalance}
-              ownedIds={rewards.filter((reward) => reward.sourceType === 'shop').map((reward) => reward.rewardId)}
-              online={shopOnline}
-              onPurchase={onPurchaseProduct}
-            />
-          </>
-        )}
+            <section className="friend-story-card"><h3>방 꾸미기 보유품</h3>{roomUnlocks.length ? <ul>{roomUnlocks.map((unlock) => <li key={unlock.id}>{unlock.title}</li>)}</ul> : <p>모험을 이어가면 새 장식을 찾을 수 있어요.</p>}</section>
+          </>,
+          growth: <>
+            {evolution && <section className="character-evolution-card" aria-label="친구 성장과 변화"><h3>{evolution.formName}</h3><p>{evolution.title}</p><div className="evolution-progress-track" aria-label={`성장 진행 ${evolution.progress}%`}><span style={{ width: `${evolution.progress}%` }} /></div><small>식사 기록 {evolution.stage}/4단계</small></section>}
+            <section className="class-picker" aria-label="친구 직업 선택"><h3>직업 선택</h3><div className="class-picker-grid">{companionClasses.map((job) => <button key={job.id} type="button" disabled={!job.unlocked} className={job.recommended ? 'selected' : ''} aria-pressed={job.recommended} onClick={() => onClassChange(job.id)}><strong>{job.name}</strong><small>{job.unlocked ? `${job.skill} · ${job.bonus}` : `🔒 ${job.requirement}`}</small></button>)}</div></section>
+            {advancedSystems && <details className="advanced-systems-panel"><summary>자세한 게임 시스템 보기</summary><p>{advancedSystems.event.title} · {advancedSystems.event.reward}</p><p>{advancedSystems.transformation.message}</p></details>}
+            <ExperienceSettings value={experienceSettings} onChange={onExperienceSettingsChange} />
+          </>,
+          shop: <CosmeticShop compact balance={coinBalance} ownedIds={ownedIds} online={shopOnline} onPurchase={onPurchaseProduct} />,
+        }}
+      />
+      <div className="companion-story-actions" aria-label="기록 책장">
+        <button type="button" onClick={() => setActiveStory('journal')}>오늘의 식사 일기</button>
+        <button type="button" onClick={() => setActiveStory('report')}>주간 리포트</button>
       </div>
-      <ExperienceSettings value={experienceSettings} onChange={onExperienceSettingsChange} />
-      {evolution && (
-        <section className="character-evolution-card" aria-label="푸디 성장과 변신">
-          <h2>{evolution.formName}</h2>
-          <p>{evolution.title}</p>
-          <div className="evolution-progress-track" aria-label={`성장 진행 ${evolution.progress}%`}><span style={{ width: `${evolution.progress}%` }} /></div>
-          <small>식사 기록 {evolution.stage}/4단계</small>
-        </section>
-      )}
-      <section className="class-picker" aria-label="푸디 전직 선택">
-        <h2>전직 선택</h2>
-        <p>식사 행동으로 열린 직업을 선택하면 고유 스킬과 보너스를 얻어요.</p>
-        <div className="class-picker-grid">
-          {companionClasses.map((job) => <button key={job.id} type="button" disabled={!job.unlocked} className={job.recommended ? 'selected' : ''} aria-pressed={job.recommended} onClick={() => onClassChange(job.id)}><strong>{job.name}</strong><small>{job.unlocked ? `${job.skill} · ${job.bonus}` : `🔒 ${job.requirement}`}</small></button>)}
-        </div>
-      </section>
-      {advancedSystems && (
-        <section className="advanced-systems-panel" aria-label="푸디 게임 시스템">
-          <h2>오늘의 식사 던전</h2>
-          <div className="dungeon-rooms">{advancedSystems.dungeon.rooms.map((room) => <span className={room.cleared ? 'cleared' : ''} key={room.id}>{room.cleared ? '✓ ' : '○ '}{room.name}</span>)}</div>
-          <p>{advancedSystems.event.title} · {advancedSystems.event.reward}</p>
-          <p>{advancedSystems.transformation.message}</p>
-          <p>주간 보스: {advancedSystems.boss.name} ({advancedSystems.boss.hp}/{advancedSystems.boss.maxHp})</p>
-          <small>활성 스킬: {advancedSystems.skill.name} · {advancedSystems.skill.effect}</small>
-          {advancedSystems.equipment.length > 0 && <small>장비: {advancedSystems.equipment.join(', ')}</small>}
-          {advancedSystems.npcs.length > 0 && <small>만난 NPC: {advancedSystems.npcs.join(', ')}</small>}
-        </section>
-      )}
-      <section className="character-picker" aria-label="푸디 캐릭터 선택">
-        <h2>푸디 캐릭터 선택</h2>
-        <div className="character-picker-grid">
-          {COMPANION_CHARACTERS.map((character) => (
-            <button key={character.id} type="button" className={characterId === character.id ? 'selected' : ''} aria-pressed={characterId === character.id} onClick={() => onCharacterChange(character.id)}>
-              <span className={`mini-companion mini-${character.id}`} aria-hidden="true" />
-              <strong>{character.name}</strong>
-              <small>{character.description}</small>
-            </button>
-          ))}
-        </div>
-      </section>
+      {activeStory && <section className="friend-story-card" aria-live="polite">
+        {activeStory === 'journal' ? <><h2>오늘의 식사 일기</h2><p>{journal.text}</p></> : <><h2>이번 주 식습관 돌아보기</h2><p>{report.text}</p><strong>{report.suggestion}</strong></>}
+      </section>}
     </section>
   )
 }

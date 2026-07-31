@@ -3,11 +3,13 @@ import { SHOP_PRODUCTS } from '../../domain/shopCatalog'
 import type { ShopProduct } from '../../domain/shopCatalog'
 
 export function CosmeticShop({
+  compact = false,
   balance,
   ownedIds,
   online,
   onPurchase,
 }: {
+  compact?: boolean
   balance: number
   ownedIds: readonly string[]
   online: boolean
@@ -38,14 +40,17 @@ export function CosmeticShop({
   }
 
   return (
-    <section className="cosmetic-shop" aria-labelledby="cosmetic-shop-title">
-      <div className="shop-heading">
+    <section
+      className="cosmetic-shop"
+      {...(compact ? { 'aria-label': 'Cosmetic shop' } : { 'aria-labelledby': 'cosmetic-shop-title' })}
+    >
+      {!compact && <div className="shop-heading">
         <div>
           <p className="eyebrow">FOODEX SHOP</p>
           <h2 id="cosmetic-shop-title">방 꾸미기 상점</h2>
         </div>
         <strong className="coin-balance" aria-label={`보유 코인 ${balance}개`}>◆ {balance}</strong>
-      </div>
+      </div>}
       <p className="shop-guide">식사를 기록해 모은 코인으로 푸디의 방을 꾸며보세요.</p>
       {!online && <p className="shop-offline-note">인터넷에 연결하면 안전하게 구매할 수 있어요.</p>}
       <div className="shop-product-grid">
