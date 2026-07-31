@@ -40,7 +40,16 @@ describe('CompanionRoomScene', () => {
     expect(screen.getByRole('button', { name: '옷장 열기' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '성장 거울 열기' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '꾸미기 상점 열기' })).toBeInTheDocument()
-    expect(screen.getByLabelText('보유 코인 13개')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '보유 코인 13개, 꾸미기 상점 열기' })).toBeInTheDocument()
+  })
+
+  it('opens the shop when the coin balance is pressed', async () => {
+    const user = userEvent.setup()
+    render(<CompanionRoomScene {...props} />)
+
+    await user.click(screen.getByRole('button', { name: '보유 코인 13개, 꾸미기 상점 열기' }))
+
+    expect(props.onPanelChange).toHaveBeenCalledWith('shop')
   })
 
   it('opens the requested room panel', async () => {
