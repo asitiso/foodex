@@ -1,10 +1,12 @@
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SHOP_PRODUCTS } from '../../domain/shopCatalog'
 import { CosmeticShop } from './CosmeticShop'
 
 describe('CosmeticShop', () => {
+  afterEach(cleanup)
+
   it('previews a product before purchasing it', async () => {
     const onPurchase = vi.fn().mockResolvedValue(undefined)
     render(<CosmeticShop balance={30} ownedIds={[]} online onPurchase={onPurchase} />)

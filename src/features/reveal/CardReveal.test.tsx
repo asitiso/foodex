@@ -6,6 +6,14 @@ import type { IntegratedMealResult } from '../../domain/integratedMealResult'
 const integratedResult: IntegratedMealResult = {
   mealId: 'meal-ramen',
   cardId: 'card-ramen',
+  coinTransaction: {
+    id: 'meal-ramen',
+    key: 'meal:meal-ramen:coins',
+    kind: 'meal-earned',
+    amount: 8,
+    mealId: 'meal-ramen',
+    createdAt: 1,
+  },
   outcome: {
     slot: 'lunch',
     tags: ['meal', 'noodle'],
