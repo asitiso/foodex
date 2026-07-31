@@ -1,8 +1,7 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
 import { GameSheet } from '../../ui/GameSheet'
-import { SCENE_ASSETS } from '../../ui/sceneAssets'
 import { HeroCompanion, type CompanionEmotion } from './HeroCompanion'
 
 export type RoomPanel = 'wardrobe' | 'growth' | 'shop' | null
@@ -45,14 +44,15 @@ export function CompanionRoomScene({
   childrenByPanel,
 }: CompanionRoomSceneProps) {
   return (
-    <section
-      className="companion-room-scene"
-      aria-label="친구의 방"
-      style={{ '--scene-background': `url("${SCENE_ASSETS.companionRoom}")` } as CSSProperties}
-    >
-      <div className="game-coin-pill" aria-label={`보유 코인 ${coinBalance}개`}>
+    <section className="companion-room-scene" aria-label="친구의 방">
+      <button
+        type="button"
+        className="game-coin-pill"
+        aria-label={`보유 코인 ${coinBalance}개, 꾸미기 상점 열기`}
+        onClick={() => onPanelChange('shop')}
+      >
         <span aria-hidden="true">🪙</span> {coinBalance}
-      </div>
+      </button>
       <HeroCompanion
         characterId={characterId}
         emotion={emotion}
