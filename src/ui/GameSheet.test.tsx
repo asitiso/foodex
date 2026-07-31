@@ -37,4 +37,35 @@ describe('GameSheet', () => {
 
     expect(screen.queryByRole('dialog', { name: '코인' })).not.toBeInTheDocument()
   })
+
+  it('closes natively and returns focus to its opener when open changes to false', () => {
+    const { rerender } = render(
+      <>
+        <button type="button">열기</button>
+        <GameSheet open={false} title="성장 보기" onClose={vi.fn()}><p>내용</p></GameSheet>
+      </>,
+    )
+    const opener = screen.getByRole('button', { name: '열기' })
+    opener.focus()
+
+    rerender(
+      <>
+        <button type="button">열기</button>
+        <GameSheet open title="성장 보기" onClose={vi.fn()}><p>내용</p></GameSheet>
+      </>,
+    )
+    const dialog = screen.getByRole('dialog', { name: '성장 보기' })
+    const close = vi.fn()
+    Object.defineProperty(dialog, 'close', { configurable: true, value: close })
+
+    rerender(
+      <>
+        <button type="button">열기</button>
+        <GameSheet open={false} title="성장 보기" onClose={vi.fn()}><p>내용</p></GameSheet>
+      </>,
+    )
+
+    expect(close).toHaveBeenCalledOnce()
+    expect(screen.getByRole('button', { name: '열기' })).toHaveFocus()
+  })
 })

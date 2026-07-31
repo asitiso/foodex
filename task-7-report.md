@@ -20,3 +20,9 @@
 ## Build
 
 `npm.cmd run build` remains blocked only by the known Task 6 → Task 10 integration boundary in `src/App.tsx`: the existing `HomeScreen` call does not yet provide `onOpenLevel` and `onOpenCoins`. No additional Task 7 build error was reported.
+
+## Review fix
+
+- Kept the dialog mounted while closed, so the `open: true → false` transition can invoke native `close()` before the sheet is hidden from assistive technology.
+- Captures the focused opener on open and restores it after close.
+- Added a rerender transition test that asserts both native close invocation and focus restoration. The focused suite now passes `5/5` tests.

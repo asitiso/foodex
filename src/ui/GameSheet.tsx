@@ -11,35 +11,41 @@ interface GameSheetProps {
 export function GameSheet({ open, title, onClose, children }: GameSheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const openerRef = useRef<HTMLElement | null>(null)
   const titleId = useId()
 
   useEffect(() => {
-    if (!open) return
-
     const dialog = dialogRef.current
     if (!dialog) return
 
-    if (!dialog.open) {
-      if (typeof dialog.showModal === 'function') dialog.showModal()
-      else dialog.setAttribute('open', '')
-    }
-    closeButtonRef.current?.focus()
+    if (open) {
+      openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+      if (!dialog.open) {
+        if (typeof dialog.showModal === 'function') dialog.showModal()
+        else dialog.setAttribute('open', '')
+      }
+      closeButtonRef.current?.focus()
 
-    return () => {
-      if (dialog.open) {
+      return () => {
+        if (!dialog.open) return
         if (typeof dialog.close === 'function') dialog.close()
-        else dialog.removeAttribute('open')
+        if (dialog.open) dialog.removeAttribute('open')
       }
     }
-  }, [open])
 
-  if (!open) return null
+    if (dialog.open) {
+      if (typeof dialog.close === 'function') dialog.close()
+      if (dialog.open) dialog.removeAttribute('open')
+    }
+    if (openerRef.current?.isConnected) openerRef.current.focus()
+  }, [open])
 
   return (
     <dialog
       className="game-sheet"
       ref={dialogRef}
       aria-labelledby={titleId}
+      aria-hidden={!open}
       onCancel={(event) => {
         event.preventDefault()
         onClose()
