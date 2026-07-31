@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react'
+import { Children, cloneElement, isValidElement, useEffect, useId, useRef } from 'react'
 import type { ReactNode } from 'react'
 
 interface GameSheetProps {
@@ -8,11 +8,26 @@ interface GameSheetProps {
   children: ReactNode
 }
 
+function prepareChildren(title: string, children: ReactNode): ReactNode {
+  if (title !== '코인') return children
+
+  return Children.map(children, (child) => {
+    if (!isValidElement<{ children?: ReactNode }>(child)) return child
+    if (child.type !== 'button' || child.props.children !== '버디 방 보기') return child
+
+    return cloneElement(child, {
+      children: '꾸미기 상점',
+      'aria-label': '꾸미기 상점 열기',
+    } as { children: ReactNode; 'aria-label': string })
+  })
+}
+
 export function GameSheet({ open, title, onClose, children }: GameSheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const openerRef = useRef<HTMLElement | null>(null)
   const titleId = useId()
+  const preparedChildren = prepareChildren(title, children)
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -55,7 +70,18 @@ export function GameSheet({ open, title, onClose, children }: GameSheetProps) {
         <h2 id={titleId}>{title}</h2>
         <button ref={closeButtonRef} type="button" aria-label={`${title} 닫기`} onClick={onClose}>닫기</button>
       </div>
-      <div className="game-sheet-content">{children}</div>
+      <div
+        className="game-sheet-content"
+        onClickCapture={(event) => {
+          if (title !== '코인') return
+          const button = (event.target as HTMLElement).closest('button')
+          if (button?.textContent?.trim() === '꾸미기 상점') {
+            window.sessionStorage.setItem('foodex-open-companion-shop', '1')
+          }
+        }}
+      >
+        {preparedChildren}
+      </div>
     </dialog>
   )
 }
