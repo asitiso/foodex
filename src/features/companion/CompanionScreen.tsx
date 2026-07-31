@@ -18,6 +18,12 @@ import { CompanionRoomScene, type RoomPanel } from './CompanionRoomScene'
 
 type StoryPanel = 'journal' | 'report' | null
 
+function getInitialRoomPanel(): RoomPanel {
+  if (window.sessionStorage.getItem('foodex-open-companion-shop') !== '1') return null
+  window.sessionStorage.removeItem('foodex-open-companion-shop')
+  return 'shop'
+}
+
 export function CompanionScreen({
   entries, roomUnlocks, progression, rewards, experienceSettings, onExperienceSettingsChange,
   characterId = 'foody', onCharacterChange = () => undefined, evolution, companionClasses = [],
@@ -40,7 +46,7 @@ export function CompanionScreen({
   shopOnline?: boolean
   onPurchaseProduct?: (product: ShopProduct) => Promise<void>
 }) {
-  const [activePanel, setActivePanel] = useState<RoomPanel>(null)
+  const [activePanel, setActivePanel] = useState<RoomPanel>(getInitialRoomPanel)
   const [activeStory, setActiveStory] = useState<StoryPanel>(null)
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(Date.now())
   const journal = buildDailyJournal(entries, progression, day)
