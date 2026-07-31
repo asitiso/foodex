@@ -58,11 +58,7 @@ export function CompanionScreen({
         onPanelChange={setActivePanel}
         childrenByPanel={{
           wardrobe: <>
-            <section className="character-picker" aria-label="친구 캐릭터 선택">
-              <div className="character-picker-grid">
-                {COMPANION_CHARACTERS.map((character) => <button key={character.id} type="button" className={characterId === character.id ? 'selected' : ''} aria-pressed={characterId === character.id} onClick={() => onCharacterChange(character.id)}><span className={`mini-companion mini-${character.id}`} aria-hidden="true" /><strong>{character.name}</strong><small>{character.description}</small></button>)}
-              </div>
-            </section>
+            <section className="character-picker" aria-label="친구 캐릭터 선택"><div className="character-picker-grid">{COMPANION_CHARACTERS.map((character) => <button key={character.id} type="button" className={characterId === character.id ? 'selected' : ''} aria-pressed={characterId === character.id} onClick={() => onCharacterChange(character.id)}><span className={`mini-companion mini-${character.id}`} aria-hidden="true" /><strong>{character.name}</strong><small>{character.description}</small></button>)}</div></section>
             <section className="friend-story-card"><h3>방 꾸미기 보유품</h3>{roomUnlocks.length ? <ul>{roomUnlocks.map((unlock) => <li key={unlock.id}>{unlock.title}</li>)}</ul> : <p>모험을 이어가면 새 장식을 찾을 수 있어요.</p>}</section>
           </>,
           growth: <>
@@ -75,11 +71,11 @@ export function CompanionScreen({
         }}
       />
       <div className="companion-story-actions" aria-label="기록 책장">
-        <button type="button" onClick={() => setActiveStory('journal')}>오늘의 식사 일기</button>
-        <button type="button" onClick={() => setActiveStory('report')}>주간 리포트</button>
+        <button type="button" aria-label="기록 책장 열기" onClick={() => setActiveStory('journal')}>기록 책장</button>
+        <button type="button" aria-label="주간 성과 보기" onClick={() => setActiveStory('report')}>이번 주 성과</button>
       </div>
       {activeStory && <section className="friend-story-card" aria-live="polite">
-        {activeStory === 'journal' ? <><h2>오늘의 식사 일기</h2><p>{journal.text}</p></> : <><h2>이번 주 식습관 돌아보기</h2><p>{report.text}</p><strong>{report.suggestion}</strong></>}
+        {activeStory === 'journal' ? <><h2>오늘의 식사 일기</h2><p>{journal.text}</p></> : <><h2>주간 리포트</h2><p>{report.text}</p><strong>{report.suggestion}</strong></>}
       </section>}
     </section>
   )

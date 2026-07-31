@@ -80,6 +80,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .friend-story-card { display: grid; gap: .75rem; min-height: 16rem; align-content: start; padding: 1.25rem; border: 2px solid #5d3d75; border-radius: 1.3rem; background: linear-gradient(145deg, #fff, #fff3d7); color: #493568; box-shadow: 0 .3rem 0 #5d3d75; }
 .friend-story-card > span { font-size: 3rem; }
 .friend-story-card h2, .friend-story-card p { margin: 0; }
+.companion-story-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.companion-story-actions button { min-height: 5.25rem; padding: .8rem .65rem; border: 3px solid #5d3d75; border-radius: 1.1rem; background: linear-gradient(145deg, #fff9d9, #f0e8ff); color: #493568; box-shadow: 0 .32rem 0 #5d3d75; font: inherit; font-weight: 950; }
+.companion-story-actions button:first-child { background: linear-gradient(145deg, #fff3ba, #ffd7bd); }
 .friend-story-card p { color: #675d72; line-height: 1.65; }
 .friend-story-card ul { display: grid; gap: .4rem; margin: 0; padding-left: 1.25rem; }
 .experience-settings { display: grid; gap: .65rem; padding: 1rem; border: 1px solid #e2d9eb; border-radius: 1.1rem; background: #fff; }
@@ -1001,6 +1004,7 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
     linear-gradient(150deg, #fffdf7, #faf5ff);
   box-shadow: 0 6px 0 #5b376f;
 }
+.cosmetic-shop > .coin-balance.compact { display: flex; width: fit-content; margin: 0 0 .75rem auto; }
 
 .shop-heading {
   display: flex;

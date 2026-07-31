@@ -35,6 +35,7 @@ describe('CosmeticShop', () => {
     const { container } = render(<CosmeticShop compact balance={30} ownedIds={[]} online onPurchase={vi.fn()} />)
 
     expect(container.querySelector('.shop-heading')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('보유 코인 30개')).toBeInTheDocument()
     expect(container.querySelector('.shop-product')).toBeInTheDocument()
   })
 })
