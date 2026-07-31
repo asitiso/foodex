@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { setNativeHapticsAdapter } from './lib/gameFeedback'
 import { isNativeApp, nativeHapticsAdapter } from './lib/nativePlatform'
+import './companionRoomFix.css'
 
 if (isNativeApp()) setNativeHapticsAdapter(nativeHapticsAdapter)
 
