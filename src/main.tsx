@@ -4,6 +4,7 @@ import { App } from './App'
 import { setNativeHapticsAdapter } from './lib/gameFeedback'
 import { isNativeApp, nativeHapticsAdapter } from './lib/nativePlatform'
 import './companionRoomFix.css'
+import './gameSheetFix.css'
 
 if (isNativeApp()) setNativeHapticsAdapter(nativeHapticsAdapter)
 
