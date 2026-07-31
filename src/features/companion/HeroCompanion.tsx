@@ -41,16 +41,19 @@ export function HeroCompanion({ characterId, emotion, reducedMotion, evolutionSt
   const reactionTimers = useRef<number[]>([])
   const holdTimer = useRef<number | undefined>(undefined)
   const holdStart = useRef<{ x: number, y: number } | undefined>(undefined)
+  const activePointerId = useRef<number | null>(null)
 
   const clearReactionTimers = () => {
     reactionTimers.current.forEach((timer) => window.clearTimeout(timer))
     reactionTimers.current = []
   }
 
-  const cancelHold = () => {
+  const cancelHold = (pointerId?: number) => {
+    if (pointerId !== undefined && activePointerId.current !== pointerId) return
     if (holdTimer.current !== undefined) window.clearTimeout(holdTimer.current)
     holdTimer.current = undefined
     holdStart.current = undefined
+    activePointerId.current = null
   }
 
   useEffect(() => () => {
@@ -84,18 +87,20 @@ export function HeroCompanion({ characterId, emotion, reducedMotion, evolutionSt
   }
 
   const startHold = (event: PointerEvent<HTMLButtonElement>) => {
-    if (!onOpenRoom || event.pointerType === 'mouse' && event.button !== 0) return
+    if (!onOpenRoom || activePointerId.current !== null || event.pointerType === 'mouse' && event.button !== 0) return
+    activePointerId.current = event.pointerId
     holdStart.current = { x: event.clientX, y: event.clientY }
     holdTimer.current = window.setTimeout(() => {
       holdTimer.current = undefined
       holdStart.current = undefined
+      activePointerId.current = null
       onOpenRoom()
     }, 600)
   }
 
   const cancelMovedHold = (event: PointerEvent<HTMLButtonElement>) => {
-    if (!holdStart.current) return
-    if (Math.hypot(event.clientX - holdStart.current.x, event.clientY - holdStart.current.y) > 4) cancelHold()
+    if (activePointerId.current !== event.pointerId || !holdStart.current) return
+    if (Math.hypot(event.clientX - holdStart.current.x, event.clientY - holdStart.current.y) > 4) cancelHold(event.pointerId)
   }
 
   return (
@@ -111,8 +116,8 @@ export function HeroCompanion({ characterId, emotion, reducedMotion, evolutionSt
         onClick={reactToCharacter}
         onPointerDown={startHold}
         onPointerMove={cancelMovedHold}
-        onPointerUp={cancelHold}
-        onPointerCancel={cancelHold}
+        onPointerUp={(event) => cancelHold(event.pointerId)}
+        onPointerCancel={(event) => cancelHold(event.pointerId)}
       >
         <span className="companion-ear left" aria-hidden="true" />
         <span className="companion-ear right" aria-hidden="true" />
