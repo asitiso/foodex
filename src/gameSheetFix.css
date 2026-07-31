@@ -1,0 +1,21 @@
+.game-sheet[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.game-sheet-header {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  border-bottom: 1px solid rgb(88 50 103 / 18%);
+}
+
+.game-sheet-content {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
