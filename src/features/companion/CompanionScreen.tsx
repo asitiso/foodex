@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { FoodCard, MealRecord } from '../../domain/types'
 import type { RoomUnlock } from '../../domain/roomProgression'
 import type { Progression } from '../../domain/progression'
@@ -12,6 +12,7 @@ import type { CompanionEvolution } from '../../domain/companionEvolution'
 import type { CompanionClass, CompanionClassId } from '../../domain/companionClasses'
 import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
 import type { ShopProduct } from '../../domain/shopCatalog'
+import { SCENE_ASSETS } from '../../ui/sceneAssets'
 import { CosmeticShop } from './CosmeticShop'
 import { CompanionRoomScene, type RoomPanel } from './CompanionRoomScene'
 
@@ -47,7 +48,11 @@ export function CompanionScreen({
   const ownedIds = rewards.filter((reward) => reward.sourceType === 'shop').map((reward) => reward.rewardId)
 
   return (
-    <section className="companion-screen" aria-label="AI 친구">
+    <section
+      className="companion-screen"
+      aria-label="AI 친구"
+      style={{ '--scene-background': `url("${SCENE_ASSETS.companionRoom}")` } as CSSProperties}
+    >
       <CompanionRoomScene
         characterId={characterId}
         emotion="happy"
