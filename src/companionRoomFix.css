@@ -1,0 +1,19 @@
+.companion-screen {
+  min-height: calc(100dvh - 6.2rem);
+  gap: 0;
+  padding: 0 0 calc(6.2rem + max(1rem, env(safe-area-inset-bottom)));
+  background: var(--scene-background) center top / cover no-repeat, var(--game-cream);
+}
+
+.companion-screen .companion-room-scene {
+  background: transparent;
+}
+
+.companion-screen .companion-story-actions,
+.companion-screen > .friend-story-card {
+  margin: 1rem;
+}
+
+.companion-screen .game-coin-pill {
+  appearance: none;
+}
