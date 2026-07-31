@@ -109,7 +109,7 @@ begin
     p_meal_id,
     v_recorded_at
   )
-  on conflict (user_id, transaction_key) do nothing
+  on conflict on constraint coin_transactions_user_id_transaction_key_key do nothing
   returning true into v_inserted;
 
   if v_inserted then
