@@ -3,6 +3,7 @@ import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
 import { GameIcon, type GameIconName } from '../../ui/GameIcon'
 import { GameSheet } from '../../ui/GameSheet'
+import { SCENE_ASSETS } from '../../ui/sceneAssets'
 import { HeroCompanion, type CompanionEmotion } from './HeroCompanion'
 
 export type RoomPanel = 'wardrobe' | 'journal' | 'growth' | 'report' | 'shop' | null
@@ -48,6 +49,13 @@ export function CompanionRoomScene({
 }: CompanionRoomSceneProps) {
   return (
     <section className="companion-room-scene" aria-label="친구의 방">
+      <img
+        className="buddy-room-background"
+        src={SCENE_ASSETS.companionRoom}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className="buddy-room-title" aria-label="버디 룸">
         <span className="buddy-room-avatar" aria-hidden="true"><GameIcon name="buddy" /></span>
         <span><strong>Buddy 룸</strong><small>우리 멋지고 건강하게 자라자!</small></span>
