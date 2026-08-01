@@ -163,24 +163,154 @@
   78% { transform: translateX(-50%) scale(1.02); }
 }
 
-@media (max-width: 430px) {
-  .world-home-scene { background-position: center 46%; }
-  .companion-screen,
-  .companion-room-scene { background-position: 51% 42%; }
+/* Buddy room game layout */
+.companion-screen {
+  height: calc(100dvh - 5.25rem);
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
 }
+
+.companion-screen .companion-room-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background-position: center center;
+}
+
+.buddy-room-title {
+  position: absolute;
+  z-index: 8;
+  top: max(.65rem, env(safe-area-inset-top));
+  left: .65rem;
+  display: flex;
+  align-items: center;
+  max-width: min(58vw, 16rem);
+  min-height: 3.45rem;
+  padding: .35rem .75rem .35rem 3.25rem;
+  border: .2rem solid #ff80c1;
+  border-radius: 1.35rem;
+  background: linear-gradient(180deg, #824ce0, #54249d);
+  color: #fff7d6;
+  box-shadow: inset 0 .12rem 0 rgb(255 255 255 / 35%), 0 .3rem 0 #351667, 0 .45rem .9rem rgb(48 17 88 / 35%);
+  text-shadow: 0 .12rem 0 #4a1b81;
+}
+
+.buddy-room-avatar {
+  position: absolute;
+  left: -.2rem;
+  width: 3.35rem;
+  height: 3.35rem;
+  display: grid;
+  place-items: center;
+  border: .2rem solid #ffd94a;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff8cf, #ffcf4c);
+  color: #6d35bb;
+  box-shadow: 0 .22rem 0 #4a236f;
+}
+
+.buddy-room-avatar svg { width: 2rem; height: 2rem; }
+.buddy-room-title strong { display: block; font-size: clamp(1rem, 4.6vw, 1.35rem); line-height: 1; }
+.buddy-room-title small { display: block; margin-top: .25rem; font-size: clamp(.58rem, 2.5vw, .72rem); white-space: nowrap; }
+
+.companion-room-scene > .game-coin-pill {
+  top: max(.75rem, env(safe-area-inset-top));
+  right: .65rem;
+  min-width: 7.4rem;
+  min-height: 3.15rem;
+  display: grid;
+  grid-template-columns: 2rem 1fr 1.65rem;
+  align-items: center;
+  gap: .3rem;
+  padding: .35rem .4rem;
+  border: .2rem solid #ff91bd;
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, #fffdf3, #fff0d2);
+  color: #512586;
+  box-shadow: 0 .3rem 0 #46206e, 0 .45rem .85rem rgb(53 22 103 / 25%);
+}
+
+.companion-room-scene > .game-coin-pill svg {
+  width: 2rem;
+  height: 2rem;
+  padding: .18rem;
+  border-radius: 50%;
+  background: #ffd94a;
+  color: #d57a12;
+  filter: drop-shadow(0 .12rem 0 #a75b0a);
+}
+
+.companion-room-scene > .game-coin-pill strong { font-size: 1.15rem; }
+.coin-add { display: grid; place-items: center; width: 1.65rem; height: 1.65rem; border-radius: 50%; background: #ffc448; color: #a33b2b; font-size: 1.4rem; font-weight: 900; }
+
+.companion-room-scene .hero-companion-wrap {
+  z-index: 3;
+  bottom: 7%;
+  height: min(43vh, 21rem);
+  pointer-events: none;
+}
+
+.companion-room-scene .companion-character { pointer-events: auto; }
+
+.room-prop-hotspots {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  pointer-events: none;
+}
+
+.room-prop-hotspot {
+  position: absolute;
+  display: grid;
+  grid-template-columns: 2.15rem auto;
+  align-items: center;
+  gap: .3rem;
+  min-height: 3rem;
+  padding: .3rem .65rem .3rem .35rem;
+  border: .18rem solid #ff83c4;
+  border-radius: 1.05rem;
+  background: linear-gradient(180deg, #8d52e2, #5d2bad);
+  color: #fff8cf;
+  box-shadow: inset 0 .12rem 0 rgb(255 255 255 / 30%), 0 .28rem 0 #3c186d, 0 .45rem .8rem rgb(48 17 88 / 30%);
+  font: inherit;
+  font-weight: 900;
+  text-shadow: 0 .1rem 0 #421b75;
+  pointer-events: auto;
+}
+
+.room-prop-hotspot:active { transform: translateY(.16rem) scale(.98); box-shadow: 0 .1rem 0 #3c186d; }
+.room-prop-icon { width: 2.15rem; height: 2.15rem; display: grid; place-items: center; border-radius: .75rem; background: linear-gradient(145deg, #fff9da, #ffd65d); color: #6230a8; box-shadow: inset 0 .1rem 0 #fff, 0 .15rem 0 #a85277; }
+.room-prop-icon svg { width: 1.5rem; height: 1.5rem; stroke-width: 2.4; }
+.room-prop-label { white-space: nowrap; font-size: clamp(.72rem, 3vw, .9rem); }
+
+.room-hotspot-wardrobe { left: 4%; top: 29%; }
+.room-hotspot-journal { right: 3%; top: 25%; }
+.room-hotspot-growth { right: 4%; top: 45%; }
+.room-hotspot-report { right: 4%; top: 66%; }
+.room-hotspot-shop { left: 4%; top: 66%; }
 
 @media (max-width: 390px) {
-  .world-home-scene { background-position: center 48%; }
-  .companion-screen,
-  .companion-room-scene { background-position: 52% 44%; }
-  .room-hotspot-rail { right: .6rem; gap: .55rem; }
+  .buddy-room-title { max-width: 56vw; padding-right: .55rem; }
+  .companion-room-scene > .game-coin-pill { min-width: 6.7rem; }
+  .room-prop-hotspot { grid-template-columns: 1.9rem auto; padding-right: .5rem; }
+  .room-prop-icon { width: 1.9rem; height: 1.9rem; }
+  .room-prop-icon svg { width: 1.3rem; height: 1.3rem; }
 }
 
-@media (max-width: 320px) {
-  .world-home-scene { background-position: center 50%; }
-  .companion-screen,
-  .companion-room-scene { background-position: 53% 46%; }
-  .room-hotspot { min-width: 3.25rem; min-height: 3.25rem; }
+@media (max-height: 720px) {
+  .buddy-room-title { transform: scale(.88); transform-origin: top left; }
+  .companion-room-scene > .game-coin-pill { transform: scale(.88); transform-origin: top right; }
+  .companion-room-scene .hero-companion-wrap { bottom: 3%; height: min(37vh, 16rem); }
+  .room-prop-hotspot { transform: scale(.86); }
+  .room-hotspot-wardrobe, .room-hotspot-shop { transform-origin: left center; }
+  .room-hotspot-journal, .room-hotspot-growth, .room-hotspot-report { transform-origin: right center; }
+  .room-hotspot-wardrobe { top: 27%; }
+  .room-hotspot-journal { top: 24%; }
+  .room-hotspot-growth { top: 44%; }
+  .room-hotspot-report, .room-hotspot-shop { top: 64%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
