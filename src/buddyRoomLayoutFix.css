@@ -1,5 +1,5 @@
-/* Final Buddy room viewport layout.
-   Loaded after the shared room styles so this file only corrects the room scene. */
+/* Buddy room-only layout. This file is loaded last and isolates the room scene
+   from the shared world/character positioning rules. */
 
 .companion-screen {
   width: min(100%, 31rem);
@@ -22,115 +22,142 @@
 }
 
 .companion-room-scene .buddy-room-title {
+  z-index: 10;
   top: calc(env(safe-area-inset-top, 0px) + .65rem);
   left: max(.65rem, env(safe-area-inset-left));
-  width: min(48vw, 14.5rem);
+  width: min(48vw, 14rem);
   max-width: none;
   min-height: 3.25rem;
   padding-right: .6rem;
 }
 
 .companion-room-scene > .game-coin-pill {
+  z-index: 10;
   top: calc(env(safe-area-inset-top, 0px) + .7rem);
   right: max(.65rem, env(safe-area-inset-right));
-  min-width: 6.65rem;
+  min-width: 6.4rem;
   min-height: 3.05rem;
-  z-index: 9;
 }
 
-/* Reset the old top-based positioning. Without top:auto the browser ignores bottom. */
-.companion-room-scene .hero-companion-wrap {
-  position: absolute !important;
-  z-index: 4;
-  top: auto !important;
-  right: auto !important;
-  bottom: clamp(1.25rem, 5vh, 2.8rem) !important;
-  left: 50% !important;
-  width: min(40vw, 11.5rem) !important;
-  height: min(32vh, 14rem) !important;
+/* Dedicated rug stage. Shared .hero-companion-wrap rules cannot move this layer. */
+.buddy-character-stage {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: clamp(2.2rem, 8vh, 4.6rem);
+  width: clamp(8.5rem, 36vw, 11.25rem);
+  height: clamp(10rem, 29vh, 14rem);
   transform: translateX(-50%);
-  pointer-events: none;
   overflow: visible;
+  pointer-events: none;
 }
 
-.companion-room-scene .companion-character {
+.buddy-character-stage > .hero-companion-wrap {
   position: absolute !important;
-  top: auto !important;
-  right: auto !important;
-  bottom: 0 !important;
-  left: 50% !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  transform: none !important;
+  overflow: visible !important;
+  pointer-events: none;
+}
+
+.buddy-character-stage .companion-reaction,
+.buddy-character-stage .companion-click-sparkle {
+  z-index: 2;
+}
+
+.buddy-character-stage .companion-character {
+  position: absolute !important;
+  inset: auto auto 0 50% !important;
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  transform: translateX(-50%);
-  transform-origin: 50% 100%;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  transform-origin: 50% 100% !important;
   background-position: center bottom !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
   pointer-events: auto;
 }
 
-.companion-room-scene .room-prop-hotspots {
-  position: absolute;
-  z-index: 6;
-  inset: 0;
+/* Furniture controls are positioned independently of the shared hotspot rail. */
+.buddy-room-hotspots {
+  position: absolute !important;
+  z-index: 7;
+  inset: 0 !important;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
-.companion-room-scene .room-prop-hotspot {
-  min-height: 2.8rem;
-  grid-template-columns: 1.9rem auto;
+.buddy-room-hotspots .room-prop-hotspot {
+  position: absolute !important;
+  min-height: 2.75rem;
+  grid-template-columns: 1.85rem auto;
   gap: .28rem;
-  padding: .28rem .58rem .28rem .3rem;
+  padding: .28rem .56rem .28rem .3rem;
   border-radius: 1rem;
   pointer-events: auto;
 }
 
-.companion-room-scene .room-prop-icon {
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: .68rem;
+.buddy-room-hotspots .room-prop-icon {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: .66rem;
 }
 
-.companion-room-scene .room-prop-icon svg {
-  width: 1.28rem;
-  height: 1.28rem;
+.buddy-room-hotspots .room-prop-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
-.companion-room-scene .room-prop-label {
-  font-size: clamp(.7rem, 2.85vw, .86rem);
+.buddy-room-hotspots .room-prop-label {
+  font-size: clamp(.7rem, 2.8vw, .84rem);
 }
 
-/* Furniture-linked controls: wardrobe/bookcase at upper furniture,
-   mirror in the middle, report/shop near the lower props. */
-.companion-room-scene .room-hotspot-wardrobe {
+/* Match the visible furniture in buddy-fantasy-room.webp. */
+.buddy-room-hotspots [data-room-panel="wardrobe"] {
+  top: 17%;
   left: 3.5%;
-  top: 19%;
+  right: auto;
+  bottom: auto;
   transform-origin: left center;
 }
 
-.companion-room-scene .room-hotspot-journal {
+.buddy-room-hotspots [data-room-panel="journal"] {
+  top: 18%;
   right: 3.5%;
-  top: 18.5%;
+  left: auto;
+  bottom: auto;
   transform-origin: right center;
 }
 
-.companion-room-scene .room-hotspot-growth {
-  right: 3.5%;
-  top: 35%;
+.buddy-room-hotspots [data-room-panel="growth"] {
+  top: 36%;
+  right: 8%;
+  left: auto;
+  bottom: auto;
   transform-origin: right center;
 }
 
-.companion-room-scene .room-hotspot-report {
+.buddy-room-hotspots [data-room-panel="report"] {
+  top: auto;
   right: 3.5%;
-  top: 58%;
+  bottom: 20%;
+  left: auto;
   transform-origin: right center;
 }
 
-.companion-room-scene .room-hotspot-shop {
+.buddy-room-hotspots [data-room-panel="shop"] {
+  top: auto;
   left: 3.5%;
-  top: 60%;
+  bottom: 20%;
+  right: auto;
   transform-origin: left center;
 }
 
@@ -142,18 +169,18 @@
   }
 
   .companion-room-scene > .game-coin-pill {
-    min-width: 6.2rem;
+    min-width: 6rem;
     transform: scale(.92);
     transform-origin: top right;
   }
 
-  .companion-room-scene .room-prop-hotspot {
-    transform: scale(.88);
+  .buddy-character-stage {
+    width: clamp(8rem, 35vw, 10rem);
+    height: clamp(9.5rem, 27vh, 12.5rem);
   }
 
-  .companion-room-scene .hero-companion-wrap {
-    width: min(37vw, 10.25rem) !important;
-    height: min(29vh, 12.5rem) !important;
+  .buddy-room-hotspots .room-prop-hotspot {
+    transform: scale(.88);
   }
 }
 
@@ -168,40 +195,41 @@
     transform-origin: top right;
   }
 
-  .companion-room-scene .hero-companion-wrap {
-    bottom: .75rem !important;
-    width: min(33vw, 9.4rem) !important;
-    height: min(26vh, 11rem) !important;
+  .buddy-character-stage {
+    bottom: 2.6rem;
+    width: min(34vw, 9.4rem);
+    height: min(26vh, 11rem);
   }
 
-  .companion-room-scene .room-prop-hotspot {
+  .buddy-room-hotspots .room-prop-hotspot {
     transform: scale(.8);
   }
 
-  .companion-room-scene .room-hotspot-wardrobe { top: 18%; }
-  .companion-room-scene .room-hotspot-journal { top: 17.5%; }
-  .companion-room-scene .room-hotspot-growth { top: 33%; }
-  .companion-room-scene .room-hotspot-report { top: 56%; }
-  .companion-room-scene .room-hotspot-shop { top: 58%; }
+  .buddy-room-hotspots [data-room-panel="wardrobe"] { top: 18%; }
+  .buddy-room-hotspots [data-room-panel="journal"] { top: 19%; }
+  .buddy-room-hotspots [data-room-panel="growth"] { top: 37%; }
+  .buddy-room-hotspots [data-room-panel="report"],
+  .buddy-room-hotspots [data-room-panel="shop"] { bottom: 18%; }
 }
 
 @media (max-height: 620px) {
-  .companion-room-scene .hero-companion-wrap {
-    width: min(29vw, 8.2rem) !important;
-    height: min(23vh, 9.2rem) !important;
+  .buddy-character-stage {
+    bottom: 2rem;
+    width: min(30vw, 8.3rem);
+    height: min(23vh, 9.5rem);
   }
 
-  .companion-room-scene .room-prop-hotspot {
+  .buddy-room-hotspots .room-prop-hotspot {
     transform: scale(.72);
   }
 
-  .companion-room-scene .room-hotspot-growth { top: 31%; }
-  .companion-room-scene .room-hotspot-report { top: 53%; }
-  .companion-room-scene .room-hotspot-shop { top: 55%; }
+  .buddy-room-hotspots [data-room-panel="growth"] { top: 34%; }
+  .buddy-room-hotspots [data-room-panel="report"],
+  .buddy-room-hotspots [data-room-panel="shop"] { bottom: 16%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .companion-room-scene .companion-character {
+  .buddy-character-stage .companion-character {
     animation: none !important;
     transform: translateX(-50%) !important;
   }
