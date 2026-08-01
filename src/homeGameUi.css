@@ -8,10 +8,86 @@
   background: #20a6ef;
 }
 
+/* Keep the anonymous-account workflow inside the clipped home viewport. */
+.app-shell:has(> .world-home-scene) > .account-protection {
+  position: fixed;
+  z-index: 19;
+  bottom: calc(7.45rem + env(safe-area-inset-bottom));
+  left: 50%;
+  width: min(calc(100vw - 1rem), 30rem);
+  margin: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection > .inline-button {
+  min-width: 0;
+  min-height: 2.25rem;
+  width: 6rem;
+  border: .15rem solid #56318f;
+  border-radius: .8rem;
+  padding: .28rem .4rem;
+  background: linear-gradient(180deg, #fffdf5, #fff0cf);
+  box-shadow: inset 0 0 0 .1rem #fff, 0 .2rem 0 #351b61;
+  color: #56318f;
+  font-size: .68rem;
+  font-weight: 950;
+  line-height: 1.15;
+  pointer-events: auto;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection > .protect-collection {
+  width: 100%;
+  gap: .38rem;
+  padding: .48rem;
+  border: .15rem solid #56318f;
+  border-radius: .85rem;
+  background: linear-gradient(180deg, #fffdf5, #fff0cf);
+  box-shadow: inset 0 0 0 .1rem #fff, 0 .22rem 0 #351b61, 0 .35rem .55rem rgb(45 20 78 / 24%);
+  pointer-events: auto;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection h2 {
+  font-size: .72rem;
+  line-height: 1.15;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection > p:not([role]) {
+  display: none;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection form {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .3rem;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection form > label,
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection form > p {
+  grid-column: 1 / -1;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection label,
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection p {
+  font-size: .62rem;
+  line-height: 1.25;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection input,
+.app-shell:has(> .world-home-scene) > .account-protection .protect-collection button {
+  min-width: 0;
+  min-height: 2.1rem;
+  padding: .3rem .36rem;
+  font-size: .62rem;
+}
+
+/* When expanded, the character clears the dedicated strip above the dock. */
+.app-shell:has(> .account-protection .protect-collection) > .world-home-scene .hero-companion-wrap {
+  top: 46%;
+}
+
 .world-home-scene {
   --home-safe-top: max(.55rem, env(safe-area-inset-top));
   --home-safe-bottom: max(.45rem, env(safe-area-inset-bottom));
-  --home-hud-height: 12.6rem;
   --home-dock-height: 6.5rem;
   --home-ivory: #fff7df;
   --home-ivory-light: #fffdf5;
@@ -49,7 +125,7 @@
   position: absolute;
   z-index: 20;
   inset: 0;
-  min-height: var(--home-hud-height);
+  min-height: 0;
   pointer-events: none;
 }
 
@@ -134,7 +210,7 @@
   text-shadow: 0 0 .38rem rgb(255 236 111 / 95%);
 }
 
-.game-logo {
+.world-home-scene .game-logo {
   display: none !important;
 }
 
@@ -527,8 +603,11 @@
 /* 375x667: reduce surfaces, not the scene hierarchy or one-row dock. */
 @media (max-height: 700px) {
   .world-home-scene {
-    --home-hud-height: 11.5rem;
     --home-dock-height: 5.85rem;
+  }
+
+  .app-shell:has(> .world-home-scene) > .account-protection {
+    bottom: calc(6.75rem + env(safe-area-inset-bottom));
   }
 
   .foodex-game-logo {
@@ -580,8 +659,11 @@
 /* 430x932: allow the same objects to breathe without changing their order. */
 @media (min-height: 850px) {
   .world-home-scene {
-    --home-hud-height: 13.5rem;
     --home-dock-height: 6.85rem;
+  }
+
+  .app-shell:has(> .world-home-scene) > .account-protection {
+    bottom: calc(7.8rem + env(safe-area-inset-bottom));
   }
 
   .foodex-game-logo { top: calc(var(--home-safe-top) + 4.2rem); }
