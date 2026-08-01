@@ -1,4 +1,5 @@
 import { GameIcon } from '../../ui/GameIcon'
+import { GameLogo } from './GameLogo'
 
 export interface GameHudProps {
   coinBalance: number
@@ -31,10 +32,7 @@ export function GameHud({
 
   return (
     <header className="game-hud" data-game-surface="hud">
-      <div className="game-logo" aria-label="Foodex">
-        <span>FOODEX</span>
-        <i aria-hidden="true">★</i>
-      </div>
+      <GameLogo />
 
       <button className="game-coin-pill game-touch-target" type="button" aria-label={`보유 코인 ${coinBalance}개`} onClick={onOpenCoins}>
         <span className="game-icon-medallion"><GameIcon name="coin" /></span>

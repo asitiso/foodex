@@ -1,0 +1,135 @@
+/* Home-only game UI layer. Loaded last so other screens keep their own scale. */
+
+.foodex-game-logo {
+  position: absolute;
+  z-index: 9;
+  top: max(.72rem, env(safe-area-inset-top));
+  left: 50%;
+  width: min(54vw, 15.2rem);
+  height: 5.2rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 .42rem .34rem rgba(54, 23, 93, .38));
+}
+
+.foodex-logo-word {
+  position: absolute;
+  inset: .18rem .35rem auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 3.8rem;
+  transform: rotate(-1deg);
+  white-space: nowrap;
+}
+
+.foodex-logo-word > span {
+  position: relative;
+  display: inline-block;
+  margin-inline: -.065em;
+  color: #fffdf8;
+  font-family: "Arial Rounded MT Bold", "Pretendard", "Noto Sans KR", sans-serif;
+  font-size: clamp(2.55rem, 10.6vw, 4.05rem);
+  font-weight: 1000;
+  line-height: .86;
+  letter-spacing: -.07em;
+  transform: translateY(calc((var(--letter-index) % 2) * .09rem)) rotate(calc((var(--letter-index) - 2.5) * .8deg));
+  -webkit-text-stroke: .2rem #6d3bc9;
+  paint-order: stroke fill;
+  text-shadow:
+    0 .08rem 0 #ffffff,
+    0 .2rem 0 #e8a1ff,
+    0 .34rem 0 #ba62e8,
+    0 .49rem 0 #7a3cc2,
+    0 .64rem 0 #4e258d,
+    .05rem .72rem .28rem rgba(54, 21, 94, .44);
+}
+
+.foodex-logo-word > span::before {
+  content: "";
+  position: absolute;
+  left: 22%;
+  top: 7%;
+  width: 38%;
+  height: 12%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .95);
+  filter: blur(.02rem);
+  transform: rotate(-10deg);
+}
+
+.foodex-logo-star {
+  position: absolute;
+  right: -.18rem;
+  bottom: .18rem;
+  display: grid;
+  place-items: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  color: #ffe14f;
+  font-size: 2rem;
+  line-height: 1;
+  transform: rotate(12deg);
+  -webkit-text-stroke: .13rem #e99a20;
+  text-shadow:
+    0 .12rem 0 #fff3a2,
+    0 .27rem 0 #e69720,
+    0 .43rem 0 #b85b21,
+    0 .58rem .25rem rgba(93, 43, 20, .34);
+}
+
+.foodex-logo-sparkles {
+  position: absolute;
+  inset: -.22rem .05rem auto auto;
+  color: #fff3a2;
+  font-size: .82rem;
+  letter-spacing: .5rem;
+  text-shadow: 0 0 .38rem rgba(255, 236, 111, .95);
+}
+
+/* Hide the old text logo if older markup is temporarily rendered. */
+.game-logo {
+  display: none !important;
+}
+
+@media (max-width: 390px) {
+  .foodex-game-logo {
+    top: max(.5rem, env(safe-area-inset-top));
+    width: min(50vw, 12.6rem);
+    height: 4.45rem;
+  }
+
+  .foodex-logo-word {
+    height: 3.3rem;
+  }
+
+  .foodex-logo-word > span {
+    font-size: clamp(2.15rem, 9.5vw, 3.25rem);
+    -webkit-text-stroke-width: .16rem;
+  }
+
+  .foodex-logo-star {
+    right: -.05rem;
+    width: 1.95rem;
+    height: 1.95rem;
+    font-size: 1.58rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .foodex-game-logo {
+    left: 53%;
+    width: 10.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .foodex-logo-star {
+    animation: foodex-logo-star-pulse 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes foodex-logo-star-pulse {
+  0%, 100% { transform: rotate(12deg) scale(1); }
+  50% { transform: rotate(18deg) scale(1.08); }
+}
