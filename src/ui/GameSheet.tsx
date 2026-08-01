@@ -61,6 +61,7 @@ export function GameSheet({ open, title, onClose, children }: GameSheetProps) {
       ref={dialogRef}
       aria-labelledby={titleId}
       aria-hidden={!open}
+      data-game-surface="sheet"
       onCancel={(event) => {
         event.preventDefault()
         onClose()
@@ -68,10 +69,12 @@ export function GameSheet({ open, title, onClose, children }: GameSheetProps) {
     >
       <div className="game-sheet-header">
         <h2 id={titleId}>{title}</h2>
-        <button ref={closeButtonRef} type="button" aria-label={`${title} 닫기`} onClick={onClose}>닫기</button>
+        <button ref={closeButtonRef} className="game-touch-target" type="button" aria-label={`${title} 닫기`} onClick={onClose}>닫기</button>
       </div>
       <div
         className="game-sheet-content"
+        data-testid="game-sheet-scroll"
+        tabIndex={0}
         onClickCapture={(event) => {
           if (title !== '코인') return
           const button = (event.target as HTMLElement).closest('button')
