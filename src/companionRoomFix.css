@@ -73,6 +73,57 @@
   background: linear-gradient(180deg, #ffe87c, #ffd94a);
 }
 
+.companion-character.reaction-smile {
+  animation: foodex-reaction-smile .72s ease-out both;
+}
+
+.companion-character.reaction-jump {
+  animation: companion-jump .72s ease-out both;
+}
+
+.companion-character.reaction-surprise {
+  animation: foodex-reaction-surprise .58s cubic-bezier(.2, .85, .35, 1.25) both;
+}
+
+.companion-character.reaction-sleepy {
+  animation: foodex-reaction-sleepy 1.9s ease-in-out both;
+  filter: saturate(.78) drop-shadow(0 .42rem .18rem rgb(61 39 80 / 24%));
+}
+
+.companion-character.reaction-satisfied {
+  animation: foodex-reaction-satisfied 1.05s ease-in-out both;
+}
+
+.companion-character.reaction-discovery {
+  animation: companion-sparkle .9s ease-out both;
+  filter: brightness(1.08) saturate(1.12) drop-shadow(0 .42rem .25rem rgb(255 211 93 / 48%));
+}
+
+@keyframes foodex-reaction-smile {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  38% { transform: translateX(-50%) scale(1.06, .96) rotate(-2deg); }
+  68% { transform: translateX(-50%) scale(.98, 1.04) rotate(2deg); }
+}
+
+@keyframes foodex-reaction-surprise {
+  0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+  42% { transform: translateX(-50%) translateY(-.65rem) scale(1.12); }
+  68% { transform: translateX(-50%) translateY(-.15rem) scale(.97); }
+}
+
+@keyframes foodex-reaction-sleepy {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(0); }
+  45% { transform: translateX(-50%) translateY(.32rem) rotate(-3deg) scale(.98); }
+  72% { transform: translateX(-50%) translateY(.2rem) rotate(2deg) scale(.98); }
+}
+
+@keyframes foodex-reaction-satisfied {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  32% { transform: translateX(-50%) scale(1.05) rotate(-2deg); }
+  58% { transform: translateX(-50%) scale(1.05) rotate(2deg); }
+  78% { transform: translateX(-50%) scale(1.02); }
+}
+
 @media (max-width: 430px) {
   .world-home-scene {
     background-position: center 46%;
@@ -120,5 +171,16 @@
   .world-home-scene *,
   .companion-room-scene * {
     scroll-behavior: auto;
+  }
+
+  .companion-character.reaction-smile,
+  .companion-character.reaction-jump,
+  .companion-character.reaction-surprise,
+  .companion-character.reaction-sleepy,
+  .companion-character.reaction-satisfied,
+  .companion-character.reaction-discovery,
+  .companion-character.reduced-motion {
+    animation: none !important;
+    transform: translateX(-50%);
   }
 }
