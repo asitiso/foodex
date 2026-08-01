@@ -1,4 +1,5 @@
 import { GameIcon } from '../../ui/GameIcon'
+import { GameLogo } from './GameLogo'
 
 export interface GameHudProps {
   coinBalance: number
@@ -31,10 +32,7 @@ export function GameHud({
 
   return (
     <header className="game-hud" data-game-surface="hud">
-      <div className="game-logo" aria-label="Foodex">
-        <span>FOODEX</span>
-        <i aria-hidden="true">★</i>
-      </div>
+      <GameLogo />
 
       <button className="game-coin-pill game-touch-target" type="button" aria-label={`보유 코인 ${coinBalance}개`} onClick={onOpenCoins}>
         <span className="game-icon-medallion"><GameIcon name="coin" /></span>
@@ -58,7 +56,7 @@ export function GameHud({
         <button className="game-status-button game-status-meals game-touch-target" data-testid="game-hud-status" type="button" aria-label={`오늘 식사 ${todayMeals}회 목표 ${mealTarget}회 연속 ${streakDays}일`} onClick={onOpenMeals}>
           <span className="game-status-title">식사</span>
           <span className="game-hud-value">{todayMeals}/{mealTarget}</span>
-          <span className="game-hud-streak">연속 {streakDays}일</span>
+          <span className="game-hud-streak">연속 ${streakDays}일</span>
         </button>
       </div>
     </header>
