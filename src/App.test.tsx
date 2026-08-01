@@ -66,7 +66,7 @@ function deferred<T>() {
 }
 
 async function completeRecordFlow(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: '촬영' }))
+  await user.click(screen.getByRole('button', { name: '식사 기록하기' }))
   await user.upload(screen.getByLabelText('식사 사진 선택'), new File(['image'], 'meal.jpg', { type: 'image/jpeg' }))
   await user.click(screen.getByRole('button', { name: '다음' }))
   await user.type(screen.getByRole('searchbox', { name: '음식 검색' }), '라면')
@@ -101,7 +101,7 @@ describe('App', () => {
     expect(screen.getByText('오늘의 도전')).toBeInTheDocument()
     expect(screen.queryByText('여름 한입 시즌')).not.toBeInTheDocument()
     expect(screen.queryByText('오늘의 상자')).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: '도감' }))
+    await user.click(screen.getByRole('button', { name: '도감 열기' }))
     expect((await screen.findAllByText(/라면/)).length).toBeGreaterThan(0)
     expect(await screen.findByText('도감 완성률 9%')).toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: '성장' }))
@@ -123,9 +123,9 @@ describe('App', () => {
     const homeMenu = screen.getByRole('navigation', { name: '홈 게임 메뉴' })
     expect(within(homeMenu).getAllByRole('button')).toHaveLength(4)
 
-    await user.click(within(homeMenu).getByRole('button', { name: '상점' }))
+    await user.click(screen.getByRole('button', { name: '도감 열기' }))
     expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '컬렉션' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: '도감' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('shows the unified reward result only after the meal is safely persisted', async () => {
@@ -147,7 +147,7 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    await user.click(screen.getByRole('button', { name: '도감' }))
+    await user.click(screen.getByRole('button', { name: '도감 열기' }))
 
     expect(await screen.findByText('첫 식사 카드를 만나러 가볼까요?')).toBeInTheDocument()
   })
@@ -156,10 +156,9 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    expect(screen.getByRole('button', { name: '홈' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('button', { name: '촬영' })).not.toHaveAttribute('aria-current')
+    expect(screen.queryByRole('navigation', { name: '주요 메뉴' })).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: '촬영' }))
+    await user.click(screen.getByRole('button', { name: '식사 기록하기' }))
 
     expect(screen.getByRole('button', { name: '촬영' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('button', { name: '홈' })).not.toHaveAttribute('aria-current')
@@ -169,7 +168,7 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    await user.click(screen.getByRole('button', { name: '모험' }))
+    await user.click(screen.getByRole('button', { name: '모험 열기' }))
     expect(screen.getByRole('region', { name: '모험' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '모험' })).toHaveAttribute('aria-current', 'page')
 
@@ -191,11 +190,14 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    for (const destination of ['홈', '도감', '촬영', '모험', '버디']) {
+    for (const destination of ['도감 열기', '모험 열기', '식사 기록하기', '버디 열기']) {
       expect(screen.getByRole('button', { name: destination })).toHaveAccessibleName()
     }
 
-    await user.click(screen.getByRole('button', { name: '도감' }))
+    await user.click(screen.getByRole('button', { name: '도감 열기' }))
+    for (const destination of ['홈', '도감', '촬영', '모험', '버디']) {
+      expect(screen.getByRole('button', { name: destination })).toHaveAccessibleName()
+    }
     const tabs = screen.getAllByRole('tab')
     expect(tabs).toHaveLength(5)
     tabs.forEach((tab) => expect(tab).toHaveAccessibleName())
@@ -220,7 +222,7 @@ describe('App', () => {
     }
 
     expectNamedVisibleButtons()
-    await user.click(screen.getByRole('button', { name: '촬영' }))
+    await user.click(screen.getByRole('button', { name: '식사 기록하기' }))
 
     expectNamedVisibleButtons()
     expect(screen.getByLabelText('식사 사진 선택')).toHaveAttribute('type', 'file')
@@ -282,7 +284,7 @@ describe('App', () => {
       null,
       null,
     ])
-    await user.click(screen.getByRole('button', { name: '도감' }))
+    await user.click(screen.getByRole('button', { name: '도감 열기' }))
     await user.click(await screen.findByRole('button', { name: /라면/ }))
     expect(screen.getByLabelText('사진 없이 저장한 카드')).toBeInTheDocument()
   })

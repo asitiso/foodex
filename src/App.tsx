@@ -520,7 +520,9 @@ export function App({
           }}
         />
       )}
-      {screen !== 'reveal' && <BottomNav active={activeTab} onNavigate={navigate} />}
+      {screen !== 'home' && screen !== 'reveal' && (
+        <BottomNav active={activeTab} onNavigate={navigate} />
+      )}
       <GameSheet open={homeSheet === 'level'} title="성장 보기" onClose={() => setHomeSheet(null)}>
         <p>레벨 {progression.level.level}</p>
         <p>경험치 {progression.level.currentLevelXp} / {progression.level.nextLevelXp}</p>
