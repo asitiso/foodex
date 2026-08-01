@@ -24,12 +24,12 @@ const props = {
 
 afterEach(cleanup)
 
-it('keeps the lobby actions in one outdoor scene', async () => {
+it('keeps the lobby actions in one portrait outdoor scene', async () => {
   const user = userEvent.setup()
   render(<WorldHomeScene {...props} />)
 
   expect(screen.getByRole('region', { name: '푸덱 월드 홈' })).toHaveStyle({
-    '--scene-background': 'url("/art/world/world-home-day.webp")',
+    '--scene-background': 'url("/art/world/world-home-play-city.webp")',
   })
   expect(screen.getAllByTestId('game-hud-status')).toHaveLength(3)
 
