@@ -10,11 +10,11 @@ describe('Foodex production art registry', () => {
   })
 
   it.each([
-    ['foody', '/art/characters/foodi.png'],
+    ['foody', '/art/characters/foody.png'],
     ['berry', '/art/characters/berry.png'],
     ['noodle', '/art/characters/noodle.png'],
     ['cocoa', '/art/characters/cocoa.png'],
-  ] as const)('maps %s to its transparent production art', (id, path) => {
+  ] as const)('maps %s to a browser-loadable character asset', (id, path) => {
     expect(getCompanionArt(id)).toBe(path)
   })
 })
