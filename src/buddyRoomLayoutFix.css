@@ -21,7 +21,6 @@
   background-size: cover;
 }
 
-/* Keep the two HUD pieces inside the safe area and prevent overlap. */
 .companion-room-scene .buddy-room-title {
   top: calc(env(safe-area-inset-top, 0px) + .65rem);
   left: max(.65rem, env(safe-area-inset-left));
@@ -39,39 +38,39 @@
   z-index: 9;
 }
 
-/* The buddy is anchored to the rug instead of the top of the scene. */
+/* Reset the old top-based positioning. Without top:auto the browser ignores bottom. */
 .companion-room-scene .hero-companion-wrap {
-  position: absolute;
+  position: absolute !important;
   z-index: 4;
-  left: 50%;
-  right: auto;
-  bottom: clamp(1.2rem, 4.8vh, 2.6rem);
-  width: min(42vw, 12rem);
-  height: min(35vh, 15rem);
+  top: auto !important;
+  right: auto !important;
+  bottom: clamp(1.25rem, 5vh, 2.8rem) !important;
+  left: 50% !important;
+  width: min(40vw, 11.5rem) !important;
+  height: min(32vh, 14rem) !important;
   transform: translateX(-50%);
   pointer-events: none;
   overflow: visible;
 }
 
 .companion-room-scene .companion-character {
-  position: absolute;
-  left: 50%;
-  right: auto;
-  top: auto;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
+  position: absolute !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
   transform: translateX(-50%);
   transform-origin: 50% 100%;
-  background-position: center bottom;
-  background-size: contain;
-  background-repeat: no-repeat;
+  background-position: center bottom !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
   pointer-events: auto;
 }
 
-/* Prop controls are attached to the matching furniture in the artwork. */
 .companion-room-scene .room-prop-hotspots {
   position: absolute;
   z-index: 6;
@@ -103,33 +102,35 @@
   font-size: clamp(.7rem, 2.85vw, .86rem);
 }
 
+/* Furniture-linked controls: wardrobe/bookcase at upper furniture,
+   mirror in the middle, report/shop near the lower props. */
 .companion-room-scene .room-hotspot-wardrobe {
   left: 3.5%;
-  top: 14.5%;
+  top: 19%;
   transform-origin: left center;
 }
 
 .companion-room-scene .room-hotspot-journal {
   right: 3.5%;
-  top: 15.5%;
+  top: 18.5%;
   transform-origin: right center;
 }
 
 .companion-room-scene .room-hotspot-growth {
   right: 3.5%;
-  top: 27.5%;
+  top: 35%;
   transform-origin: right center;
 }
 
 .companion-room-scene .room-hotspot-report {
   right: 3.5%;
-  top: 42.5%;
+  top: 58%;
   transform-origin: right center;
 }
 
 .companion-room-scene .room-hotspot-shop {
   left: 3.5%;
-  top: 43.5%;
+  top: 60%;
   transform-origin: left center;
 }
 
@@ -147,12 +148,12 @@
   }
 
   .companion-room-scene .room-prop-hotspot {
-    transform: scale(.9);
+    transform: scale(.88);
   }
 
   .companion-room-scene .hero-companion-wrap {
-    width: min(39vw, 10.5rem);
-    height: min(32vh, 13rem);
+    width: min(37vw, 10.25rem) !important;
+    height: min(29vh, 12.5rem) !important;
   }
 }
 
@@ -168,35 +169,35 @@
   }
 
   .companion-room-scene .hero-companion-wrap {
-    bottom: .65rem;
-    width: min(34vw, 9.7rem);
-    height: min(29vh, 11.5rem);
+    bottom: .75rem !important;
+    width: min(33vw, 9.4rem) !important;
+    height: min(26vh, 11rem) !important;
   }
 
   .companion-room-scene .room-prop-hotspot {
-    transform: scale(.82);
+    transform: scale(.8);
   }
 
-  .companion-room-scene .room-hotspot-wardrobe { top: 13%; }
-  .companion-room-scene .room-hotspot-journal { top: 14%; }
-  .companion-room-scene .room-hotspot-growth { top: 25%; }
-  .companion-room-scene .room-hotspot-report { top: 39%; }
-  .companion-room-scene .room-hotspot-shop { top: 40%; }
+  .companion-room-scene .room-hotspot-wardrobe { top: 18%; }
+  .companion-room-scene .room-hotspot-journal { top: 17.5%; }
+  .companion-room-scene .room-hotspot-growth { top: 33%; }
+  .companion-room-scene .room-hotspot-report { top: 56%; }
+  .companion-room-scene .room-hotspot-shop { top: 58%; }
 }
 
 @media (max-height: 620px) {
   .companion-room-scene .hero-companion-wrap {
-    width: min(30vw, 8.5rem);
-    height: min(25vh, 9.5rem);
+    width: min(29vw, 8.2rem) !important;
+    height: min(23vh, 9.2rem) !important;
   }
 
   .companion-room-scene .room-prop-hotspot {
-    transform: scale(.74);
+    transform: scale(.72);
   }
 
-  .companion-room-scene .room-hotspot-growth { top: 23%; }
-  .companion-room-scene .room-hotspot-report { top: 36%; }
-  .companion-room-scene .room-hotspot-shop { top: 37%; }
+  .companion-room-scene .room-hotspot-growth { top: 31%; }
+  .companion-room-scene .room-hotspot-report { top: 53%; }
+  .companion-room-scene .room-hotspot-shop { top: 55%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
