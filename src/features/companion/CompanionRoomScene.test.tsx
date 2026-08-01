@@ -35,15 +35,24 @@ describe('CompanionRoomScene', () => {
     vi.clearAllMocks()
   })
 
-  it('renders one room scene and five named prop locations', () => {
+  it('renders an isolated buddy stage and five furniture controls', () => {
     render(<CompanionRoomScene {...props} />)
 
     expect(screen.getByRole('region', { name: '친구의 방' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '옷장 열기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '기록 책장 열기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '성장 거울 열기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '리포트 열기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '꾸미기 상점 열기' })).toBeInTheDocument()
+    expect(screen.getByTestId('buddy-character-stage')).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: '방 활동' })).toBeInTheDocument()
+
+    const locations = [
+      ['옷장 열기', 'wardrobe'],
+      ['기록 책장 열기', 'journal'],
+      ['성장 거울 열기', 'growth'],
+      ['리포트 열기', 'report'],
+      ['꾸미기 상점 열기', 'shop'],
+    ] as const
+
+    locations.forEach(([label, panel]) => {
+      expect(screen.getByRole('button', { name: label })).toHaveAttribute('data-room-panel', panel)
+    })
     expect(screen.getByRole('button', { name: '보유 코인 13개, 꾸미기 상점 열기' })).toBeInTheDocument()
   })
 
