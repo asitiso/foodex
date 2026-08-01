@@ -93,26 +93,23 @@ describe('App', () => {
     await completeRecordFlow(user)
     await user.click(screen.getByRole('button', { name: '도감에 저장' }))
 
-    expect(await screen.findByRole('button', { name: /오늘의 카드 1장/ })).toBeInTheDocument()
-    expect(screen.getByText('레벨')).toBeInTheDocument()
-    expect(screen.getByText('LV.1')).toBeInTheDocument()
-    expect(screen.getByText('연속 기록')).toBeInTheDocument()
-    expect(screen.getByText('1일')).toBeInTheDocument()
-    expect(screen.getByText('오늘의 도전')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: '오늘의 카드 1장' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '레벨 1, 성장 67%' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '오늘 식사 1회 목표 3회 연속 1일' })).toBeInTheDocument()
     expect(screen.queryByText('여름 한입 시즌')).not.toBeInTheDocument()
     expect(screen.queryByText('오늘의 상자')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '도감 열기' }))
     expect((await screen.findAllByText(/라면/)).length).toBeGreaterThan(0)
-    expect(await screen.findByText('도감 완성률 9%')).toBeInTheDocument()
+    expect(await screen.findByLabelText('도감 완성률 9%')).toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: '성장' }))
     expect(screen.getByText('첫 식사')).toBeInTheDocument()
     expect(screen.getByText('면 스타터')).toBeInTheDocument()
   })
 
-  it('uses the specified home call to action copy', () => {
+  it('uses the reference home meal-record call to action', () => {
     render(<App repository={createMemoryRepository()} />)
 
-    expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '식사 기록하기' })).toBeInTheDocument()
   })
 
   it('replaces the five-tab bar with four reference menu cards only on home', async () => {
@@ -203,14 +200,18 @@ describe('App', () => {
     tabs.forEach((tab) => expect(tab).toHaveAccessibleName())
   })
 
-  it('shows the automatic region discovery after saving a new meal', async () => {
+  it('returns to the reference home landmarks after saving a new meal', async () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
     await completeRecordFlow(user)
     await user.click(screen.getByRole('button', { name: '도감에 저장' }))
 
-    expect(await screen.findByText('한식마을에 새 친구가 나타났어요')).toBeInTheDocument()
+    await screen.findByRole('button', { name: '오늘의 카드 1장' })
+    for (const landmark of ['도감 열기', '모험 열기', '식사 기록하기', '버디 열기']) {
+      expect(screen.getByRole('button', { name: landmark })).toBeInTheDocument()
+    }
+    expect(screen.getByRole('navigation', { name: '홈 게임 메뉴' })).toBeInTheDocument()
   })
 
   it('names visible navigation, record, and reveal controls', async () => {
