@@ -8,4 +8,10 @@ describe('GameIcon', () => {
 
     expect(screen.getByRole('img', { name: '카메라' }).tagName.toLowerCase()).toBe('svg')
   })
+
+  it.each(['achievement', 'quest', 'shop', 'news'] as const)('renders a non-empty %s menu graphic', (name) => {
+    const { container } = render(<GameIcon name={name} />)
+
+    expect(container.querySelector('svg')?.children.length).toBeGreaterThan(0)
+  })
 })

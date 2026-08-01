@@ -17,6 +17,9 @@ export type GameIconName =
   | 'growth'
   | 'report'
   | 'shop'
+  | 'achievement'
+  | 'quest'
+  | 'news'
 
 interface GameIconProps {
   name: GameIconName
@@ -41,6 +44,9 @@ const paths: Record<GameIconName, ReactNode> = {
   growth: <><path d="M12 3c4 0 7 2.5 7 6v7c0 3-3 5-7 5s-7-2-7-5V9c0-3.5 3-6 7-6Z" /><path d="M9 13c1.8 1.4 4.2 1.4 6 0" /><path d="m12 6 1.1 2.2 2.4.3-1.7 1.7.4 2.4-2.2-1.2-2.2 1.2.4-2.4-1.7-1.7 2.4-.3Z" /></>,
   report: <><rect x="5" y="4" width="14" height="16" rx="2" /><path d="M8 16v-3M12 16V9M16 16v-5M8 7h8" /></>,
   shop: <><path d="M5 9h14l-1 11H6Z" /><path d="M7 9c0-3 2-5 5-5s5 2 5 5" /><path d="m12 12 1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3Z" /></>,
+  achievement: <><path fill="currentColor" d="M7 4h10v4c0 3.1-2.1 5.7-5 6.5C9.1 13.7 7 11.1 7 8Z" /><path d="M7 6H4v2c0 2.2 1.8 4 4 4M17 6h3v2c0 2.2-1.8 4-4 4M12 14.5V18M8.5 20h7" /></>,
+  quest: <><rect x="5" y="5" width="14" height="16" rx="2" fill="currentColor" /><path d="M9 5V3h6v2" /><path fill="none" stroke="white" d="m12 9 1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3Z" /></>,
+  news: <><path fill="currentColor" d="m4 10 12-5v12L4 14Z" /><path d="M16 8.5c2 0 3.5 1.5 3.5 3.5S18 15.5 16 15.5M6 14l1.5 6h4L10 15" /></>,
 }
 
 export function GameIcon({ name, className, title }: GameIconProps) {
