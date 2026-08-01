@@ -1,0 +1,207 @@
+/* Final Buddy room viewport layout.
+   Loaded after the shared room styles so this file only corrects the room scene. */
+
+.companion-screen {
+  width: min(100%, 31rem);
+  height: calc(100dvh - 5.25rem);
+  min-height: 0;
+  margin-inline: auto;
+  padding: 0;
+  overflow: hidden;
+}
+
+.companion-screen .companion-room-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background-position: center center;
+  background-size: cover;
+}
+
+/* Keep the two HUD pieces inside the safe area and prevent overlap. */
+.companion-room-scene .buddy-room-title {
+  top: calc(env(safe-area-inset-top, 0px) + .65rem);
+  left: max(.65rem, env(safe-area-inset-left));
+  width: min(48vw, 14.5rem);
+  max-width: none;
+  min-height: 3.25rem;
+  padding-right: .6rem;
+}
+
+.companion-room-scene > .game-coin-pill {
+  top: calc(env(safe-area-inset-top, 0px) + .7rem);
+  right: max(.65rem, env(safe-area-inset-right));
+  min-width: 6.65rem;
+  min-height: 3.05rem;
+  z-index: 9;
+}
+
+/* The buddy is anchored to the rug instead of the top of the scene. */
+.companion-room-scene .hero-companion-wrap {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  right: auto;
+  bottom: clamp(1.2rem, 4.8vh, 2.6rem);
+  width: min(42vw, 12rem);
+  height: min(35vh, 15rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.companion-room-scene .companion-character {
+  position: absolute;
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  background-position: center bottom;
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: auto;
+}
+
+/* Prop controls are attached to the matching furniture in the artwork. */
+.companion-room-scene .room-prop-hotspots {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  pointer-events: none;
+}
+
+.companion-room-scene .room-prop-hotspot {
+  min-height: 2.8rem;
+  grid-template-columns: 1.9rem auto;
+  gap: .28rem;
+  padding: .28rem .58rem .28rem .3rem;
+  border-radius: 1rem;
+  pointer-events: auto;
+}
+
+.companion-room-scene .room-prop-icon {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: .68rem;
+}
+
+.companion-room-scene .room-prop-icon svg {
+  width: 1.28rem;
+  height: 1.28rem;
+}
+
+.companion-room-scene .room-prop-label {
+  font-size: clamp(.7rem, 2.85vw, .86rem);
+}
+
+.companion-room-scene .room-hotspot-wardrobe {
+  left: 3.5%;
+  top: 14.5%;
+  transform-origin: left center;
+}
+
+.companion-room-scene .room-hotspot-journal {
+  right: 3.5%;
+  top: 15.5%;
+  transform-origin: right center;
+}
+
+.companion-room-scene .room-hotspot-growth {
+  right: 3.5%;
+  top: 27.5%;
+  transform-origin: right center;
+}
+
+.companion-room-scene .room-hotspot-report {
+  right: 3.5%;
+  top: 42.5%;
+  transform-origin: right center;
+}
+
+.companion-room-scene .room-hotspot-shop {
+  left: 3.5%;
+  top: 43.5%;
+  transform-origin: left center;
+}
+
+@media (max-width: 390px) {
+  .companion-room-scene .buddy-room-title {
+    width: 47vw;
+    transform: scale(.92);
+    transform-origin: top left;
+  }
+
+  .companion-room-scene > .game-coin-pill {
+    min-width: 6.2rem;
+    transform: scale(.92);
+    transform-origin: top right;
+  }
+
+  .companion-room-scene .room-prop-hotspot {
+    transform: scale(.9);
+  }
+
+  .companion-room-scene .hero-companion-wrap {
+    width: min(39vw, 10.5rem);
+    height: min(32vh, 13rem);
+  }
+}
+
+@media (max-height: 720px) {
+  .companion-room-scene .buddy-room-title {
+    transform: scale(.84);
+    transform-origin: top left;
+  }
+
+  .companion-room-scene > .game-coin-pill {
+    transform: scale(.84);
+    transform-origin: top right;
+  }
+
+  .companion-room-scene .hero-companion-wrap {
+    bottom: .65rem;
+    width: min(34vw, 9.7rem);
+    height: min(29vh, 11.5rem);
+  }
+
+  .companion-room-scene .room-prop-hotspot {
+    transform: scale(.82);
+  }
+
+  .companion-room-scene .room-hotspot-wardrobe { top: 13%; }
+  .companion-room-scene .room-hotspot-journal { top: 14%; }
+  .companion-room-scene .room-hotspot-growth { top: 25%; }
+  .companion-room-scene .room-hotspot-report { top: 39%; }
+  .companion-room-scene .room-hotspot-shop { top: 40%; }
+}
+
+@media (max-height: 620px) {
+  .companion-room-scene .hero-companion-wrap {
+    width: min(30vw, 8.5rem);
+    height: min(25vh, 9.5rem);
+  }
+
+  .companion-room-scene .room-prop-hotspot {
+    transform: scale(.74);
+  }
+
+  .companion-room-scene .room-hotspot-growth { top: 23%; }
+  .companion-room-scene .room-hotspot-report { top: 36%; }
+  .companion-room-scene .room-hotspot-shop { top: 37%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .companion-room-scene .companion-character {
+    animation: none !important;
+    transform: translateX(-50%) !important;
+  }
+}
