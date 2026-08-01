@@ -1,0 +1,169 @@
+.world-home-scene,
+.companion-room-scene {
+  min-height: calc(100dvh - 5.25rem);
+  background-position: center top;
+  background-size: cover;
+}
+
+.world-home-scene {
+  padding: max(.65rem, env(safe-area-inset-top)) .75rem calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+.game-logo {
+  top: .25rem;
+  font-size: 1.05rem;
+}
+
+.game-status-rail {
+  top: 3.4rem;
+  left: .1rem;
+  display: flex;
+  gap: .35rem;
+}
+
+.game-status-button {
+  min-width: 3.45rem;
+  min-height: 3.25rem;
+  grid-template-columns: 1.25rem auto;
+  gap: .1rem .2rem;
+  padding: .38rem .45rem;
+  border-width: .16rem;
+  border-radius: .9rem;
+  background: rgba(255, 246, 220, .94);
+  box-shadow: 0 .22rem 0 #4a2859;
+  text-align: center;
+}
+
+.game-status-button:nth-child(2),
+.game-status-button:nth-child(3) {
+  background: rgba(255, 246, 220, .94);
+}
+
+.game-status-button > svg,
+.game-coin-pill > svg,
+.world-hotspot > svg,
+.open-room-action > svg,
+.meal-record-orb > svg,
+.bottom-nav-icon > svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: block;
+}
+
+.game-hud-value {
+  font-size: 1.05rem;
+}
+
+.game-hud-progress {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.game-hud-streak {
+  grid-column: 1 / -1;
+  font-size: .68rem;
+  line-height: 1;
+}
+
+.game-coin-pill {
+  min-height: 2.85rem;
+  padding: .35rem .58rem;
+  background: rgba(255, 217, 74, .96);
+}
+
+.hero-companion-wrap {
+  bottom: calc(5.7rem + env(safe-area-inset-bottom));
+  height: min(42vh, 22rem);
+}
+
+.companion-character {
+  width: min(42vw, 12.5rem);
+  height: min(48vw, 14rem);
+}
+
+.world-hotspot {
+  width: 3.55rem;
+  height: 3.55rem;
+  min-width: 3.55rem;
+  min-height: 3.55rem;
+  border-width: .17rem;
+  background: rgba(255, 217, 74, .96);
+}
+
+.world-hotspot-village {
+  top: 31%;
+  right: .8rem;
+}
+
+.world-hotspot-river {
+  right: .8rem;
+  bottom: 29%;
+}
+
+.open-room-action {
+  right: .75rem;
+  bottom: 1rem;
+  min-width: 4.7rem;
+  min-height: 3.4rem;
+  display: grid;
+  grid-template-columns: 1.25rem auto;
+  place-items: center;
+  gap: .3rem;
+  border-width: .17rem;
+  padding: .45rem .6rem;
+  background: rgba(128, 217, 194, .96);
+}
+
+.open-room-action span {
+  font-size: .8rem;
+  white-space: nowrap;
+}
+
+.meal-record-orb {
+  width: 5.1rem;
+  height: 5.1rem;
+  bottom: calc(.75rem + env(safe-area-inset-bottom));
+  background: linear-gradient(145deg, #ff8a72, #ff5f73);
+}
+
+.meal-record-orb > svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.bottom-nav-icon {
+  width: 1.55rem;
+  height: 1.55rem;
+  display: grid;
+  place-items: center;
+}
+
+.bottom-nav button.primary .bottom-nav-icon {
+  width: 2.85rem;
+  height: 2.85rem;
+  margin-top: -1.2rem;
+  border: .24rem solid #fff;
+  border-radius: 50%;
+  background: #ff8066;
+  color: #fff;
+  box-shadow: 0 .3rem .8rem rgba(155,68,50,.3);
+}
+
+.bottom-nav button.primary .bottom-nav-icon > svg {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+
+@media (max-width: 22rem) {
+  .game-status-button { min-width: 3.1rem; padding-inline: .3rem; }
+  .game-status-rail { gap: .25rem; }
+  .world-home-scene { background-position: 50% top; }
+}
+
+@media (min-width: 23rem) and (max-width: 25rem) {
+  .world-home-scene { background-position: 50% top; }
+}
+
+@media (min-width: 25.01rem) {
+  .world-home-scene { background-position: 50% top; }
+}
