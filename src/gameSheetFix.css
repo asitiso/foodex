@@ -2,20 +2,64 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
+  border-color: #4a2e67;
+  background: #fff5d8;
+  box-shadow: 0 -.35rem 0 #4a2e67, 0 -.9rem 2rem rgb(74 46 103 / 22%);
 }
 
 .game-sheet-header {
   position: relative;
   z-index: 2;
   flex: 0 0 auto;
-  border-bottom: 1px solid rgb(88 50 103 / 18%);
+  min-height: 3.75rem;
+  padding: .8rem 1rem;
+  border-bottom: 2px solid rgb(74 46 103 / 18%);
+  background: linear-gradient(180deg, #8b6bea, #7350df);
+  color: #fff;
+}
+
+.game-sheet-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  text-shadow: 0 .1rem 0 rgb(74 46 103 / 38%);
+}
+
+.game-sheet-header button {
+  min-width: 3.25rem;
+  min-height: 3.25rem;
+  border: 2px solid #4a2e67;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffdf6, #fff5d8);
+  color: #4a2e67;
+  box-shadow: 0 .2rem 0 #4a2e67;
+}
+
+.game-sheet-header button:active {
+  transform: translateY(.14rem);
+  box-shadow: 0 .06rem 0 #4a2e67;
 }
 
 .game-sheet-content {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  padding: 1rem;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable;
+  background:
+    radial-gradient(circle at 100% 0, rgb(255 217 74 / 22%), transparent 26%),
+    #fff5d8;
+}
+
+.game-sheet-content :where(button, a, input, select) {
+  min-height: 3.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-sheet,
+  .game-sheet * {
+    scroll-behavior: auto;
+    transition-duration: .01ms !important;
+  }
 }
