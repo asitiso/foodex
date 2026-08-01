@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 export type GameIconName =
   | 'home'
   | 'collection'
@@ -17,7 +19,7 @@ interface GameIconProps {
   title?: string
 }
 
-const paths: Record<GameIconName, JSX.Element> = {
+const paths: Record<GameIconName, ReactNode> = {
   home: <path d="M4 11.5 12 5l8 6.5V20h-5v-5H9v5H4Z" />,
   collection: <><rect x="4" y="5" width="7" height="14" rx="2" /><rect x="13" y="5" width="7" height="14" rx="2" /><path d="M7 9h1M7 13h1M16 9h1M16 13h1" /></>,
   camera: <><path d="M5 8h3l1.4-2h5.2L16 8h3a2 2 0 0 1 2 2v8H3v-8a2 2 0 0 1 2-2Z" /><circle cx="12" cy="13" r="3.2" /></>,
