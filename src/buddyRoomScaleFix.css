@@ -1,0 +1,119 @@
+/* Match Buddy room foreground scale to the home scene.
+   Loaded after the room recovery styles so only visual proportions change. */
+
+/* Home uses a character footprint of roughly 46vw × 51vw, capped at
+   13.5rem × 15rem. Keep the Buddy on the rug with the same footprint. */
+.buddy-character-stage {
+  bottom: calc(5.65rem + env(safe-area-inset-bottom, 0px));
+  width: min(46vw, 13.5rem);
+  height: min(51vw, 15rem);
+}
+
+/* Home hotspots use a 4.15rem game-button footprint with a 1.8rem icon.
+   Buddy actions keep their labels but use the same visual weight. */
+.buddy-room-hotspots .room-prop-hotspot {
+  min-width: 4.15rem;
+  min-height: 4.15rem;
+  grid-template-columns: 1fr;
+  grid-template-rows: 2rem auto;
+  justify-items: center;
+  align-content: center;
+  gap: .14rem;
+  padding: .34rem .42rem .3rem;
+  border-radius: 1.25rem;
+}
+
+.buddy-room-hotspots .room-prop-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: .72rem;
+}
+
+.buddy-room-hotspots .room-prop-icon svg {
+  width: 1.8rem;
+  height: 1.8rem;
+  stroke-width: 2.45;
+}
+
+.buddy-room-hotspots .room-prop-label {
+  max-width: 4.8rem;
+  font-size: .72rem;
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Keep the controls attached to their furniture after increasing their size. */
+.buddy-room-hotspots [data-room-panel="wardrobe"] {
+  top: 20%;
+  left: 3%;
+}
+
+.buddy-room-hotspots [data-room-panel="journal"] {
+  top: 20%;
+  right: 3%;
+}
+
+.buddy-room-hotspots [data-room-panel="growth"] {
+  top: 39%;
+  right: 5%;
+}
+
+.buddy-room-hotspots [data-room-panel="report"] {
+  right: 3%;
+  bottom: 22%;
+}
+
+.buddy-room-hotspots [data-room-panel="shop"] {
+  left: 3%;
+  bottom: 22%;
+}
+
+@media (max-width: 390px) {
+  .buddy-character-stage {
+    width: min(46vw, 12rem);
+    height: min(51vw, 13.35rem);
+  }
+
+  .buddy-room-hotspots .room-prop-hotspot {
+    transform: scale(.92);
+  }
+}
+
+@media (max-height: 720px) {
+  .buddy-character-stage {
+    bottom: 4.85rem;
+    width: min(42vw, 11.5rem);
+    height: min(47vw, 12.8rem);
+  }
+
+  .buddy-room-hotspots .room-prop-hotspot {
+    transform: scale(.86);
+  }
+
+  .buddy-room-hotspots [data-room-panel="wardrobe"],
+  .buddy-room-hotspots [data-room-panel="journal"] {
+    top: 19%;
+  }
+
+  .buddy-room-hotspots [data-room-panel="growth"] {
+    top: 38%;
+  }
+
+  .buddy-room-hotspots [data-room-panel="report"],
+  .buddy-room-hotspots [data-room-panel="shop"] {
+    bottom: 19%;
+  }
+}
+
+@media (max-height: 620px) {
+  .buddy-character-stage {
+    bottom: 4.2rem;
+    width: min(38vw, 10rem);
+    height: min(43vw, 11.1rem);
+  }
+
+  .buddy-room-hotspots .room-prop-hotspot {
+    transform: scale(.78);
+  }
+}
