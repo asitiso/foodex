@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEvolution } from '../../domain/companionEvolution'
+import { GameIcon, type GameIconName } from '../../ui/GameIcon'
 import { GameSheet } from '../../ui/GameSheet'
 import { HeroCompanion, type CompanionEmotion } from './HeroCompanion'
 
-export type RoomPanel = 'wardrobe' | 'growth' | 'shop' | null
+export type RoomPanel = 'wardrobe' | 'journal' | 'growth' | 'report' | 'shop' | null
 
 export interface CompanionRoomSceneProps {
   characterId: CompanionCharacterId
@@ -20,13 +21,15 @@ export interface CompanionRoomSceneProps {
 const ROOM_LOCATIONS: ReadonlyArray<{
   panel: Exclude<RoomPanel, null>
   label: string
-  icon: string
+  icon: GameIconName
   className: string
   title: string
 }> = [
-  { panel: 'wardrobe', label: '옷장 열기', icon: '👕', className: 'room-hotspot-wardrobe', title: '옷장' },
-  { panel: 'growth', label: '성장 거울 열기', icon: '🪞', className: 'room-hotspot-growth', title: '성장 거울' },
-  { panel: 'shop', label: '꾸미기 상점 열기', icon: '🛍️', className: 'room-hotspot-shop', title: '꾸미기 상점' },
+  { panel: 'wardrobe', label: '옷장 열기', icon: 'wardrobe', className: 'room-hotspot-wardrobe', title: '옷장' },
+  { panel: 'journal', label: '기록 책장 열기', icon: 'bookshelf', className: 'room-hotspot-journal', title: '기록 책장' },
+  { panel: 'growth', label: '성장 거울 열기', icon: 'growth', className: 'room-hotspot-growth', title: '성장 거울' },
+  { panel: 'report', label: '리포트 열기', icon: 'report', className: 'room-hotspot-report', title: '리포트' },
+  { panel: 'shop', label: '꾸미기 상점 열기', icon: 'shop', className: 'room-hotspot-shop', title: '꾸미기 상점' },
 ]
 
 function getPanelTitle(panel: RoomPanel): string {
@@ -45,13 +48,19 @@ export function CompanionRoomScene({
 }: CompanionRoomSceneProps) {
   return (
     <section className="companion-room-scene" aria-label="친구의 방">
+      <div className="buddy-room-title" aria-label="버디 룸">
+        <span className="buddy-room-avatar" aria-hidden="true"><GameIcon name="buddy" /></span>
+        <span><strong>Buddy 룸</strong><small>우리 멋지고 건강하게 자라자!</small></span>
+      </div>
       <button
         type="button"
         className="game-coin-pill"
         aria-label={`보유 코인 ${coinBalance}개, 꾸미기 상점 열기`}
         onClick={() => onPanelChange('shop')}
       >
-        <span aria-hidden="true">🪙</span> {coinBalance}
+        <GameIcon name="coin" />
+        <strong>{coinBalance.toLocaleString()}</strong>
+        <span className="coin-add" aria-hidden="true">+</span>
       </button>
       <HeroCompanion
         characterId={characterId}
@@ -59,16 +68,17 @@ export function CompanionRoomScene({
         reducedMotion={reducedMotion}
         evolutionStage={evolution?.stage}
       />
-      <div className="room-hotspot-rail" aria-label="방 활동">
-        {ROOM_LOCATIONS.map(({ panel, label, icon, className }) => (
+      <div className="room-prop-hotspots" aria-label="방 활동">
+        {ROOM_LOCATIONS.map(({ panel, label, icon, className, title }) => (
           <button
             key={panel}
             type="button"
-            className={`room-hotspot ${className}`}
+            className={`room-prop-hotspot ${className}`}
             aria-label={label}
             onClick={() => onPanelChange(panel)}
           >
-            <span aria-hidden="true">{icon}</span>
+            <span className="room-prop-icon" aria-hidden="true"><GameIcon name={icon} /></span>
+            <span className="room-prop-label">{title}</span>
           </button>
         ))}
       </div>
