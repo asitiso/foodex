@@ -1,20 +1,73 @@
-/* Home-only game UI layer. Loaded last so other screens keep their own scale. */
+/* Reference home composition. Loaded last so the world scene stays isolated. */
+
+.app-shell:has(> .world-home-scene) {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 0;
+  background: #20a6ef;
+}
+
+.world-home-scene {
+  --home-safe-top: max(.55rem, env(safe-area-inset-top));
+  --home-safe-bottom: max(.45rem, env(safe-area-inset-bottom));
+  --home-hud-height: 12.6rem;
+  --home-dock-height: 6.5rem;
+  --home-ivory: #fff7df;
+  --home-ivory-light: #fffdf5;
+  --home-purple: #56318f;
+  --home-purple-dark: #351b61;
+  --home-purple-soft: #7952c4;
+  position: relative;
+  width: min(100%, 31rem);
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  margin-inline: auto;
+  padding: 0;
+  background-color: #20a6ef;
+  background-position: center top;
+  background-size: cover;
+  color: var(--home-purple-dark);
+  font-family: "Arial Rounded MT Bold", "Pretendard", "Noto Sans KR", sans-serif;
+  overscroll-behavior: none;
+}
+
+.world-home-scene,
+.world-home-scene * {
+  box-sizing: border-box;
+}
+
+.world-home-scene button {
+  appearance: none;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The HUD mirrors the reference: stacked counters, centered wordmark, coin pill. */
+.world-home-scene .game-hud {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  min-height: var(--home-hud-height);
+  pointer-events: none;
+}
 
 .foodex-game-logo {
   position: absolute;
-  z-index: 9;
-  top: max(.72rem, env(safe-area-inset-top));
+  z-index: 2;
+  top: calc(var(--home-safe-top) + 3.75rem);
   left: 50%;
-  width: min(54vw, 15.2rem);
-  height: 5.2rem;
+  width: min(55vw, 14rem);
+  height: 5.15rem;
   transform: translateX(-50%);
+  filter: drop-shadow(0 .42rem .28rem rgb(51 23 92 / 42%));
   pointer-events: none;
-  filter: drop-shadow(0 .42rem .34rem rgba(54, 23, 93, .38));
 }
 
 .foodex-logo-word {
   position: absolute;
-  inset: .18rem .35rem auto;
+  inset: .18rem .32rem auto;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -28,8 +81,8 @@
   display: inline-block;
   margin-inline: -.065em;
   color: #fffdf8;
-  font-family: "Arial Rounded MT Bold", "Pretendard", "Noto Sans KR", sans-serif;
-  font-size: clamp(2.55rem, 10.6vw, 4.05rem);
+  font-family: inherit;
+  font-size: clamp(2.65rem, 10.8vw, 4.05rem);
   font-weight: 1000;
   line-height: .86;
   letter-spacing: -.07em;
@@ -37,95 +90,536 @@
   -webkit-text-stroke: .2rem #6d3bc9;
   paint-order: stroke fill;
   text-shadow:
-    0 .08rem 0 #ffffff,
+    0 .08rem 0 #fff,
     0 .2rem 0 #e8a1ff,
     0 .34rem 0 #ba62e8,
     0 .49rem 0 #7a3cc2,
-    0 .64rem 0 #4e258d,
-    .05rem .72rem .28rem rgba(54, 21, 94, .44);
+    0 .64rem 0 #4e258d;
 }
 
 .foodex-logo-word > span::before {
   content: "";
   position: absolute;
-  left: 22%;
   top: 7%;
+  left: 22%;
   width: 38%;
   height: 12%;
   border-radius: 999px;
-  background: rgba(255, 255, 255, .95);
-  filter: blur(.02rem);
+  background: rgb(255 255 255 / 95%);
   transform: rotate(-10deg);
 }
 
 .foodex-logo-star {
   position: absolute;
-  right: -.18rem;
-  bottom: .18rem;
+  right: -.12rem;
+  bottom: .2rem;
   display: grid;
   place-items: center;
-  width: 2.45rem;
-  height: 2.45rem;
+  width: 2.35rem;
+  height: 2.35rem;
   color: #ffe14f;
-  font-size: 2rem;
+  font-size: 1.9rem;
   line-height: 1;
   transform: rotate(12deg);
   -webkit-text-stroke: .13rem #e99a20;
-  text-shadow:
-    0 .12rem 0 #fff3a2,
-    0 .27rem 0 #e69720,
-    0 .43rem 0 #b85b21,
-    0 .58rem .25rem rgba(93, 43, 20, .34);
+  text-shadow: 0 .12rem 0 #fff3a2, 0 .27rem 0 #e69720, 0 .43rem 0 #b85b21;
 }
 
 .foodex-logo-sparkles {
   position: absolute;
-  inset: -.22rem .05rem auto auto;
+  inset: -.15rem .05rem auto auto;
   color: #fff3a2;
   font-size: .82rem;
   letter-spacing: .5rem;
-  text-shadow: 0 0 .38rem rgba(255, 236, 111, .95);
+  text-shadow: 0 0 .38rem rgb(255 236 111 / 95%);
 }
 
-/* Hide the old text logo if older markup is temporarily rendered. */
 .game-logo {
   display: none !important;
 }
 
-@media (max-width: 390px) {
+.world-home-scene .game-status-rail {
+  position: absolute;
+  z-index: 3;
+  top: calc(var(--home-safe-top) + .65rem);
+  left: max(.58rem, env(safe-area-inset-left));
+  display: grid;
+  width: clamp(4.75rem, 20.5vw, 5.5rem);
+  gap: .42rem;
+  pointer-events: auto;
+}
+
+.world-home-scene .game-status-button {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  min-width: 0;
+  min-height: 3.1rem;
+  padding: .48rem .52rem .4rem;
+  overflow: hidden;
+  border: .19rem solid var(--home-purple);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, var(--home-ivory-light), var(--home-ivory));
+  box-shadow:
+    inset 0 0 0 .13rem #fff,
+    inset 0 -.28rem 0 rgb(242 181 114 / 17%),
+    0 .25rem 0 var(--home-purple-dark),
+    0 .4rem .55rem rgb(45 20 76 / 25%);
+  color: #40236f;
+  text-align: left;
+  text-shadow: 0 .06rem 0 #fff;
+}
+
+.world-home-scene .game-status-button:nth-child(2) {
+  min-height: 3.65rem;
+  background: linear-gradient(180deg, #fffdf4, #f8f3dd);
+}
+
+.world-home-scene .game-status-button:nth-child(3) {
+  min-height: 4.65rem;
+  background: linear-gradient(180deg, #fffdf4, #fff0d5);
+}
+
+.world-home-scene .game-status-button::after,
+.world-home-scene .game-coin-pill::after,
+.world-home-scene .home-menu-card::after {
+  content: "";
+  position: absolute;
+  inset: .18rem .42rem auto;
+  height: .14rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 86%);
+  pointer-events: none;
+}
+
+.world-home-scene .game-status-title {
+  font-size: .78rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.world-home-scene .game-hud-value {
+  font-size: 1.18rem;
+  font-weight: 1000;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.world-home-scene .game-status-unit {
+  grid-column: 1 / -1;
+  margin-top: .13rem;
+  color: #528b44;
+  font-size: .72rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.world-home-scene .game-hud-progress {
+  grid-column: 1 / -1;
+  height: .28rem;
+  margin-top: .24rem;
+  overflow: hidden;
+  border: .07rem solid #7a51a9;
+  border-radius: 999px;
+  background: #e5d6f4;
+}
+
+.world-home-scene .game-hud-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffad3d, #ffe04e);
+}
+
+.world-home-scene .game-hud-streak {
+  grid-column: 1 / -1;
+  margin-top: .2rem;
+  color: #db5b20;
+  font-size: .7rem;
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.world-home-scene .game-coin-pill {
+  position: absolute;
+  z-index: 3;
+  top: calc(var(--home-safe-top) + .55rem);
+  right: max(.55rem, env(safe-area-inset-right));
+  display: grid;
+  grid-template-columns: 2rem minmax(2.7rem, auto) 1.7rem;
+  align-items: center;
+  gap: .16rem;
+  min-height: 3.05rem;
+  padding: .18rem .28rem .18rem .2rem;
+  border: .19rem solid var(--home-purple);
+  border-radius: 1.45rem;
+  background: linear-gradient(180deg, var(--home-ivory-light), #ffe5ae);
+  box-shadow:
+    inset 0 0 0 .13rem #fff,
+    0 .25rem 0 var(--home-purple-dark),
+    0 .4rem .58rem rgb(45 20 78 / 28%);
+  color: #40236f;
+  pointer-events: auto;
+}
+
+.world-home-scene .game-coin-pill .game-hud-value {
+  font-size: 1.16rem;
+  text-align: center;
+}
+
+.world-home-scene .game-icon-medallion,
+.world-home-scene .game-coin-add {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffe24c, #f2a020);
+  box-shadow: inset 0 .12rem .08rem rgb(255 255 255 / 68%), inset 0 -.18rem .1rem rgb(187 103 16 / 32%), 0 .12rem .18rem rgb(76 43 16 / 30%);
+}
+
+.world-home-scene .game-icon-medallion {
+  width: 2rem;
+  height: 2rem;
+  border: .13rem solid #e28b19;
+  color: #fff8c7;
+}
+
+.world-home-scene .game-icon-medallion svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  stroke-width: 2.5;
+}
+
+.world-home-scene .game-coin-add {
+  width: 1.68rem;
+  height: 1.68rem;
+  color: #a54626;
+  font-size: 1.4rem;
+  font-weight: 1000;
+  line-height: 1;
+}
+
+/* Buttons sit on their matching painted landmarks instead of floating as web UI. */
+.world-home-scene .world-hotspot,
+.world-home-scene .meal-record-orb {
+  position: absolute;
+  z-index: 9;
+  margin: 0;
+  border: .18rem solid var(--home-purple);
+  background: linear-gradient(180deg, var(--home-ivory-light), #ffe2a9);
+  box-shadow:
+    inset 0 0 0 .12rem rgb(255 255 255 / 92%),
+    0 .24rem 0 var(--home-purple-dark),
+    0 .38rem .48rem rgb(50 24 77 / 25%);
+  color: #40236f;
+  text-shadow: 0 .06rem 0 #fff;
+}
+
+.world-home-scene .world-hotspot::before,
+.world-home-scene .meal-record-orb::before {
+  content: "";
+  position: absolute;
+  inset: .17rem .42rem auto;
+  height: .13rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 82%);
+}
+
+.world-home-scene .world-hotspot svg,
+.world-home-scene .meal-record-orb svg {
+  flex: none;
+  width: 1.7rem;
+  height: 1.7rem;
+  stroke-width: 2.45;
+  filter: drop-shadow(0 .08rem 0 #fff);
+}
+
+.world-home-scene .world-hotspot > span,
+.world-home-scene .meal-record-orb > span {
+  font-size: .9rem;
+  font-weight: 1000;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.world-landmark-collection {
+  left: 7%;
+  top: 38%;
+  display: grid;
+  place-items: center;
+  width: 5.25rem;
+  height: 5.3rem;
+  min-width: 0;
+  min-height: 0;
+  gap: .15rem;
+  padding: .45rem .35rem .38rem;
+  border-radius: 1.25rem;
+  color: #763062 !important;
+  background: linear-gradient(180deg, #fff4e6, #ffacd0) !important;
+}
+
+.world-landmark-collection svg {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  color: #a84d79;
+}
+
+.world-landmark-adventure {
+  left: 57%;
+  top: 29%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.45rem;
+  height: 3.05rem;
+  min-width: 0;
+  min-height: 0;
+  padding: .35rem .55rem;
+  border-radius: .95rem;
+  background: linear-gradient(180deg, #fff4cb, #ffb65b) !important;
+}
+
+.world-landmark-adventure svg,
+.world-landmark-buddy svg {
+  display: none;
+}
+
+.meal-record-orb {
+  left: 50%;
+  top: 44%;
+  right: auto;
+  bottom: auto;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  place-items: center;
+  width: 7.55rem;
+  height: 5.8rem;
+  padding: .42rem .5rem .48rem;
+  border-radius: 1.45rem;
+  transform: translateX(-50%);
+}
+
+.world-home-scene .meal-record-orb svg {
+  width: 3.15rem;
+  height: 3.15rem;
+  color: #3766a0;
+}
+
+.world-home-scene .meal-record-orb > span {
+  align-self: end;
+  font-size: .82rem;
+}
+
+.world-landmark-buddy {
+  right: 6%;
+  top: 43%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 3.05rem;
+  min-width: 0;
+  min-height: 0;
+  padding: .35rem .55rem;
+  border-radius: .95rem;
+  background: linear-gradient(180deg, #effffc, #7fe0d5) !important;
+}
+
+/* The character owns the lower plaza and remains visibly larger than all controls. */
+.world-home-scene .hero-companion-wrap {
+  left: 50%;
+  top: 59%;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: min(25vh, 13rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.world-home-scene .companion-character {
+  top: 0;
+  bottom: auto;
+  width: clamp(9.5rem, 42vw, 12.25rem);
+  height: clamp(9.5rem, 42vw, 12.25rem);
+  filter: drop-shadow(0 .62rem .36rem rgb(69 42 28 / 30%));
+  pointer-events: auto;
+}
+
+.world-home-scene .companion-reaction {
+  top: -2.4rem;
+  bottom: auto;
+}
+
+/* Four separate toy cards form a single dock row, with no flat container panel. */
+.home-menu-dock {
+  position: absolute;
+  z-index: 18;
+  right: max(.55rem, env(safe-area-inset-right));
+  bottom: var(--home-safe-bottom);
+  left: max(.55rem, env(safe-area-inset-left));
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .48rem;
+  height: var(--home-dock-height);
+  pointer-events: auto;
+}
+
+.home-menu-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: .56rem .25rem .58rem;
+  overflow: hidden;
+  border: .18rem solid var(--home-purple);
+  border-radius: 1.18rem;
+  background: linear-gradient(180deg, var(--home-ivory-light), #ffedcd);
+  box-shadow:
+    inset 0 0 0 .12rem #fff,
+    inset 0 -.3rem 0 rgb(241 181 126 / 17%),
+    0 .25rem 0 var(--home-purple-dark),
+    0 .4rem .52rem rgb(46 21 75 / 27%);
+  color: #462776;
+  text-shadow: 0 .06rem 0 #fff;
+}
+
+.home-menu-card svg {
+  align-self: center;
+  width: clamp(2.35rem, 10vw, 3rem);
+  height: clamp(2.35rem, 10vw, 3rem);
+  color: #8a55c9;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 .15rem 0 rgb(75 36 111 / 20%));
+}
+
+.home-menu-card:nth-child(1) svg { color: #e4a31d; }
+.home-menu-card:nth-child(2) svg { color: #e17b9f; }
+.home-menu-card:nth-child(3) svg { color: #56bbaa; }
+.home-menu-card:nth-child(4) svg { color: #7658c8; }
+
+.home-menu-card > span {
+  font-size: 1rem;
+  font-weight: 1000;
+  line-height: 1;
+  letter-spacing: -.04em;
+  white-space: nowrap;
+}
+
+.world-home-scene :where(.game-status-button, .game-coin-pill, .world-hotspot, .meal-record-orb, .home-menu-card, .companion-character):focus-visible {
+  outline: .22rem solid #ffe04f;
+  outline-offset: .12rem;
+  box-shadow: 0 0 0 .2rem var(--home-purple), 0 .3rem 0 var(--home-purple-dark);
+}
+
+.world-home-scene :where(.game-status-button, .game-coin-pill, .world-hotspot, .meal-record-orb, .home-menu-card):active {
+  filter: saturate(1.08);
+  transform: translateY(.16rem) scale(.98);
+  box-shadow: inset 0 0 0 .1rem rgb(255 255 255 / 78%), 0 .1rem 0 var(--home-purple-dark);
+}
+
+.world-home-scene .meal-record-orb:active {
+  transform: translateX(-50%) translateY(.16rem) scale(.98);
+}
+
+/* 375x667: reduce surfaces, not the scene hierarchy or one-row dock. */
+@media (max-height: 700px) {
+  .world-home-scene {
+    --home-hud-height: 11.5rem;
+    --home-dock-height: 5.85rem;
+  }
+
   .foodex-game-logo {
-    top: max(.5rem, env(safe-area-inset-top));
-    width: min(50vw, 12.6rem);
+    top: calc(var(--home-safe-top) + 3.5rem);
+    width: min(52vw, 12.2rem);
     height: 4.45rem;
   }
 
-  .foodex-logo-word {
-    height: 3.3rem;
+  .foodex-logo-word { height: 3.25rem; }
+  .foodex-logo-word > span { font-size: clamp(2.25rem, 9.8vw, 3.2rem); -webkit-text-stroke-width: .16rem; }
+  .foodex-logo-star { width: 1.95rem; height: 1.95rem; font-size: 1.58rem; }
+
+  .world-home-scene .game-status-rail { width: 4.75rem; gap: .34rem; }
+  .world-home-scene .game-status-button { min-height: 2.75rem; padding: .4rem .46rem .34rem; }
+  .world-home-scene .game-status-button:nth-child(2) { min-height: 3.15rem; }
+  .world-home-scene .game-status-button:nth-child(3) { min-height: 4.05rem; }
+  .world-home-scene .game-status-title { font-size: .7rem; }
+  .world-home-scene .game-hud-value { font-size: 1.06rem; }
+  .world-home-scene .game-hud-streak,
+  .world-home-scene .game-status-unit { font-size: .63rem; }
+
+  .world-home-scene .game-coin-pill {
+    grid-template-columns: 1.8rem minmax(2.4rem, auto) 1.5rem;
+    min-height: 2.75rem;
   }
 
-  .foodex-logo-word > span {
-    font-size: clamp(2.15rem, 9.5vw, 3.25rem);
-    -webkit-text-stroke-width: .16rem;
+  .world-home-scene .game-icon-medallion { width: 1.8rem; height: 1.8rem; }
+  .world-home-scene .game-coin-add { width: 1.5rem; height: 1.5rem; font-size: 1.25rem; }
+  .world-home-scene .game-coin-pill .game-hud-value { font-size: 1.05rem; }
+
+  .world-landmark-collection { width: 4.65rem; height: 4.75rem; }
+  .world-landmark-adventure { width: 4.8rem; height: 2.75rem; }
+  .meal-record-orb { width: 6.75rem; height: 5rem; }
+  .world-home-scene .meal-record-orb svg { width: 2.65rem; height: 2.65rem; }
+  .world-landmark-buddy { width: 4.5rem; height: 2.75rem; }
+  .world-home-scene .world-hotspot > span,
+  .world-home-scene .meal-record-orb > span { font-size: .8rem; }
+
+  .world-home-scene .companion-character {
+    width: clamp(8.8rem, 40vw, 10.25rem);
+    height: clamp(8.8rem, 40vw, 10.25rem);
   }
 
-  .foodex-logo-star {
-    right: -.05rem;
-    width: 1.95rem;
-    height: 1.95rem;
-    font-size: 1.58rem;
-  }
+  .home-menu-card { padding: .45rem .16rem .47rem; border-radius: 1rem; }
+  .home-menu-card svg { width: 2.2rem; height: 2.2rem; }
+  .home-menu-card > span { font-size: .86rem; }
 }
 
-@media (max-width: 350px) {
-  .foodex-game-logo {
-    left: 53%;
-    width: 10.5rem;
+/* 430x932: allow the same objects to breathe without changing their order. */
+@media (min-height: 850px) {
+  .world-home-scene {
+    --home-hud-height: 13.5rem;
+    --home-dock-height: 6.85rem;
+  }
+
+  .foodex-game-logo { top: calc(var(--home-safe-top) + 4.2rem); }
+  .world-home-scene .game-status-rail { gap: .48rem; }
+  .world-home-scene .game-status-button:nth-child(3) { min-height: 4.9rem; }
+  .world-home-scene .companion-character { width: min(44vw, 12.25rem); height: min(44vw, 12.25rem); }
+  .home-menu-card { padding-bottom: .66rem; }
+}
+
+/* Only horizontal spacing and type compress below 391px; the dock never wraps. */
+@media (max-width: 390px) {
+  .home-menu-dock {
+    right: max(.42rem, env(safe-area-inset-right));
+    left: max(.42rem, env(safe-area-inset-left));
+    gap: .32rem;
+  }
+
+  .home-menu-card {
+    padding-inline: .12rem;
+  }
+
+  .home-menu-card > span {
+    font-size: .88rem;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .foodex-logo-star {
     animation: foodex-logo-star-pulse 2.4s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world-home-scene *,
+  .world-home-scene *::before,
+  .world-home-scene *::after {
+    animation: none !important;
+    transition-duration: .01ms !important;
   }
 }
 
