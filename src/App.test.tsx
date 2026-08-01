@@ -182,7 +182,7 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App repository={createMemoryRepository()} />)
 
-    await user.click(screen.getByRole('button', { name: '버디 방으로 가기' }))
+    await user.click(screen.getByRole('button', { name: '버디 열기' }))
 
     expect(screen.getByRole('region', { name: 'AI 친구' })).toBeInTheDocument()
   })

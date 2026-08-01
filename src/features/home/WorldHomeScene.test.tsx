@@ -31,24 +31,24 @@ it('exposes the required landmark actions and reference menu cards', async () =>
   expect(screen.getByRole('region', { name: '푸덱 월드 홈' })).toHaveStyle({
     '--scene-background': 'url("/art/world/world-home-play-city.webp")',
   })
-  expect(screen.getByRole('button', { name: '컬렉션 가기' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: '모험 가기' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '도감 열기' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '모험 열기' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: '식사 기록하기' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: '버디 가기' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '버디 열기' })).toBeInTheDocument()
   expect(screen.getByRole('navigation', { name: '홈 게임 메뉴' })).toBeInTheDocument()
-  for (const label of ['업적', '퀘스트', '상점', '휴식']) {
+  for (const label of ['업적', '퀘스트', '상점', '소식']) {
     expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
   }
   expect(screen.getAllByTestId('game-hud-status')).toHaveLength(3)
 
-  await user.click(screen.getByRole('button', { name: '컬렉션 가기' }))
-  await user.click(screen.getByRole('button', { name: '모험 가기' }))
+  await user.click(screen.getByRole('button', { name: '도감 열기' }))
+  await user.click(screen.getByRole('button', { name: '모험 열기' }))
   await user.click(screen.getByRole('button', { name: '식사 기록하기' }))
-  await user.click(screen.getByRole('button', { name: '버디 가기' }))
+  await user.click(screen.getByRole('button', { name: '버디 열기' }))
   await user.click(screen.getByRole('button', { name: '업적' }))
   await user.click(screen.getByRole('button', { name: '퀘스트' }))
   await user.click(screen.getByRole('button', { name: '상점' }))
-  await user.click(screen.getByRole('button', { name: '휴식' }))
+  await user.click(screen.getByRole('button', { name: '소식' }))
 
   expect(props.onOpenCollection).toHaveBeenCalledTimes(2)
   expect(props.onOpenAdventure).toHaveBeenCalledTimes(3)
