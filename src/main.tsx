@@ -6,6 +6,7 @@ import { isNativeApp, nativeHapticsAdapter } from './lib/nativePlatform'
 import './companionRoomFix.css'
 import './gameSheetFix.css'
 import './worldArtFix.css'
+import './buddyRoomGameUi.css'
 
 if (isNativeApp()) setNativeHapticsAdapter(nativeHapticsAdapter)
 
