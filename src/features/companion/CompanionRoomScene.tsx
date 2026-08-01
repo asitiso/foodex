@@ -62,18 +62,23 @@ export function CompanionRoomScene({
         <strong>{coinBalance.toLocaleString()}</strong>
         <span className="coin-add" aria-hidden="true">+</span>
       </button>
-      <HeroCompanion
-        characterId={characterId}
-        emotion={emotion}
-        reducedMotion={reducedMotion}
-        evolutionStage={evolution?.stage}
-      />
-      <div className="room-prop-hotspots" aria-label="방 활동">
+
+      <div className="buddy-character-stage" data-testid="buddy-character-stage">
+        <HeroCompanion
+          characterId={characterId}
+          emotion={emotion}
+          reducedMotion={reducedMotion}
+          evolutionStage={evolution?.stage}
+        />
+      </div>
+
+      <div className="room-prop-hotspots buddy-room-hotspots" role="group" aria-label="방 활동">
         {ROOM_LOCATIONS.map(({ panel, label, icon, className, title }) => (
           <button
             key={panel}
             type="button"
             className={`room-prop-hotspot ${className}`}
+            data-room-panel={panel}
             aria-label={label}
             onClick={() => onPanelChange(panel)}
           >
