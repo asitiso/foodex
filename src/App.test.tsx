@@ -115,6 +115,19 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
   })
 
+  it('replaces the five-tab bar with four reference menu cards only on home', async () => {
+    const user = userEvent.setup()
+    render(<App repository={createMemoryRepository()} />)
+
+    expect(screen.queryByRole('navigation', { name: '주요 메뉴' })).not.toBeInTheDocument()
+    const homeMenu = screen.getByRole('navigation', { name: '홈 게임 메뉴' })
+    expect(within(homeMenu).getAllByRole('button')).toHaveLength(4)
+
+    await user.click(within(homeMenu).getByRole('button', { name: '상점' }))
+    expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '컬렉션' })).toHaveAttribute('aria-current', 'page')
+  })
+
   it('shows the unified reward result only after the meal is safely persisted', async () => {
     const user = userEvent.setup()
     const saveGate = deferred<void>()

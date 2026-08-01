@@ -53,7 +53,11 @@ describe('HomeScreen', () => {
     render(<HomeScreen {...props} />)
 
     expect(screen.getByRole('region', { name: '푸덱 월드 홈' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '컬렉션 가기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '모험 가기' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '식사 기록하기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '버디 가기' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: '홈 게임 메뉴' })).toBeInTheDocument()
     expect(screen.getAllByTestId('game-hud-status')).toHaveLength(3)
     expect(screen.queryByText('오늘의 모험 보드')).not.toBeInTheDocument()
     expect(screen.queryByText('오늘의 식사 게이지')).not.toBeInTheDocument()
@@ -63,7 +67,7 @@ describe('HomeScreen', () => {
     const user = userEvent.setup()
     render(<HomeScreen {...props} />)
 
-    await user.click(screen.getByRole('button', { name: '버디 방으로 가기' }))
+    await user.click(screen.getByRole('button', { name: '버디 가기' }))
 
     expect(props.onOpenCompanion).toHaveBeenCalledOnce()
   })
