@@ -3,7 +3,7 @@ import type { CompanionCharacterId } from '../domain/companionCharacters'
 export type SceneAssetKey = 'worldHome' | 'companionRoom'
 
 export const SCENE_ASSETS: Record<SceneAssetKey, string> = {
-  worldHome: '/art/world/world-home-play-city.webp',
+  worldHome: '/art/world/world-home-reference-city.png',
   companionRoom: '/art/room/buddy-fantasy-room.webp',
 }
 

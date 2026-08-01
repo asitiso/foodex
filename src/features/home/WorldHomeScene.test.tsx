@@ -29,7 +29,7 @@ it('exposes the required landmark actions and reference menu cards', async () =>
   render(<WorldHomeScene {...props} />)
 
   expect(screen.getByRole('region', { name: '푸덱 월드 홈' })).toHaveStyle({
-    '--scene-background': 'url("/art/world/world-home-play-city.webp")',
+    '--scene-background': 'url("/art/world/world-home-reference-city.png")',
   })
   expect(screen.getByRole('button', { name: '도감 열기' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: '모험 열기' })).toBeInTheDocument()
