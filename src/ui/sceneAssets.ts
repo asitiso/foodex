@@ -8,7 +8,7 @@ export const SCENE_ASSETS: Record<SceneAssetKey, string> = {
 }
 
 const COMPANION_ART: Record<CompanionCharacterId, string> = {
-  foody: '/art/characters/foodi.png',
+  foody: '/art/characters/foody.png',
   berry: '/art/characters/berry.png',
   noodle: '/art/characters/noodle.png',
   cocoa: '/art/characters/cocoa.png',
