@@ -1,11 +1,21 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { HeroCompanion } from './HeroCompanion'
+import { COMPANION_REACTIONS, HeroCompanion } from './HeroCompanion'
 
 function renderOpenableCompanion(onOpenRoom: () => void) {
-  const view = render(<HeroCompanion characterId="foody" emotion="happy" reducedMotion={false} onOpenRoom={onOpenRoom} />)
-  return { ...view, companion: view.container.querySelector<HTMLButtonElement>('.companion-character')! }
+  const view = render(
+    <HeroCompanion
+      characterId="foody"
+      emotion="happy"
+      reducedMotion={false}
+      onOpenRoom={onOpenRoom}
+    />,
+  )
+  return {
+    ...view,
+    companion: view.container.querySelector<HTMLButtonElement>('.companion-character')!,
+  }
 }
 
 function firePointer(target: Element, type: string, pointerId: number, clientX = 0, clientY = 0) {
@@ -30,22 +40,39 @@ describe('HeroCompanion', () => {
     })
   })
 
-  it('does not repeat the same click reaction consecutively', async () => {
+  it('cycles through the approved six reactions without consecutive repeats', async () => {
     const user = userEvent.setup()
     render(<HeroCompanion characterId="foody" emotion="happy" reducedMotion={false} />)
     const companion = screen.getByRole('button', { name: '기뻐하는 푸디' })
+    const seen: string[] = []
 
-    await user.click(companion)
-    const first = companion.getAttribute('data-reaction')
-    await user.click(companion)
+    for (const expected of COMPANION_REACTIONS) {
+      await user.click(companion)
+      const current = companion.getAttribute('data-reaction')
+      seen.push(current ?? '')
+      expect(current).toBe(expected)
+      expect(companion).toHaveClass(`reaction-${expected}`)
+    }
 
-    expect(companion.getAttribute('data-reaction')).not.toBe(first)
+    expect(new Set(seen)).toEqual(new Set(COMPANION_REACTIONS))
+  })
+
+  it('clears a temporary reaction after its display window', async () => {
+    vi.useFakeTimers()
+    render(<HeroCompanion characterId="foody" emotion="happy" reducedMotion={false} />)
+    const companion = screen.getByRole('button', { name: '기뻐하는 푸디' })
+
+    fireEvent.click(companion)
+    expect(companion).toHaveAttribute('data-reaction', 'smile')
+
+    vi.advanceTimersByTime(1900)
+    expect(companion).not.toHaveAttribute('data-reaction')
   })
 
   it('marks the character as reduced motion without removing its identity', () => {
     render(<HeroCompanion characterId="cocoa" emotion="calm" reducedMotion />)
 
-    expect(screen.getByRole('button', { name: '차분한 코코' })).toHaveClass('reduced-motion')
+    expect(screen.getByRole('button', { name: '차분한 코코아' })).toHaveClass('reduced-motion')
   })
 
   it('opens the room after a 600ms pointer hold', () => {
@@ -99,7 +126,14 @@ describe('HeroCompanion', () => {
   it('opens the room through the keyboard-accessible fallback button', async () => {
     const user = userEvent.setup()
     const onOpenRoom = vi.fn()
-    const { container } = render(<HeroCompanion characterId="foody" emotion="happy" reducedMotion={false} onOpenRoom={onOpenRoom} />)
+    const { container } = render(
+      <HeroCompanion
+        characterId="foody"
+        emotion="happy"
+        reducedMotion={false}
+        onOpenRoom={onOpenRoom}
+      />,
+    )
 
     await user.click(container.querySelector('.companion-room-action')!)
 
