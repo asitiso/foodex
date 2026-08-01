@@ -23,7 +23,7 @@ describe('CompanionScreen', () => {
     expect(screen.queryByRole('tab')).not.toBeInTheDocument()
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: '기록 책장 열기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '주간 성과 보기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '리포트 열기' })).toBeInTheDocument()
     expect(screen.queryByText('오늘의 식사 일기')).not.toBeInTheDocument()
     expect(screen.queryByText('주간 리포트')).not.toBeInTheDocument()
   })
@@ -36,7 +36,7 @@ describe('CompanionScreen', () => {
     expect(screen.getByRole('heading', { name: '오늘의 식사 일기' })).toBeInTheDocument()
     expect(screen.queryByText('주간 리포트')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: '주간 성과 보기' }))
+    await user.click(screen.getByRole('button', { name: '리포트 열기' }))
     expect(screen.getByRole('heading', { name: '주간 리포트' })).toBeInTheDocument()
   })
 

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { COMPANION_REACTIONS, HeroCompanion } from './HeroCompanion'
@@ -30,7 +30,10 @@ function firePointer(target: Element, type: string, pointerId: number, clientX =
 }
 
 describe('HeroCompanion', () => {
-  afterEach(() => vi.useRealTimers())
+  afterEach(() => {
+    cleanup()
+    vi.useRealTimers()
+  })
 
   it('renders the selected layered character asset', () => {
     render(<HeroCompanion characterId="berry" emotion="happy" reducedMotion={false} />)
@@ -65,7 +68,7 @@ describe('HeroCompanion', () => {
     fireEvent.click(companion)
     expect(companion).toHaveAttribute('data-reaction', 'smile')
 
-    vi.advanceTimersByTime(1900)
+    act(() => vi.advanceTimersByTime(1900))
     expect(companion).not.toHaveAttribute('data-reaction')
   })
 

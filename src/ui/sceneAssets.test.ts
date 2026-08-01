@@ -10,7 +10,7 @@ function publicAssetExists(assetPath: string): boolean {
 describe('Foodex production art registry', () => {
   it('resolves the approved play-city and fantasy-room backgrounds', () => {
     expect(SCENE_ASSETS).toEqual({
-      worldHome: '/art/world/world-home-play-city.webp',
+      worldHome: '/art/world/world-home-reference-city.png',
       companionRoom: '/art/room/buddy-fantasy-room.webp',
     })
   })
