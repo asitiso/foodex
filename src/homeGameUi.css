@@ -25,17 +25,53 @@ body:has(.world-home-scene) {
   display: none;
 }
 
-/* Keep the anonymous-account workflow inside the clipped home viewport. */
+/* Keep account protection available to assistive tech without covering the world art. */
 .app-shell:has(> .world-home-scene) > .account-protection {
-  position: fixed;
+  position: absolute;
   z-index: 19;
-  bottom: calc(7.45rem + env(safe-area-inset-bottom));
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.app-shell:has(> .world-home-scene) > .account-protection:focus-within {
+  position: fixed;
+  bottom: calc(7.75rem + env(safe-area-inset-bottom));
   left: 50%;
-  width: min(calc(100vw - 1rem), 30rem);
+  width: min(calc(100vw - 1.5rem), 30rem);
+  height: auto;
   max-height: 5.1rem;
-  margin: 0;
-  pointer-events: none;
+  padding: initial;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
   transform: translateX(-50%);
+}
+
+.app-shell:has(> .world-home-scene) > .sync-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.app-shell:has(> .world-home-scene) > .sync-status:focus-within {
+  position: fixed;
+  right: .75rem;
+  bottom: 8rem;
+  left: .75rem;
+  width: auto;
+  height: auto;
+  padding: .65rem .75rem;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
 }
 
 .app-shell:has(> .world-home-scene) > .account-protection > .inline-button {
@@ -109,14 +145,10 @@ body:has(.world-home-scene) {
   font-size: .62rem;
 }
 
-/* When expanded, the character clears the dedicated strip above the dock. */
-.app-shell:has(> .account-protection .protect-collection) > .world-home-scene .hero-companion-wrap {
-  top: 46%;
-}
-
 .world-home-scene {
   --home-safe-top: max(.55rem, env(safe-area-inset-top));
-  --home-safe-bottom: max(.45rem, env(safe-area-inset-bottom));
+  --home-safe-bottom: max(.9rem, env(safe-area-inset-bottom));
+  --home-safe-inline: max(.75rem, env(safe-area-inset-left), env(safe-area-inset-right));
   --home-dock-height: 6.5rem;
   --home-ivory: #fff7df;
   --home-ivory-light: #fffdf5;
@@ -430,6 +462,21 @@ body:has(.world-home-scene) {
   background: rgb(255 255 255 / 82%);
 }
 
+.world-home-scene .world-hotspot::after,
+.world-home-scene .meal-record-orb::after {
+  content: "";
+  position: absolute;
+  top: -.48rem;
+  left: 50%;
+  width: 1.05rem;
+  height: .56rem;
+  border: .14rem solid var(--home-purple);
+  border-radius: .55rem .55rem .2rem .2rem;
+  background: linear-gradient(180deg, #fff286, #f6b62b);
+  box-shadow: inset 0 .08rem 0 #fff, 0 .12rem 0 var(--home-purple-dark);
+  transform: translateX(-50%);
+}
+
 .world-home-scene .world-hotspot svg,
 .world-home-scene .meal-record-orb svg {
   flex: none;
@@ -448,7 +495,7 @@ body:has(.world-home-scene) {
 }
 
 .world-landmark-collection {
-  left: 7%;
+  left: 2%;
   top: 38%;
   display: grid;
   place-items: center;
@@ -470,8 +517,8 @@ body:has(.world-home-scene) {
 }
 
 .world-landmark-adventure {
-  left: 57%;
-  top: 29%;
+  left: 50%;
+  top: 30%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -482,6 +529,7 @@ body:has(.world-home-scene) {
   padding: .35rem .55rem;
   border-radius: .95rem;
   background: linear-gradient(180deg, #fff4cb, #ffb65b) !important;
+  transform: translateX(-50%);
 }
 
 .world-landmark-adventure svg,
@@ -490,29 +538,27 @@ body:has(.world-home-scene) {
 }
 
 .meal-record-orb {
-  left: 50%;
-  top: 44%;
+  left: 36%;
+  top: 41%;
   right: auto;
   bottom: auto;
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   place-items: center;
-  width: 7.55rem;
-  height: 5.8rem;
-  padding: .42rem .5rem .48rem;
-  border-radius: 1.45rem;
+  width: 7rem;
+  height: 2.9rem;
+  padding: .38rem .52rem;
+  border-radius: 1rem;
   transform: translateX(-50%);
 }
 
 .world-home-scene .meal-record-orb svg {
-  width: 3.15rem;
-  height: 3.15rem;
-  color: #3766a0;
+  display: none;
 }
 
 .world-home-scene .meal-record-orb > span {
-  align-self: end;
-  font-size: .82rem;
+  font-size: .88rem;
 }
 
 .world-landmark-buddy {
@@ -560,9 +606,9 @@ body:has(.world-home-scene) {
 .home-menu-dock {
   position: absolute;
   z-index: 18;
-  right: max(.55rem, env(safe-area-inset-right));
+  right: var(--home-safe-inline);
   bottom: var(--home-safe-bottom);
-  left: max(.55rem, env(safe-area-inset-left));
+  left: var(--home-safe-inline);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: .48rem;
@@ -629,18 +675,18 @@ body:has(.world-home-scene) {
   transform: translateX(-50%) translateY(.16rem) scale(.98);
 }
 
+.world-home-scene .world-landmark-adventure:active {
+  transform: translateX(-50%) translateY(.16rem) scale(.98);
+}
+
 /* 375x667: reduce surfaces, not the scene hierarchy or one-row dock. */
 @media (max-height: 700px) {
   .world-home-scene {
-    --home-dock-height: 5.85rem;
-  }
-
-  .app-shell:has(> .world-home-scene) > .account-protection {
-    bottom: calc(6.75rem + env(safe-area-inset-bottom));
+    --home-dock-height: 5.3rem;
   }
 
   .foodex-game-logo {
-    top: calc(var(--home-safe-top) + 3.5rem);
+    top: calc(var(--home-safe-top) + 3.3rem);
     width: min(58vw, 13.6rem);
     height: 4.45rem;
   }
@@ -649,10 +695,10 @@ body:has(.world-home-scene) {
   .foodex-logo-word > span { font-size: clamp(2.85rem, 15vw, 3.55rem); -webkit-text-stroke-width: .16rem; }
   .foodex-logo-star { width: 1.95rem; height: 1.95rem; font-size: 1.58rem; }
 
-  .world-home-scene .game-status-rail { width: 4.75rem; gap: .34rem; }
-  .world-home-scene .game-status-button { min-height: 2.75rem; padding: .4rem .46rem .34rem; }
-  .world-home-scene .game-status-button:nth-child(2) { min-height: 3.15rem; }
-  .world-home-scene .game-status-button:nth-child(3) { min-height: 4.05rem; }
+  .world-home-scene .game-status-rail { width: 4.9rem; gap: .38rem; }
+  .world-home-scene .game-status-button { min-height: 3.05rem; padding: .42rem .46rem .36rem; }
+  .world-home-scene .game-status-button:nth-child(2) { min-height: 3.55rem; }
+  .world-home-scene .game-status-button:nth-child(3) { min-height: 4.5rem; }
   .world-home-scene .game-status-title { font-size: .7rem; }
   .world-home-scene .game-hud-value { font-size: 1.06rem; }
   .world-home-scene .game-hud-streak,
@@ -669,8 +715,7 @@ body:has(.world-home-scene) {
 
   .world-landmark-collection { width: 4.65rem; height: 4.75rem; }
   .world-landmark-adventure { width: 4.8rem; height: 2.75rem; }
-  .meal-record-orb { width: 6.75rem; height: 5rem; }
-  .world-home-scene .meal-record-orb svg { width: 2.65rem; height: 2.65rem; }
+  .meal-record-orb { width: 6.4rem; height: 2.7rem; }
   .world-landmark-buddy { width: 4.5rem; height: 2.75rem; }
   .world-home-scene .world-hotspot > span,
   .world-home-scene .meal-record-orb > span { font-size: .8rem; }
@@ -691,10 +736,6 @@ body:has(.world-home-scene) {
     --home-dock-height: 6.85rem;
   }
 
-  .app-shell:has(> .world-home-scene) > .account-protection {
-    bottom: calc(7.8rem + env(safe-area-inset-bottom));
-  }
-
   .foodex-game-logo { top: calc(var(--home-safe-top) + 4.2rem); }
   .world-home-scene .game-status-rail { gap: .48rem; }
   .world-home-scene .game-status-button:nth-child(3) { min-height: 4.9rem; }
@@ -705,8 +746,6 @@ body:has(.world-home-scene) {
 /* Only horizontal spacing and type compress below 391px; the dock never wraps. */
 @media (max-width: 390px) {
   .home-menu-dock {
-    right: max(.42rem, env(safe-area-inset-right));
-    left: max(.42rem, env(safe-area-inset-left));
     gap: .32rem;
   }
 
