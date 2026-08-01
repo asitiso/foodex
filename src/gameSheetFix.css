@@ -52,8 +52,42 @@
     #fff5d8;
 }
 
-.game-sheet-content :where(button, a, input, select) {
+.game-sheet-content :where(button, a, input, select),
+.game-touch-target {
+  min-width: 3.25rem;
   min-height: 3.25rem;
+}
+
+:where(
+  .game-touch-target,
+  .game-sheet-content button,
+  .game-sheet-content a,
+  .game-sheet-content input,
+  .game-sheet-content select,
+  .room-prop-hotspot,
+  .world-hotspot,
+  .meal-record-orb
+):focus-visible,
+.game-sheet-content:focus-visible {
+  outline: .22rem solid #ffd94a;
+  outline-offset: .18rem;
+  box-shadow: 0 0 0 .18rem #4a2e67, 0 .35rem 0 #4a2e67;
+}
+
+.game-sheet-content:focus-visible {
+  border-radius: 1rem;
+  box-shadow: inset 0 0 0 .18rem #4a2e67;
+}
+
+[data-game-surface='hud'] :where(button):focus-visible {
+  outline: .22rem solid #ffd94a;
+  outline-offset: .18rem;
+}
+
+@media (max-width: 390px) {
+  .game-sheet-content {
+    padding: .85rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
