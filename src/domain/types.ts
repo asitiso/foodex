@@ -1,5 +1,9 @@
 export type FoodType = 'ramen' | 'rice' | 'fruit' | 'bread' | 'side' | 'snack' | 'drink' | 'dumpling' | 'sushi' | 'pasta' | 'other'
 export type FoodCategory = 'meal' | 'produce' | 'bakery' | 'treat' | 'drink' | 'other'
+export type FoodTag =
+  | 'meal' | 'fruit' | 'bakery' | 'snack' | 'candy' | 'chocolate'
+  | 'drink' | 'coffee' | 'tea' | 'soda' | 'juice' | 'dairy' | 'convenience'
+  | 'dessert' | 'noodle' | 'spicy' | 'healthy' | 'other'
 export type MealAmount = 'taste' | 'half' | 'almostAll'
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary'
 export type RegionId = 'korea' | 'china' | 'japan' | 'west' | 'snack-island'

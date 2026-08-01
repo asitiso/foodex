@@ -6,6 +6,9 @@ import type { LegacyOrV3FoodCard } from './normalizers'
 import { normalizeCard } from './normalizers'
 import type { DialogueHistoryItem } from '../domain/dialogueEngine'
 import type { ExperienceSettings } from '../domain/companionTypes'
+import { validatePurchase, walletBalance } from '../domain/coinWallet'
+import type { CoinTransaction } from '../domain/coinWallet'
+import type { ShopProduct } from '../domain/shopCatalog'
 
 export interface SyncQueueItem {
   kind: 'meal-card'
@@ -13,6 +16,7 @@ export interface SyncQueueItem {
   attempts: number
   lastError?: string
   rewardKeys?: string[]
+  coinTransactionKey?: string
 }
 
 export interface UserReward {
@@ -20,7 +24,7 @@ export interface UserReward {
   id: string
   rewardType: 'skin' | 'background' | 'event-card' | 'fusion-card'
   rewardId: string
-  sourceType: 'set' | 'event' | 'fusion'
+  sourceType: 'set' | 'event' | 'fusion' | 'shop'
   sourceId: string
   unlockedAt: number
 }
@@ -68,10 +72,19 @@ interface FoodexDatabaseSchema extends DBSchema {
     key: string
     value: ExperienceSettings
   }
+  coinTransactions: {
+    key: string
+    value: CoinTransaction
+  }
 }
 
 export interface FoodexRepository {
-  saveMealAndCard(meal: MealRecord, card: FoodCard, rewards?: UserReward[]): Promise<void>
+  saveMealAndCard(
+    meal: MealRecord,
+    card: FoodCard,
+    rewards?: UserReward[],
+    coinTransaction?: CoinTransaction,
+  ): Promise<void>
   listCards(): Promise<Array<{ card: FoodCard; meal: MealRecord }>>
   getHistory(): Promise<FoodHistory>
   getSummary(now: number): Promise<{
@@ -90,6 +103,8 @@ export interface FoodexRepository {
   saveDialogueHistory?(item: DialogueHistoryItem): Promise<void>
   getExperienceSettings?(): Promise<ExperienceSettings>
   saveExperienceSettings?(settings: ExperienceSettings): Promise<void>
+  getCoinBalance?(): Promise<number>
+  purchaseShopProduct?(product: ShopProduct): Promise<UserReward>
 }
 
 const DEFAULT_DATABASE_NAME = 'foodex'
@@ -107,7 +122,7 @@ function normalizeMeal(meal: MealRecord): MealRecord {
 }
 
 function openFoodexDatabase(name: string): Promise<IDBPDatabase<FoodexDatabaseSchema>> {
-  return openDB<FoodexDatabaseSchema>(name, 3, {
+  return openDB<FoodexDatabaseSchema>(name, 4, {
     upgrade(database) {
       if (!database.objectStoreNames.contains('meals')) {
         database.createObjectStore('meals', { keyPath: 'id' })
@@ -136,6 +151,9 @@ function openFoodexDatabase(name: string): Promise<IDBPDatabase<FoodexDatabaseSc
       if (!database.objectStoreNames.contains('experienceSettings')) {
         database.createObjectStore('experienceSettings')
       }
+      if (!database.objectStoreNames.contains('coinTransactions')) {
+        database.createObjectStore('coinTransactions', { keyPath: 'key' })
+      }
     },
   })
 }
@@ -157,6 +175,10 @@ export interface LocalFoodexRepository extends FoodexRepository {
   saveDialogueHistory(item: DialogueHistoryItem): Promise<void>
   getExperienceSettings(): Promise<ExperienceSettings>
   saveExperienceSettings(settings: ExperienceSettings): Promise<void>
+  listCoinTransactions(): Promise<CoinTransaction[]>
+  getCoinTransaction(key: string): Promise<CoinTransaction | undefined>
+  getCoinBalance(): Promise<number>
+  purchaseProduct(product: ShopProduct, purchaseId: string, purchasedAt: number): Promise<UserReward>
 }
 
 async function withDatabase<T>(name: string, action: (database: IDBPDatabase<FoodexDatabaseSchema>) => Promise<T>): Promise<T> {
@@ -171,12 +193,14 @@ async function withDatabase<T>(name: string, action: (database: IDBPDatabase<Foo
 
 export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): LocalFoodexRepository {
   return {
-    async saveMealAndCard(meal, card) {
+    async saveMealAndCard(meal, card, rewards = [], coinTransaction) {
       await withDatabase(databaseName, async (database) => {
-        const transaction = database.transaction(['meals', 'cards'], 'readwrite')
+        const transaction = database.transaction(['meals', 'cards', 'rewards', 'coinTransactions'], 'readwrite')
         await Promise.all([
           transaction.objectStore('meals').put(meal),
           transaction.objectStore('cards').put(card),
+          ...rewards.map((reward) => transaction.objectStore('rewards').put(reward)),
+          ...(coinTransaction ? [transaction.objectStore('coinTransactions').put(coinTransaction)] : []),
           transaction.done,
         ])
       })
@@ -326,6 +350,65 @@ export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): Lo
     async saveExperienceSettings(settings) {
       await withDatabase(databaseName, (database) =>
         database.put('experienceSettings', settings, 'experience'))
+    },
+
+    async listCoinTransactions() {
+      return withDatabase(databaseName, (database) => database.getAll('coinTransactions'))
+    },
+
+    async getCoinTransaction(key) {
+      return withDatabase(databaseName, (database) => database.get('coinTransactions', key))
+    },
+
+    async getCoinBalance() {
+      return withDatabase(databaseName, async (database) =>
+        walletBalance(await database.getAll('coinTransactions')))
+    },
+
+    async purchaseProduct(product, purchaseId, purchasedAt) {
+      return withDatabase(databaseName, async (database) => {
+        const transaction = database.transaction(['coinTransactions', 'rewards'], 'readwrite')
+        const coinStore = transaction.objectStore('coinTransactions')
+        const rewardStore = transaction.objectStore('rewards')
+        const rewardType: UserReward['rewardType'] = product.type === 'background' ? 'background' : 'skin'
+        const rewardKey = `${rewardType}:${product.id}`
+        const ownedReward = await rewardStore.get(rewardKey)
+        const transactions = await coinStore.getAll()
+        const validation = validatePurchase(
+          walletBalance(transactions),
+          product,
+          new Set(ownedReward ? [product.id] : []),
+        )
+
+        if (!validation.ok) {
+          throw new Error(validation.reason === 'owned' ? 'already-owned' : 'insufficient-coins')
+        }
+
+        const debit: CoinTransaction = {
+          id: purchaseId,
+          key: `shop:${purchaseId}`,
+          kind: 'shop-spent',
+          amount: -product.price,
+          productId: product.id,
+          createdAt: purchasedAt,
+        }
+        const reward: UserReward = {
+          key: rewardKey,
+          id: purchaseId,
+          rewardType,
+          rewardId: product.id,
+          sourceType: 'shop',
+          sourceId: product.id,
+          unlockedAt: purchasedAt,
+        }
+
+        await Promise.all([
+          coinStore.put(debit),
+          rewardStore.put(reward),
+          transaction.done,
+        ])
+        return reward
+      })
     },
   }
 }

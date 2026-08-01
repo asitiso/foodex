@@ -1,42 +1,70 @@
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { HomeScreen } from './HomeScreen'
 
 const props = {
   summary: { todayCount: 1, discoveredCount: 1, totalXp: 20 },
+  coinBalance: 13,
   level: { level: 1, currentLevelXp: 20, nextLevelXp: 30, totalXp: 20 },
   streak: { currentDays: 1, recordedToday: true },
-  dailyQuests: [
-    { id: 'today-card', title: '식사 카드 1장', description: '한 장 기록해요.', completed: true },
-    { id: 'new-food', title: '새 음식 발견', description: '새 음식을 찾아요.', completed: false },
-  ],
-  companionLine: '새 친구를 환영해!',
+  dailyQuests: [],
+  adventureBoard: { title: '오늘의 모험 보드', nextFocus: '', items: [] },
+  mealGameLoop: {
+    todayMeals: 1,
+    gaugeSteps: [true, false, false] as [boolean, boolean, boolean],
+    nextMealTarget: 2 as 1 | 2 | 3,
+    nextMealRemaining: 1,
+    comboLabel: '첫 출발 콤보',
+    comboReward: 5,
+    weeklyMeals: 1,
+    weeklyTarget: 5 as 5 | 10 | 15,
+    recoveryAvailable: false,
+    totalMeals: 1,
+    growth: { current: 0, next: 3, remaining: 2 },
+  },
+  mealAdventure: {
+    choice: { title: '', options: [] },
+    route: { id: 'lunch', label: '', stage: 1, completed: false },
+    mood: 'energized' as const,
+    recipes: [],
+    roomReward: { title: '', remaining: 2 },
+    chapter: { title: '', line: '' },
+    rewardChoices: [],
+    monthly: { breakfast: 1, lunch: 1, dinner: 0, completeDays: 1 },
+  },
+  companionLine: '',
   companionEmotion: 'happy' as const,
   decorationIds: [],
   reducedMotion: false,
-  onRecord: () => undefined,
-  onOpenCollection: () => undefined,
-  onOpenAdventure: () => undefined,
-  onOpenCompanion: () => undefined,
+  onRecord: vi.fn(),
+  onOpenCollection: vi.fn(),
+  onOpenAdventure: vi.fn(),
+  onOpenMeals: vi.fn(),
+  onOpenCompanion: vi.fn(),
+  onOpenLevel: vi.fn(),
+  onOpenCoins: vi.fn(),
 }
 
 describe('HomeScreen', () => {
   afterEach(cleanup)
 
-  it('shows only the four compact status cards below the companion', () => {
+  it('shows the outdoor game lobby without dashboard sections', () => {
     render(<HomeScreen {...props} />)
 
-    expect(screen.getByText('레벨')).toBeInTheDocument()
-    expect(screen.getByText('오늘의 카드')).toBeInTheDocument()
-    expect(screen.getByText('오늘의 도전')).toBeInTheDocument()
-    expect(screen.getByText('연속 기록')).toBeInTheDocument()
-    expect(screen.queryByText('여름 한입 시즌')).not.toBeInTheDocument()
-    expect(screen.queryByText('오늘의 상자')).not.toBeInTheDocument()
-    expect(screen.queryByText('최근 발견')).not.toBeInTheDocument()
+    expect(screen.getByRole('region', { name: '푸덱 월드 홈' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '식사 기록하기' })).toBeInTheDocument()
+    expect(screen.getAllByTestId('game-hud-status')).toHaveLength(3)
+    expect(screen.queryByText('오늘의 모험 보드')).not.toBeInTheDocument()
+    expect(screen.queryByText('오늘의 식사 게이지')).not.toBeInTheDocument()
   })
 
-  it('keeps the main recording action visible', () => {
+  it('opens the room from the explicit companion action', async () => {
+    const user = userEvent.setup()
     render(<HomeScreen {...props} />)
-    expect(screen.getByRole('button', { name: '식사 카드 획득하기' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '버디 방으로 가기' }))
+
+    expect(props.onOpenCompanion).toHaveBeenCalledOnce()
   })
 })

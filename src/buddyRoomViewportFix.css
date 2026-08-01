@@ -1,0 +1,35 @@
+/* Final buddy-room viewport correction.
+   Keep the room art, character stage, and prop controls on one coordinate system. */
+
+.companion-screen {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  background: #f8c7d8 !important;
+}
+
+.companion-screen .companion-room-scene {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  background-image: var(--scene-background) !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-size: auto 100% !important;
+  background-color: #f8c7d8 !important;
+}
+
+/* All interactive layers now use the visible room-art area rather than a narrower frame. */
+.companion-room-scene > .buddy-room-title,
+.companion-room-scene > .game-coin-pill,
+.companion-room-scene > .buddy-character-stage,
+.companion-room-scene > .buddy-room-hotspots {
+  box-sizing: border-box;
+}
+
+@media (max-aspect-ratio: 3 / 5) {
+  .companion-screen .companion-room-scene {
+    background-size: 100% auto !important;
+    background-position: center top !important;
+  }
+}

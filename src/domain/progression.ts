@@ -1,7 +1,14 @@
+import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG } from './v3Content'
 import { FOOD_META } from './types'
 import type { FoodCard, FoodType, MealRecord } from './types'
 import { buildV3Progress } from './v3Progression'
 import type { V3Progress } from './v3Progression'
+import { buildTagAchievements, buildTagEvents, buildTagProgress } from './tagProgression'
+import type { TagAchievement, TagCollectionProgress, TagEvent } from './tagProgression'
+import { buildMealGameLoop } from './mealGameLoop'
+import type { MealGameLoopState } from './mealGameLoop'
+import { buildMealAdventure } from './mealAdventure'
+import type { MealAdventureState } from './mealAdventure'
 
 export interface PlayerLevel {
   level: number
@@ -66,17 +73,49 @@ export interface CollectionBonus {
   unlocked: boolean
 }
 
+export interface AdventureBoardItem {
+  id: string
+  title: string
+  reward: string
+  completed: boolean
+}
+
+export interface AdventureBoard {
+  title: string
+  items: AdventureBoardItem[]
+  nextFocus: string
+}
+
 export interface Progression {
   level: PlayerLevel
   collection: CollectionProgress
   achievements: Achievement[]
   streak: MealStreak
   dailyQuests: DailyQuest[]
+  adventureBoard: AdventureBoard
   evolutions: FoodEvolution[]
   season: SeasonEvent
   rewardBox: RewardBox
   collectionBonuses: CollectionBonus[]
+  tagProgress: TagCollectionProgress[]
+  tagAchievements: TagAchievement[]
+  tagEvents: TagEvent[]
+  mealGameLoop: MealGameLoopState
+  mealAdventure: MealAdventureState
   v3: V3Progress
+}
+
+type Entry = { card: FoodCard; meal: MealRecord }
+
+export interface MealAdventureResult {
+  headline: string
+  xpText: string
+  levelText: string
+  questText: string
+  museumText: string
+  evolutionText: string
+  nextGoalText: string
+  rewardTexts: string[]
 }
 
 const levelThresholds = [0, 30, 60, 100, 150, 210, 280, 360]
@@ -129,8 +168,50 @@ function buildEvolution(foodType: FoodType, count: number): FoodEvolution {
   }
 }
 
+function buildAdventureBoard(
+  dailyQuests: DailyQuest[],
+  evolutions: FoodEvolution[],
+): AdventureBoard {
+  const evolutionTarget = evolutions.find((evolution) => evolution.nextCount)
+  const remainingMeals = evolutionTarget?.nextCount
+    ? evolutionTarget.nextCount - evolutionTarget.count
+    : 0
+  const nextEvolutionName = evolutionTarget?.nextCount
+    ? buildEvolution(evolutionTarget.foodType, evolutionTarget.nextCount).title
+    : undefined
+
+  return {
+    title: '오늘의 모험 보드',
+    items: [
+      {
+        id: dailyQuests[0]?.id ?? 'today-card',
+        title: dailyQuests[0]?.title ?? '식사 카드 1장',
+        reward: '보상: 20 XP',
+        completed: dailyQuests[0]?.completed ?? false,
+      },
+      {
+        id: dailyQuests[1]?.id ?? 'new-discovery',
+        title: dailyQuests[1]?.title ?? '새 음식 발견',
+        reward: '보상: 박물관 전시 +1',
+        completed: dailyQuests[1]?.completed ?? false,
+      },
+      {
+        id: 'evolution-focus',
+        title: evolutionTarget ? `${evolutionTarget.label} 진화 준비` : '새 음식 찾기',
+        reward: evolutionTarget && remainingMeals > 0
+          ? `진화까지 ${remainingMeals}끼`
+          : '보상: 박물관 전시 +1',
+        completed: false,
+      },
+    ],
+    nextFocus: evolutionTarget && remainingMeals > 0 && nextEvolutionName
+      ? `${evolutionTarget.label} ${remainingMeals}번 더 기록하면 ${nextEvolutionName}`
+      : '새로운 음식을 기록하면 박물관 전시가 늘어나요',
+  }
+}
+
 export function buildProgression(
-  entries: Array<{ card: FoodCard; meal: MealRecord }>,
+  entries: Entry[],
   now = Date.now(),
   unlockedRewardIds: readonly string[] = [],
 ): Progression {
@@ -176,8 +257,36 @@ export function buildProgression(
   const completedQuestCount = [
     todayEntries.length > 0,
     todayEntries.some(({ card }) => card.isNew),
-    todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
+    todayEntries.some(({ meal }) => ['ramen', 'rice', 'bread', 'side', 'dumpling', 'sushi', 'pasta'].includes(meal.foodType)),
   ].filter(Boolean).length
+  const dailyQuests: DailyQuest[] = [
+    {
+      id: 'today-card',
+      title: '식사 카드 1장',
+      description: '오늘 식사를 한 번 기록해요.',
+      completed: todayEntries.length > 0,
+    },
+    {
+      id: 'new-discovery',
+      title: '새 음식 발견',
+      description: '처음 만나는 음식을 하나 모아요.',
+      completed: todayEntries.some(({ card }) => card.isNew),
+    },
+    {
+      id: 'meal-anchor',
+      title: '상큼 카드',
+      description: '과일이나 음료 카드를 모아요.',
+      completed: todayEntries.some(({ meal }) => ['ramen', 'rice', 'bread', 'side', 'dumpling', 'sushi', 'pasta'].includes(meal.foodType)),
+    },
+  ]
+  dailyQuests[2] = {
+    ...dailyQuests[2],
+    title: '든든한 한 끼',
+    description: '밥·면·빵·반찬 중 하나를 오늘 기록하세요.',
+  }
+  const tagProgress = buildTagProgress(entries)
+  const tagAchievements = buildTagAchievements(entries)
+  const tagEvents = buildTagEvents(entries)
 
   return {
     level: buildLevel(totalXp),
@@ -211,28 +320,11 @@ export function buildProgression(
         description: '레어 이상 카드를 만났어요.',
         unlocked: hasRareOrBetter,
       },
+      ...tagAchievements,
     ],
     streak: buildStreak(entries, now),
-    dailyQuests: [
-      {
-        id: 'today-card',
-        title: '식사 카드 1장',
-        description: '오늘 식사를 한 번 기록해요.',
-        completed: todayEntries.length > 0,
-      },
-      {
-        id: 'new-discovery',
-        title: '새 음식 발견',
-        description: '처음 만나는 음식을 하나 모아요.',
-        completed: todayEntries.some(({ card }) => card.isNew),
-      },
-      {
-        id: 'fruit-or-drink',
-        title: '상큼 카드',
-        description: '과일이나 음료 카드를 모아요.',
-        completed: todayEntries.some(({ meal }) => meal.foodType === 'fruit' || meal.foodType === 'drink'),
-      },
-    ],
+    dailyQuests,
+    adventureBoard: buildAdventureBoard(dailyQuests, evolutions),
     evolutions,
     season: {
       id: 'summer-bite',
@@ -248,6 +340,58 @@ export function buildProgression(
       rewardPreview: 'XP 보너스 또는 시즌 조각',
     },
     collectionBonuses,
+    tagProgress,
+    tagAchievements,
+    tagEvents,
+    mealGameLoop: buildMealGameLoop(entries, now),
+    mealAdventure: buildMealAdventure(entries, now),
     v3: buildV3Progress(entries, unlockedRewardIds, now),
+  }
+}
+
+export function buildMealAdventureResult({
+  previousEntries,
+  currentEntry,
+  now = Date.now(),
+  unlockedRewardIds = [],
+}: {
+  previousEntries: Entry[]
+  currentEntry: Entry
+  now?: number
+  unlockedRewardIds?: readonly string[]
+}): MealAdventureResult {
+  const nextProgression = buildProgression(
+    [...previousEntries, currentEntry],
+    now,
+    unlockedRewardIds,
+  )
+  const completedQuests = nextProgression.dailyQuests.filter((quest) => quest.completed).length
+  const evolution = nextProgression.evolutions.find((item) => item.foodType === currentEntry.meal.foodType)
+  const baseName = FOOD_META[currentEntry.meal.foodType].variants[0].name
+  const remainingMeals = evolution?.nextCount ? evolution.nextCount - evolution.count : 0
+  const rewardTexts = nextProgression.v3.newRewards.flatMap((reward) => {
+    const set = COLLECTION_SETS.find((candidate) => candidate.reward.rewardId === reward.rewardId)
+    const cosmetic = COSMETICS.find((candidate) => candidate.id === reward.rewardId)
+    const food = FOOD_CATALOG.find((candidate) => candidate.id === reward.rewardId)
+
+    if (cosmetic) return [`새 장식 획득: ${cosmetic.title}`]
+    if (food) return [`이벤트 카드 획득: ${food.label}`]
+    if (set) return [`세트 완성 보상: ${set.title}`]
+    return []
+  })
+
+  return {
+    headline: `${FOOD_META[currentEntry.meal.foodType].label} 카드로 오늘의 모험을 진행했어요`,
+    xpText: `+${currentEntry.card.xp} XP`,
+    levelText: `캐릭터 Lv.${nextProgression.level.level}`,
+    questText: `오늘 퀘스트 ${completedQuests}/${nextProgression.dailyQuests.length} 완료`,
+    museumText: `음식 박물관 ${nextProgression.collection.discoveredFoods}/${nextProgression.collection.totalFoods} 전시`,
+    evolutionText: evolution?.nextCount
+      ? `${baseName} ${evolution.count}/${evolution.nextCount} 성장`
+      : `${baseName} 최종 진화 완료`,
+    nextGoalText: remainingMeals > 0
+      ? `다음 목표: ${baseName} ${remainingMeals}번 더 기록하면 진화`
+      : '다음 목표: 새로운 음식을 발견해 박물관을 넓히기',
+    rewardTexts,
   }
 }

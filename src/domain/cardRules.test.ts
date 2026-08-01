@@ -32,6 +32,10 @@ describe('card rules', () => {
     expect(createCard({ mealId: 'm2', foodType: 'ramen', foodName: '라면', amount: 'almostAll', now: 2 }, history).rarity).toBe('common')
   })
 
+  it('uses the UUID meal id for the card id so Supabase foreign keys remain valid', () => {
+    expect(createCard({ mealId: 'm1', foodType: 'ramen', foodName: '?쇰㈃', amount: 'taste', now: 1 }, { foodTypes: [], foodNames: [], categories: [] }).id).toBe('m1')
+  })
+
   it('awards Legendary for a season reward card', () => {
     const card = createCard(
       { mealId: 'm1', foodType: 'fruit', foodName: '딸기', amount: 'taste', now: 1, rewardSource: 'season' },

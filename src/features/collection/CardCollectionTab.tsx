@@ -6,6 +6,7 @@ import type { CosmeticType, FoodCard, FoodCategory, MealRecord, Rarity, RegionId
 import { REGIONS } from '../../domain/v3Content'
 import type { UserReward } from '../../data/foodexDb'
 import { Wardrobe } from '../play/Wardrobe'
+import { FOOD_CATALOG } from '../../domain/foodCatalog'
 
 const categories: Array<{ id: FoodCategory | 'all'; label: string }> = [
   { id: 'all', label: '전체' },
@@ -37,15 +38,20 @@ export function CardCollectionTab({
   progression,
   rewards = [],
   onApplyCosmetic = () => undefined,
+  showProgression = false,
+  recentCardId,
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   progression: Progression
   rewards?: UserReward[]
   onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
+  showProgression?: boolean
+  recentCardId?: string
 }) {
   const [category, setCategory] = useState<FoodCategory | 'all'>('all')
   const [regionId, setRegionId] = useState<RegionId | ''>('')
   const [rarity, setRarity] = useState<Rarity | ''>('')
+  const [achievementsExpanded, setAchievementsExpanded] = useState(true)
   const [selected, setSelected] = useState<{ card: FoodCard; meal: MealRecord }>()
   const detailDialog = useRef<HTMLDialogElement>(null)
   const filtered = filterCollection(entries, {
@@ -55,6 +61,15 @@ export function CardCollectionTab({
   const visibleEntries = filtered.filter(({ meal }) =>
     category === 'all' || FOOD_META[meal.foodType].category === category,
   )
+  const normalizeFood = (value: string) => value.toLocaleLowerCase('ko-KR').replace(/\s+/g, '')
+  const catalogSlots = FOOD_CATALOG.filter((food) => category === 'all' || FOOD_META[food.foodType].category === category).map((food) => ({
+    food,
+    entry: visibleEntries.find(({ meal, card }) => normalizeFood(meal.foodName) === normalizeFood(food.name) || normalizeFood(card.name) === normalizeFood(food.name)),
+  }))
+  const matchedIds = new Set(catalogSlots.flatMap(({ entry }) => entry ? [entry.card.id] : []))
+  const albumSlots = visibleEntries.length === 0 && entries.length > 0
+    ? []
+    : [...catalogSlots, ...visibleEntries.filter(({ card }) => !matchedIds.has(card.id)).map((entry) => ({ food: { id: `custom-${entry.card.id}`, name: entry.card.name, foodType: entry.meal.foodType }, entry }))]
 
   const closeDetail = () => {
     const dialog = detailDialog.current
@@ -83,16 +98,21 @@ export function CardCollectionTab({
 
   return (
     <>
-      <section className="achievement-panel" aria-labelledby="achievement-title">
-        <div className="section-title-row"><h2 id="achievement-title">업적</h2></div>
-        <div className="achievement-list">
+      {showProgression && <div className="collection-growth-stack"><section className="achievement-panel" aria-labelledby="achievement-title">
+        <div className="section-title-row">
+          <h2 id="achievement-title">업적</h2>
+          <button className="inline-button achievement-toggle" type="button" aria-expanded={achievementsExpanded} aria-controls="achievement-list" onClick={() => setAchievementsExpanded((expanded) => !expanded)}>
+            {achievementsExpanded ? '업적 접기' : '업적 펼치기'}
+          </button>
+        </div>
+        {achievementsExpanded && <div className="achievement-list" id="achievement-list">
           {progression.achievements.map((achievement) => (
             <article className={achievement.unlocked ? 'achievement unlocked' : 'achievement'} key={achievement.id}>
-              <span aria-hidden="true">{achievement.unlocked ? '★' : '☆'}</span>
+              <span className="achievement-badge" aria-hidden="true" data-progress={achievement.unlocked ? '100' : '0'}>{achievement.unlocked ? '★' : '☆'}</span>
               <div><strong>{achievement.title}</strong><small>{achievement.description}</small></div>
             </article>
           ))}
-        </div>
+        </div>}
       </section>
 
       {progression.evolutions.length > 0 && (
@@ -124,7 +144,19 @@ export function CardCollectionTab({
         </div>
       </section>
 
-      <div className="collection-filters">
+      <section className="tag-progress-panel" aria-labelledby="tag-progress-title">
+        <div className="section-title-row"><h2 id="tag-progress-title">분류별 수집 현황</h2></div>
+        <div className="tag-progress-grid">
+          {progression.tagProgress.map((item) => (
+            <article className="tag-progress-item" key={item.tag}>
+              <div><strong>{item.label}</strong><span>{item.discovered}/{item.total}</span></div>
+              <div className="tag-progress-track" aria-hidden="true"><span style={{ width: `${item.total ? Math.min(100, Math.round((item.discovered / item.total) * 100)) : 0}%` }} /></div>
+            </article>
+          ))}
+        </div>
+      </section></div>}
+
+      {!showProgression && <><div className="collection-filters">
         <label>지역
           <select value={regionId} onChange={(event) => setRegionId(event.target.value as RegionId | '')}>
             <option value="">전체</option>
@@ -153,7 +185,12 @@ export function CardCollectionTab({
         ))}
       </div>
 
-      {visibleEntries.length === 0 ? (
+      <section className="album-summary" aria-label="음식 앨범 진행률">
+        <div><strong>{albumSlots.filter(({ entry }) => entry).length} / {albumSlots.length}</strong><span> 음식 앨범 수집</span></div>
+        <div className="album-progress-track" aria-hidden="true"><span style={{ width: `${albumSlots.length ? Math.round((albumSlots.filter(({ entry }) => entry).length / albumSlots.length) * 100) : 0}%` }} /></div>
+        <small>빈칸을 채워 다음 카드를 발견해 보세요 ✨</small>
+      </section>
+      {entries.length === 0 || albumSlots.length === 0 ? (
         <div className="collection-empty">
           <span aria-hidden="true">🧺</span>
           <p>{entries.length === 0
@@ -162,26 +199,33 @@ export function CardCollectionTab({
         </div>
       ) : (
         <div className="collection-grid">
-          {visibleEntries.map((entry) => (
+          {albumSlots.filter(({ entry }) => entry).map(({ entry }) => (
             <button
               className={[
                 'collection-card',
-                `rarity-${entry.card.rarity}`,
-                entry.card.skinId ? `skin-${entry.card.skinId}` : '',
-                entry.card.backgroundId ? `background-${entry.card.backgroundId}` : '',
+                `rarity-${entry!.card.rarity}`,
+                entry!.card.skinId ? `skin-${entry!.card.skinId}` : '',
+                entry!.card.backgroundId ? `background-${entry!.card.backgroundId}` : '',
+                entry!.card.id === recentCardId ? 'recently-unlocked' : '',
               ].filter(Boolean).join(' ')}
+              data-testid={`card-${entry!.card.id}`}
               type="button"
-              key={entry.card.id}
-              onClick={() => setSelected(entry)}
+              key={entry!.card.id}
+              onClick={() => setSelected(entry!)}
             >
-              {entry.meal.imageData ? <img src={entry.meal.imageData} alt="" /> : <span aria-hidden="true">🍽️</span>}
-              {entry.card.isNew && <span className="new-card-badge">새 카드</span>}
-              <small>{rarityLabels[entry.card.rarity]}</small>
-              <strong>{entry.card.name}</strong>
+              {entry!.meal.imageData ? <img src={entry!.meal.imageData} alt="" /> : <span aria-hidden="true">🍽️</span>}
+              {entry!.card.isNew && <span className="new-card-badge">NEW · 새 카드</span>}
+              <small>{rarityLabels[entry!.card.rarity]}</small>
+              <strong>{entry!.card.name}</strong>
             </button>
           ))}
+          {albumSlots.filter(({ entry }) => !entry).map(({ food }) => (
+            <div className="collection-card album-locked" key={food.id} aria-label={`${food.name} 미획득`}>
+              <span aria-hidden="true">?</span><small>미발견</small><strong>???</strong>
+            </div>
+          ))}
         </div>
-      )}
+      )}</>}
 
       {selected && (
         <dialog

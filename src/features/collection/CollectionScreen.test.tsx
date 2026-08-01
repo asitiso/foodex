@@ -82,7 +82,7 @@ describe('CollectionScreen', () => {
     expect(screen.getByRole('dialog')).toHaveTextContent('맛보기')
   })
 
-  it('shows V2 evolution stages and collection bonuses', () => {
+  it('shows V2 evolution stages and collection bonuses', async () => {
     const entries: CollectionEntry[] = [
       ramenEntry,
       {
@@ -109,10 +109,40 @@ describe('CollectionScreen', () => {
 
     render(<CollectionScreen entries={entries} progression={buildProgression(entries)} />)
 
+    await userEvent.setup().click(screen.getByRole('tab', { name: '성장' }))
+
     expect(screen.getByText('불꽃 라면 Lv.2')).toBeInTheDocument()
     expect(screen.getByText('컬렉션 보너스')).toBeInTheDocument()
     expect(screen.getByText('면 탐험가')).toBeInTheDocument()
     expect(screen.getByText('도감 절반')).toBeInTheDocument()
+  })
+
+  it('collapses and expands the achievement list in the card tab', async () => {
+    const user = userEvent.setup()
+    render(<CollectionScreen entries={[ramenEntry]} progression={buildProgression([ramenEntry])} />)
+
+    await user.click(screen.getByRole('tab', { name: '성장' }))
+
+    expect(screen.getByRole('button', { name: '업적 접기' })).toHaveAttribute('aria-expanded', 'true')
+    await user.click(screen.getByRole('button', { name: '업적 접기' }))
+    expect(screen.getByRole('button', { name: '업적 펼치기' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('article', { name: /遺덇퐙/ })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '업적 펼치기' }))
+    expect(screen.getByRole('button', { name: '업적 접기' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('highlights the album slot filled by the latest meal result', () => {
+    const entries = [ramenEntry]
+    render(
+      <CollectionScreen
+        entries={entries}
+        progression={buildProgression(entries)}
+        recentCardId="card-ramen"
+      />,
+    )
+
+    expect(screen.getByTestId('card-card-ramen')).toHaveClass('recently-unlocked')
   })
 
   it('switches between card, world, set, and fusion views', async () => {

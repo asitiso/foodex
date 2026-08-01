@@ -1,0 +1,16 @@
+{
+  "name": "Foodex 음식 세계",
+  "short_name": "Foodex",
+  "description": "음식 기록을 수집형 RPG로 즐기는 Foodex",
+  "lang": "ko-KR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8ef",
+  "theme_color": "#6543eb",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/foodex-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/foodex-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

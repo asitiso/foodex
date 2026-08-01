@@ -1,0 +1,244 @@
+/* Buddy room-only layout. This file is loaded last and isolates the room scene
+   from the shared world/character positioning rules. */
+
+.companion-screen {
+  position: relative;
+  width: min(100%, 31rem);
+  height: calc(100dvh - 5.25rem - env(safe-area-inset-bottom, 0px));
+  min-height: 0;
+  margin-inline: auto;
+  padding: 0;
+  overflow: hidden;
+  background: #f7c8dd;
+}
+
+/* The room artwork must live on the scene itself. The previous parent-only
+   background was hidden by the scene's solid fallback colour, producing a
+   darker header strip and a flat pink body. */
+.companion-screen .companion-room-scene {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, rgb(81 42 131 / 4%), rgb(57 26 92 / 8%)),
+    var(--scene-background) center center / cover no-repeat,
+    #f7c8dd !important;
+}
+
+.companion-room-scene .buddy-room-title {
+  z-index: 10;
+  top: calc(env(safe-area-inset-top, 0px) + .65rem);
+  left: max(.65rem, env(safe-area-inset-left));
+  width: min(48vw, 14rem);
+  max-width: none;
+  min-height: 3.25rem;
+  padding-right: .6rem;
+}
+
+.companion-room-scene > .game-coin-pill {
+  z-index: 10;
+  top: calc(env(safe-area-inset-top, 0px) + .7rem);
+  right: max(.65rem, env(safe-area-inset-right));
+  min-width: 6.4rem;
+  min-height: 3.05rem;
+}
+
+/* Dedicated rug stage. Shared .hero-companion-wrap rules cannot move this layer. */
+.buddy-character-stage {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: clamp(2.2rem, 8vh, 4.6rem);
+  width: clamp(8.5rem, 36vw, 11.25rem);
+  height: clamp(10rem, 29vh, 14rem);
+  transform: translateX(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.buddy-character-stage > .hero-companion-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  transform: none !important;
+  overflow: visible !important;
+  pointer-events: none;
+}
+
+.buddy-character-stage .companion-reaction,
+.buddy-character-stage .companion-click-sparkle {
+  z-index: 2;
+}
+
+.buddy-character-stage .companion-character {
+  position: absolute !important;
+  inset: auto auto 0 50% !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  transform-origin: 50% 100% !important;
+  background-position: center bottom !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  pointer-events: auto;
+}
+
+/* Furniture controls are positioned independently of the shared hotspot rail. */
+.buddy-room-hotspots {
+  position: absolute !important;
+  z-index: 7;
+  inset: 0 !important;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.buddy-room-hotspots .room-prop-hotspot {
+  position: absolute !important;
+  min-height: 2.75rem;
+  grid-template-columns: 1.85rem auto;
+  gap: .28rem;
+  padding: .28rem .56rem .28rem .3rem;
+  border-radius: 1rem;
+  pointer-events: auto;
+}
+
+.buddy-room-hotspots .room-prop-icon {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: .66rem;
+}
+
+.buddy-room-hotspots .room-prop-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.buddy-room-hotspots .room-prop-label {
+  font-size: clamp(.7rem, 2.8vw, .84rem);
+}
+
+/* Match the visible furniture in buddy-fantasy-room.webp. */
+.buddy-room-hotspots [data-room-panel="wardrobe"] {
+  top: 17%;
+  left: 3.5%;
+  right: auto;
+  bottom: auto;
+  transform-origin: left center;
+}
+
+.buddy-room-hotspots [data-room-panel="journal"] {
+  top: 18%;
+  right: 3.5%;
+  left: auto;
+  bottom: auto;
+  transform-origin: right center;
+}
+
+.buddy-room-hotspots [data-room-panel="growth"] {
+  top: 36%;
+  right: 8%;
+  left: auto;
+  bottom: auto;
+  transform-origin: right center;
+}
+
+.buddy-room-hotspots [data-room-panel="report"] {
+  top: auto;
+  right: 3.5%;
+  bottom: 20%;
+  left: auto;
+  transform-origin: right center;
+}
+
+.buddy-room-hotspots [data-room-panel="shop"] {
+  top: auto;
+  left: 3.5%;
+  bottom: 20%;
+  right: auto;
+  transform-origin: left center;
+}
+
+@media (max-width: 390px) {
+  .companion-room-scene .buddy-room-title {
+    width: 47vw;
+    transform: scale(.92);
+    transform-origin: top left;
+  }
+
+  .companion-room-scene > .game-coin-pill {
+    min-width: 6rem;
+    transform: scale(.92);
+    transform-origin: top right;
+  }
+
+  .buddy-character-stage {
+    width: clamp(8rem, 35vw, 10rem);
+    height: clamp(9.5rem, 27vh, 12.5rem);
+  }
+
+  .buddy-room-hotspots .room-prop-hotspot {
+    transform: scale(.88);
+  }
+}
+
+@media (max-height: 720px) {
+  .companion-room-scene .buddy-room-title {
+    transform: scale(.84);
+    transform-origin: top left;
+  }
+
+  .companion-room-scene > .game-coin-pill {
+    transform: scale(.84);
+    transform-origin: top right;
+  }
+
+  .buddy-character-stage {
+    bottom: 2.6rem;
+    width: min(34vw, 9.4rem);
+    height: min(26vh, 11rem);
+  }
+
+  .buddy-room-hotspots .room-prop-hotspot {
+    transform: scale(.8);
+  }
+
+  .buddy-room-hotspots [data-room-panel="wardrobe"] { top: 18%; }
+  .buddy-room-hotspots [data-room-panel="journal"] { top: 19%; }
+  .buddy-room-hotspots [data-room-panel="growth"] { top: 37%; }
+  .buddy-room-hotspots [data-room-panel="report"],
+  .buddy-room-hotspots [data-room-panel="shop"] { bottom: 18%; }
+}
+
+@media (max-height: 620px) {
+  .buddy-character-stage {
+    bottom: 2rem;
+    width: min(30vw, 8.3rem);
+    height: min(23vh, 9.5rem);
+  }
+
+  .buddy-room-hotspots .room-prop-hotspot {
+    transform: scale(.72);
+  }
+
+  .buddy-room-hotspots [data-room-panel="growth"] { top: 34%; }
+  .buddy-room-hotspots [data-room-panel="report"],
+  .buddy-room-hotspots [data-room-panel="shop"] { bottom: 16%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy-character-stage .companion-character {
+    animation: none !important;
+    transform: translateX(-50%) !important;
+  }
+}

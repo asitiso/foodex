@@ -1,3 +1,5 @@
+import { GameIcon, type GameIconName } from './GameIcon'
+
 export type AppTab = 'home' | 'collection' | 'record' | 'adventure' | 'companion'
 
 interface BottomNavProps {
@@ -5,12 +7,12 @@ interface BottomNavProps {
   onNavigate: (tab: AppTab) => void
 }
 
-const navItems: Array<{ tab: AppTab; label: string; icon: string; primary?: boolean }> = [
-  { tab: 'home', label: '홈', icon: '⌂' },
-  { tab: 'collection', label: '도감', icon: '▦' },
-  { tab: 'record', label: '촬영', icon: '📷', primary: true },
-  { tab: 'adventure', label: '모험', icon: '✦' },
-  { tab: 'companion', label: '친구', icon: '●' },
+const navItems: Array<{ tab: AppTab; label: string; icon: GameIconName; primary?: boolean }> = [
+  { tab: 'home', label: '홈', icon: 'home' },
+  { tab: 'collection', label: '도감', icon: 'collection' },
+  { tab: 'record', label: '촬영', icon: 'camera', primary: true },
+  { tab: 'adventure', label: '모험', icon: 'adventure' },
+  { tab: 'companion', label: '버디', icon: 'buddy' },
 ]
 
 export function BottomNav({ active, onNavigate }: BottomNavProps) {
@@ -27,7 +29,9 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
           aria-current={active === item.tab ? 'page' : undefined}
           onClick={() => onNavigate(item.tab)}
         >
-          <span aria-hidden="true">{item.icon}</span>
+          <span className="bottom-nav-icon" aria-hidden="true">
+            <GameIcon name={item.icon} />
+          </span>
           {item.label}
         </button>
       ))}

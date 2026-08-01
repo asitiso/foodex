@@ -1,76 +1,75 @@
-import type { DailyQuest, MealStreak, PlayerLevel } from '../../domain/progression'
-import { CompanionRoom } from './CompanionRoom'
-import type { CompanionEmotion } from './CompanionRoom'
-import { HomeStatusGrid } from './HomeStatusGrid'
+import type { AdventureBoard, DailyQuest, MealStreak, PlayerLevel } from '../../domain/progression'
+import type { MealGameLoopState } from '../../domain/mealGameLoop'
+import type { MealAdventureState } from '../../domain/mealAdventure'
+import type { CompanionCharacterId } from '../../domain/companionCharacters'
+import type { CompanionEvolution } from '../../domain/companionEvolution'
+import type { CompanionClass } from '../../domain/companionClasses'
+import type { AdvancedGameSystems } from '../../domain/advancedGameSystems'
+import type { CompanionEmotion } from '../companion/HeroCompanion'
+import { WorldHomeScene } from './WorldHomeScene'
 
-interface HomeScreenProps {
-  summary: {
-    todayCount: number
-    discoveredCount: number
-    totalXp: number
-    lastMealAt?: number
-  }
+export interface HomeScreenProps {
+  summary: { todayCount: number; discoveredCount: number; totalXp: number; lastMealAt?: number }
+  coinBalance: number
   level: PlayerLevel
   streak: MealStreak
   dailyQuests: DailyQuest[]
+  adventureBoard: AdventureBoard
+  mealGameLoop: MealGameLoopState
+  mealAdventure: MealAdventureState
+  characterId?: CompanionCharacterId
+  evolution?: CompanionEvolution
+  companionClass?: CompanionClass
+  advancedSystems?: AdvancedGameSystems
   companionLine: string
   companionEmotion: CompanionEmotion
   decorationIds: readonly string[]
   reducedMotion: boolean
+  nextGoal?: string
   onRecord: () => void
   onOpenCollection: () => void
   onOpenAdventure: () => void
+  onOpenMeals: () => void
   onOpenCompanion: () => void
+  onOpenLevel: () => void
+  onOpenCoins: () => void
 }
 
 export function HomeScreen({
   summary,
+  coinBalance,
   level,
   streak,
-  dailyQuests,
-  companionLine,
+  mealGameLoop,
+  characterId = 'foody',
   companionEmotion,
-  decorationIds,
   reducedMotion,
   onRecord,
   onOpenCollection,
   onOpenAdventure,
+  onOpenMeals,
   onOpenCompanion,
+  onOpenLevel,
+  onOpenCoins,
 }: HomeScreenProps) {
-  const nextQuest = dailyQuests.find((quest) => !quest.completed)
-    ?? dailyQuests.at(-1)
-
   return (
-    <section className="home-screen home-room-screen" aria-label="홈">
-      <header className="room-home-header">
-        <div>
-          <p className="eyebrow">FOODEX ROOM</p>
-          <h1>푸디의 맛있는 방</h1>
-        </div>
-        <span className="room-level-pill">LV.{level.level}</span>
-      </header>
-
-      <CompanionRoom
-        emotion={companionEmotion}
-        line={companionLine}
-        decorationIds={decorationIds}
-        reducedMotion={reducedMotion}
-        onOpenCompanion={onOpenCompanion}
-      />
-
-      <HomeStatusGrid
-        level={level.level}
-        todayCards={summary.todayCount}
-        quest={nextQuest}
-        streakDays={streak.currentDays}
-        onOpenAdventure={onOpenAdventure}
-        onOpenCollection={onOpenCollection}
-      />
-
-      <button className="primary-cta room-record-cta" type="button" onClick={onRecord}>
-        <span aria-hidden="true">📷</span>
-        식사 카드 획득하기
-      </button>
-    </section>
+    <WorldHomeScene
+      coinBalance={coinBalance}
+      level={level}
+      todayCards={summary.todayCount}
+      todayMeals={mealGameLoop.todayMeals}
+      mealTarget={mealGameLoop.gaugeSteps.length}
+      streakDays={streak.currentDays}
+      characterId={characterId}
+      emotion={companionEmotion}
+      reducedMotion={reducedMotion}
+      onRecord={onRecord}
+      onOpenCollection={onOpenCollection}
+      onOpenAdventure={onOpenAdventure}
+      onOpenMeals={onOpenMeals}
+      onOpenCompanion={onOpenCompanion}
+      onOpenLevel={onOpenLevel}
+      onOpenCoins={onOpenCoins}
+    />
   )
 }
