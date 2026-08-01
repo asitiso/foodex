@@ -4,6 +4,7 @@ import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import { getCompanionArt } from '../../ui/sceneAssets'
 
 export type CompanionEmotion = 'calm' | 'expectant' | 'happy' | 'surprised' | 'celebrating'
+export type CompanionReaction = 'smile' | 'jump' | 'surprise' | 'sleepy' | 'satisfied' | 'discovery'
 
 interface HeroCompanionProps {
   characterId: CompanionCharacterId
@@ -14,33 +15,55 @@ interface HeroCompanionProps {
 }
 
 const EMOTION_LABELS: Record<CompanionEmotion, string> = {
-  calm: '차분한 ', expectant: '기대하는 ', happy: '기뻐하는 ', surprised: '깜짝 ', celebrating: '축하하는 ',
+  calm: '차분한 ',
+  expectant: '기대하는 ',
+  happy: '기뻐하는 ',
+  surprised: '깜짝 놀란 ',
+  celebrating: '축하하는 ',
 }
 
 const CHARACTER_LABELS: Record<CompanionCharacterId, string> = {
-  foody: '푸디', berry: '베리', noodle: '누들', cocoa: '코코',
+  foody: '푸디',
+  berry: '베리',
+  noodle: '누들',
+  cocoa: '코코아',
 }
 
-const CLICK_REACTIONS = ['jump', 'wiggle', 'ears', 'spin', 'sparkle'] as const
+export const COMPANION_REACTIONS: readonly CompanionReaction[] = [
+  'smile',
+  'jump',
+  'surprise',
+  'sleepy',
+  'satisfied',
+  'discovery',
+]
+
 type Activity = 'idle' | 'walk' | 'jump' | 'sleep' | 'eat'
 
-const REACTION_MESSAGES: Record<(typeof CLICK_REACTIONS)[number], string> = {
-  jump: '통통 뛰며 반가워해!',
-  wiggle: '몸을 좌우로 흔들어!',
-  ears: '귀를 쫑긋 세웠어!',
-  spin: '휙! 신나게 돌아볼까!',
-  sparkle: '반짝거리는 별송이가 있어!',
+const REACTION_MESSAGES: Record<CompanionReaction, string> = {
+  smile: '활짝 웃으며 반가워해!',
+  jump: '통통 뛰며 신나해!',
+  surprise: '우와! 깜짝 놀랐어!',
+  sleepy: '포근하게 졸고 있어.',
+  satisfied: '냠냠, 정말 만족스러워!',
+  discovery: '반짝이는 걸 발견했어!',
 }
 
-export function HeroCompanion({ characterId, emotion, reducedMotion, evolutionStage = 1, onOpenRoom }: HeroCompanionProps) {
+export function HeroCompanion({
+  characterId,
+  emotion,
+  reducedMotion,
+  evolutionStage = 1,
+  onOpenRoom,
+}: HeroCompanionProps) {
   const [activity, setActivity] = useState<Activity>('idle')
-  const [reaction, setReaction] = useState<(typeof CLICK_REACTIONS)[number]>()
+  const [reaction, setReaction] = useState<CompanionReaction>()
   const [message, setMessage] = useState<string>()
   const [clickFeedback, setClickFeedback] = useState(false)
   const reactionIndex = useRef(-1)
   const reactionTimers = useRef<number[]>([])
   const holdTimer = useRef<number | undefined>(undefined)
-  const holdStart = useRef<{ x: number, y: number } | undefined>(undefined)
+  const holdStart = useRef<{ x: number; y: number } | undefined>(undefined)
   const activePointerId = useRef<number | null>(null)
 
   const clearReactionTimers = () => {
@@ -74,20 +97,28 @@ export function HeroCompanion({ characterId, emotion, reducedMotion, evolutionSt
 
   const reactToCharacter = () => {
     clearReactionTimers()
-    reactionIndex.current = (reactionIndex.current + 1) % CLICK_REACTIONS.length
-    const nextReaction = CLICK_REACTIONS[reactionIndex.current]
-    const prefix = characterId === 'berry' ? '상큼하게 ' : characterId === 'noodle' ? '후루룩! ' : characterId === 'cocoa' ? '달콤하게 ' : ''
+    reactionIndex.current = (reactionIndex.current + 1) % COMPANION_REACTIONS.length
+    const nextReaction = COMPANION_REACTIONS[reactionIndex.current]
+    const prefix = characterId === 'berry'
+      ? '상큼하게 '
+      : characterId === 'noodle'
+        ? '후루룩! '
+        : characterId === 'cocoa'
+          ? '달콤하게 '
+          : ''
+
     setReaction(nextReaction)
     setMessage(prefix + REACTION_MESSAGES[nextReaction])
-    setClickFeedback(true)
+    setClickFeedback(nextReaction === 'discovery' || nextReaction === 'surprise')
     reactionTimers.current = [
-      window.setTimeout(() => setMessage(undefined), 2200),
-      window.setTimeout(() => setClickFeedback(false), 420),
+      window.setTimeout(() => setClickFeedback(false), 520),
+      window.setTimeout(() => setMessage(undefined), 1800),
+      window.setTimeout(() => setReaction(undefined), 1900),
     ]
   }
 
   const startHold = (event: PointerEvent<HTMLButtonElement>) => {
-    if (!onOpenRoom || activePointerId.current !== null || event.pointerType === 'mouse' && event.button !== 0) return
+    if (!onOpenRoom || activePointerId.current !== null || (event.pointerType === 'mouse' && event.button !== 0)) return
     activePointerId.current = event.pointerId
     holdStart.current = { x: event.clientX, y: event.clientY }
     holdTimer.current = window.setTimeout(() => {
@@ -100,15 +131,28 @@ export function HeroCompanion({ characterId, emotion, reducedMotion, evolutionSt
 
   const cancelMovedHold = (event: PointerEvent<HTMLButtonElement>) => {
     if (activePointerId.current !== event.pointerId || !holdStart.current) return
-    if (Math.hypot(event.clientX - holdStart.current.x, event.clientY - holdStart.current.y) > 4) cancelHold(event.pointerId)
+    if (Math.hypot(event.clientX - holdStart.current.x, event.clientY - holdStart.current.y) > 4) {
+      cancelHold(event.pointerId)
+    }
   }
+
+  const visualState = reaction ? `reaction-${reaction}` : `activity-${activity}`
 
   return (
     <div className="hero-companion-wrap">
       {message && <p className="companion-reaction" role="status">{message}</p>}
-      {clickFeedback && <span className="companion-click-sparkle" data-testid="companion-click-sparkle" aria-label="click sparkle" role="status">✦</span>}
+      {clickFeedback && (
+        <span
+          className="companion-click-sparkle"
+          data-testid="companion-click-sparkle"
+          aria-label="반짝 발견 효과"
+          role="status"
+        >
+          ✦
+        </span>
+      )}
       <button
-        className={`companion-character character-${characterId} evolution-stage-${evolutionStage} emotion-${emotion} activity-${reaction ?? activity}${reducedMotion ? ' reduced-motion' : ''}`}
+        className={`companion-character character-${characterId} evolution-stage-${evolutionStage} emotion-${emotion} ${visualState}${reducedMotion ? ' reduced-motion' : ''}`}
         type="button"
         aria-label={`${EMOTION_LABELS[emotion]}${CHARACTER_LABELS[characterId]}`}
         data-reaction={reaction}
@@ -121,10 +165,20 @@ export function HeroCompanion({ characterId, emotion, reducedMotion, evolutionSt
       >
         <span className="companion-ear left" aria-hidden="true" />
         <span className="companion-ear right" aria-hidden="true" />
-        <span className="companion-face" aria-hidden="true"><i className="companion-eye left" /><i className="companion-eye right" /><i className="companion-mouth" /><i className="companion-cheek left" /><i className="companion-cheek right" /></span>
+        <span className="companion-face" aria-hidden="true">
+          <i className="companion-eye left" />
+          <i className="companion-eye right" />
+          <i className="companion-mouth" />
+          <i className="companion-cheek left" />
+          <i className="companion-cheek right" />
+        </span>
         <span className="companion-body" aria-hidden="true" />
       </button>
-      {onOpenRoom && <button className="companion-room-action" type="button" onClick={onOpenRoom}>방으로 가기</button>}
+      {onOpenRoom && (
+        <button className="companion-room-action" type="button" onClick={onOpenRoom}>
+          방으로 가기
+        </button>
+      )}
     </div>
   )
 }
