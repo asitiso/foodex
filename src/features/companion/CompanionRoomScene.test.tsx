@@ -2,7 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { useState } from 'react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { CompanionRoomScene } from './CompanionRoomScene'
+import { CompanionRoomScene, type RoomPanel } from './CompanionRoomScene'
 
 const props = {
   characterId: 'foody' as const,
@@ -22,7 +22,9 @@ const props = {
   onPanelChange: vi.fn(),
   childrenByPanel: {
     wardrobe: <p>옷장 내용</p>,
+    journal: <p>기록 내용</p>,
     growth: <p>성장 내용</p>,
+    report: <p>리포트 내용</p>,
     shop: <p>상점 내용</p>,
   },
 }
@@ -33,12 +35,14 @@ describe('CompanionRoomScene', () => {
     vi.clearAllMocks()
   })
 
-  it('renders one warm room scene and three named locations', () => {
+  it('renders one room scene and five named prop locations', () => {
     render(<CompanionRoomScene {...props} />)
 
     expect(screen.getByRole('region', { name: '친구의 방' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '옷장 열기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '기록 책장 열기' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '성장 거울 열기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '리포트 열기' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '꾸미기 상점 열기' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '보유 코인 13개, 꾸미기 상점 열기' })).toBeInTheDocument()
   })
@@ -52,13 +56,19 @@ describe('CompanionRoomScene', () => {
     expect(props.onPanelChange).toHaveBeenCalledWith('shop')
   })
 
-  it('opens the requested room panel', async () => {
+  it.each([
+    ['옷장 열기', 'wardrobe'],
+    ['기록 책장 열기', 'journal'],
+    ['성장 거울 열기', 'growth'],
+    ['리포트 열기', 'report'],
+    ['꾸미기 상점 열기', 'shop'],
+  ] as const)('opens %s as the requested room panel', async (label, panel) => {
     const user = userEvent.setup()
     render(<CompanionRoomScene {...props} />)
 
-    await user.click(screen.getByRole('button', { name: '꾸미기 상점 열기' }))
+    await user.click(screen.getByRole('button', { name: label }))
 
-    expect(props.onPanelChange).toHaveBeenCalledWith('shop')
+    expect(props.onPanelChange).toHaveBeenCalledWith(panel)
   })
 
   it('clears the active panel when the shared sheet closes', async () => {
@@ -66,8 +76,8 @@ describe('CompanionRoomScene', () => {
     const onPanelChange = vi.fn()
 
     function RoomHarness() {
-      const [activePanel, setActivePanel] = useState<'wardrobe' | 'growth' | 'shop' | null>(null)
-      const handlePanelChange = (panel: 'wardrobe' | 'growth' | 'shop' | null) => {
+      const [activePanel, setActivePanel] = useState<RoomPanel>(null)
+      const handlePanelChange = (panel: RoomPanel) => {
         onPanelChange(panel)
         setActivePanel(panel)
       }
@@ -89,6 +99,8 @@ describe('CompanionRoomScene', () => {
     expect(screen.getByRole('dialog', { name: '성장 거울' })).toBeInTheDocument()
     expect(screen.getByText('성장 내용')).toBeInTheDocument()
     expect(screen.queryByText('옷장 내용')).not.toBeInTheDocument()
+    expect(screen.queryByText('기록 내용')).not.toBeInTheDocument()
+    expect(screen.queryByText('리포트 내용')).not.toBeInTheDocument()
     expect(screen.queryByText('상점 내용')).not.toBeInTheDocument()
   })
 })
