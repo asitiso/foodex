@@ -56,7 +56,7 @@ export function GameHud({
         <button className="game-status-button game-status-meals game-touch-target" data-testid="game-hud-status" type="button" aria-label={`오늘 식사 ${todayMeals}회 목표 ${mealTarget}회 연속 ${streakDays}일`} onClick={onOpenMeals}>
           <span className="game-status-title">식사</span>
           <span className="game-hud-value">{todayMeals}/{mealTarget}</span>
-          <span className="game-hud-streak">연속 ${streakDays}일</span>
+          <span className="game-hud-streak">연속 {streakDays}일</span>
         </button>
       </div>
     </header>
