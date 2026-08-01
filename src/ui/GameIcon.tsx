@@ -12,6 +12,11 @@ export type GameIconName =
   | 'cards'
   | 'room'
   | 'river'
+  | 'wardrobe'
+  | 'bookshelf'
+  | 'growth'
+  | 'report'
+  | 'shop'
 
 interface GameIconProps {
   name: GameIconName
@@ -31,6 +36,11 @@ const paths: Record<GameIconName, ReactNode> = {
   cards: <><rect x="5" y="5" width="11" height="14" rx="2" /><path d="m9 10 1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3Z" /><path d="M9 3h10v14" /></>,
   room: <><path d="m4 11 8-6 8 6v9H4Z" /><path d="M9 20v-6h6v6" /><path d="m12 7 1 2 2 .3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2L9 9.3l2-.3Z" /></>,
   river: <><path d="M4 8c2-2 4 2 6 0s4 2 6 0 4 2 4 2M4 13c2-2 4 2 6 0s4 2 6 0 4 2 4 2M4 18c2-2 4 2 6 0s4 2 6 0 4 2 4 2" /></>,
+  wardrobe: <><path d="M6 4h12a2 2 0 0 1 2 2v14H4V6a2 2 0 0 1 2-2Z" /><path d="M12 4v16M9.5 11h.1M14.5 11h.1" /><path d="m8 7 2-1 2 1 2-1 2 1" /></>,
+  bookshelf: <><path d="M4 5h16v15H4Z" /><path d="M4 13h16M8 7v5M12 6v6M16 8v4M7 15v4M11 15v4M16 15v4" /></>,
+  growth: <><path d="M12 3c4 0 7 2.5 7 6v7c0 3-3 5-7 5s-7-2-7-5V9c0-3.5 3-6 7-6Z" /><path d="M9 13c1.8 1.4 4.2 1.4 6 0" /><path d="m12 6 1.1 2.2 2.4.3-1.7 1.7.4 2.4-2.2-1.2-2.2 1.2.4-2.4-1.7-1.7 2.4-.3Z" /></>,
+  report: <><rect x="5" y="4" width="14" height="16" rx="2" /><path d="M8 16v-3M12 16V9M16 16v-5M8 7h8" /></>,
+  shop: <><path d="M5 9h14l-1 11H6Z" /><path d="M7 9c0-3 2-5 5-5s5 2 5 5" /><path d="m12 12 1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3Z" /></>,
 }
 
 export function GameIcon({ name, className, title }: GameIconProps) {
