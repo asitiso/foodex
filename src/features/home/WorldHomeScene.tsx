@@ -10,6 +10,7 @@ import { SceneCharacterLayer } from './scene/SceneCharacterLayer'
 import { SceneEffectsLayer } from './scene/SceneEffectsLayer'
 import { SceneLandmarkLayer } from './scene/SceneLandmarkLayer'
 import './homeScene.css'
+import './homeSceneUi.css'
 
 export interface WorldHomeSceneProps {
   coinBalance: number
