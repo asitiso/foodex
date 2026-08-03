@@ -20,7 +20,15 @@ export function SceneCharacterLayer(props: SceneCharacterLayerProps) {
         alt=""
         aria-hidden="true"
       />
-      <HeroCompanion {...props} onOpenRoom={undefined} />
+      <img
+        className="home-character-art"
+        src={HOME_SCENE_ASSETS.character.idle}
+        alt=""
+        aria-hidden="true"
+      />
+      <div className="home-character-interaction">
+        <HeroCompanion {...props} onOpenRoom={undefined} />
+      </div>
     </div>
   )
 }
