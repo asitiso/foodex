@@ -1,12 +1,9 @@
 .world-home-scene[data-layered-scene="true"] {
-  --home-collection-left: 7%;
-  --home-adventure-right: 7%;
-  --home-buddy-right: 9%;
-  --home-record-size: clamp(5.25rem, 21vw, 7.25rem);
+  --home-record-size: clamp(5.4rem, 22vw, 7.4rem);
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: clamp(39rem, 82dvh, 54rem);
+  min-height: clamp(42rem, 86dvh, 56rem);
   background: #b9e9ff;
 }
 
@@ -37,63 +34,51 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center top;
 }
 
-.home-scene-distant {
-  top: 10%;
-  left: 0;
-  width: 100%;
-  height: 45%;
-  object-fit: cover;
-}
-
+.home-scene-distant,
 .home-scene-ground {
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 58%;
-  object-fit: cover;
-  object-position: center bottom;
+  display: none;
 }
 
 .home-landmark-art--collection {
-  left: var(--home-collection-left);
-  bottom: 31%;
-  width: clamp(7rem, 28vw, 10.5rem);
+  left: 1%;
+  bottom: 28%;
+  width: clamp(8.5rem, 34vw, 11.5rem);
 }
 
 .home-landmark-art--record {
   left: 50%;
-  bottom: 32%;
-  width: clamp(8rem, 32vw, 12rem);
+  bottom: 30%;
+  width: clamp(9rem, 37vw, 12.5rem);
   transform: translateX(-50%);
 }
 
 .home-landmark-art--adventure {
-  right: var(--home-adventure-right);
-  bottom: 31%;
-  width: clamp(7rem, 28vw, 10.5rem);
+  right: 0;
+  bottom: 39%;
+  width: clamp(9rem, 36vw, 12rem);
 }
 
 .home-landmark-art--buddy {
-  right: var(--home-buddy-right);
-  bottom: 15%;
-  width: clamp(5.5rem, 22vw, 8rem);
+  right: 4%;
+  bottom: 21%;
+  width: clamp(6rem, 24vw, 8.5rem);
 }
 
 .home-character-shadow {
   left: 50%;
-  bottom: 16%;
-  width: clamp(4rem, 18vw, 6.5rem);
+  bottom: 11.5%;
+  width: clamp(5rem, 20vw, 7rem);
   transform: translateX(-50%);
+  opacity: .55;
 }
 
 .home-character-art {
   left: 50%;
-  bottom: 13%;
-  width: clamp(7rem, 30vw, 10rem);
+  bottom: 11%;
+  width: clamp(7.5rem, 31vw, 10.5rem);
   transform: translateX(-50%);
   filter: drop-shadow(0 .55rem .55rem rgba(62, 40, 30, .22));
   animation: home-character-float 3.2s ease-in-out infinite;
@@ -102,8 +87,8 @@
 .home-character-interaction {
   position: absolute;
   left: 50%;
-  bottom: 13%;
-  width: clamp(7rem, 30vw, 10rem);
+  bottom: 11%;
+  width: clamp(7.5rem, 31vw, 10.5rem);
   aspect-ratio: 1;
   transform: translateX(-50%);
   pointer-events: auto;
@@ -131,8 +116,8 @@
 
 .home-effect-glow {
   left: 50%;
-  bottom: 23%;
-  width: clamp(9rem, 36vw, 13rem);
+  bottom: 9%;
+  width: clamp(10rem, 42vw, 14rem);
   transform: translateX(-50%);
   animation: home-glow-pulse 3.2s ease-in-out infinite;
 }
@@ -144,12 +129,12 @@
 
 .home-effect-sparkle--one {
   top: 25%;
-  left: 10%;
+  left: 8%;
 }
 
 .home-effect-sparkle--two {
   top: 34%;
-  right: 10%;
+  right: 8%;
   animation-delay: -1.7s;
 }
 
@@ -157,9 +142,40 @@
   z-index: 6;
 }
 
+.world-home-scene[data-layered-scene="true"] .world-landmark-collection,
+.world-home-scene[data-layered-scene="true"] .world-landmark-adventure,
+.world-home-scene[data-layered-scene="true"] .world-landmark-buddy,
 .world-home-scene[data-layered-scene="true"] .meal-record-orb {
+  position: absolute;
+}
+
+.world-home-scene[data-layered-scene="true"] .world-landmark-collection {
+  left: 5%;
+  bottom: 29%;
+}
+
+.world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
+  right: 8%;
+  bottom: 40%;
+}
+
+.world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
+  right: 8%;
+  bottom: 22%;
+}
+
+.world-home-scene[data-layered-scene="true"] .meal-record-orb {
+  left: 50%;
+  bottom: 31%;
   width: var(--home-record-size);
   min-height: var(--home-record-size);
+  transform: translateX(-50%);
+}
+
+.world-home-scene[data-layered-scene="true"] .game-hud,
+.world-home-scene[data-layered-scene="true"] .home-menu-dock {
+  position: relative;
+  z-index: 8;
 }
 
 @keyframes home-character-float {
@@ -168,13 +184,13 @@
 }
 
 @keyframes home-glow-pulse {
-  0%, 100% { opacity: .55; transform: translateX(-50%) scale(.96); }
-  50% { opacity: .9; transform: translateX(-50%) scale(1.04); }
+  0%, 100% { opacity: .48; transform: translateX(-50%) scale(.96); }
+  50% { opacity: .78; transform: translateX(-50%) scale(1.04); }
 }
 
 @keyframes home-sparkle-float {
-  0%, 100% { opacity: .45; transform: translateY(0) rotate(-6deg); }
-  50% { opacity: 1; transform: translateY(-.65rem) rotate(8deg); }
+  0%, 100% { opacity: .42; transform: translateY(0) rotate(-6deg); }
+  50% { opacity: .9; transform: translateY(-.65rem) rotate(8deg); }
 }
 
 .world-home-scene[data-reduced-motion="true"] .home-character-art,
@@ -185,11 +201,12 @@
 
 @media (max-width: 359px) {
   .world-home-scene[data-layered-scene="true"] {
-    --home-collection-left: 3%;
-    --home-adventure-right: 3%;
-    --home-buddy-right: 4%;
-    min-height: 38rem;
+    min-height: 40rem;
   }
+
+  .home-landmark-art--collection { left: -3%; }
+  .home-landmark-art--adventure { right: -4%; }
+  .home-landmark-art--buddy { right: 1%; }
 }
 
 @media (min-width: 768px) {
