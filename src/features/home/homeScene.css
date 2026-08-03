@@ -24,6 +24,7 @@
 .home-scene-background img,
 .home-landmark-art,
 .home-character-shadow,
+.home-character-art,
 .home-scene-effects img {
   position: absolute;
   display: block;
@@ -89,8 +90,43 @@
   transform: translateX(-50%);
 }
 
-.home-scene-character .hero-companion-wrap {
+.home-character-art {
+  left: 50%;
+  bottom: 13%;
+  width: clamp(7rem, 30vw, 10rem);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 .55rem .55rem rgba(62, 40, 30, .22));
+  animation: home-character-float 3.2s ease-in-out infinite;
+}
+
+.home-character-interaction {
+  position: absolute;
+  left: 50%;
+  bottom: 13%;
+  width: clamp(7rem, 30vw, 10rem);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
   pointer-events: auto;
+}
+
+.home-character-interaction .hero-companion-wrap {
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.home-character-interaction .companion-character {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  opacity: 0;
+}
+
+.home-character-interaction .companion-reaction,
+.home-character-interaction .companion-click-sparkle {
+  position: absolute;
+  z-index: 2;
 }
 
 .home-effect-glow {
@@ -102,18 +138,18 @@
 }
 
 .home-effect-sparkle {
-  width: clamp(1.2rem, 5vw, 2rem);
+  width: clamp(2.5rem, 10vw, 4.5rem);
   animation: home-sparkle-float 3.4s ease-in-out infinite;
 }
 
 .home-effect-sparkle--one {
-  top: 27%;
-  left: 17%;
+  top: 25%;
+  left: 10%;
 }
 
 .home-effect-sparkle--two {
-  top: 35%;
-  right: 15%;
+  top: 34%;
+  right: 10%;
   animation-delay: -1.7s;
 }
 
@@ -126,6 +162,11 @@
   min-height: var(--home-record-size);
 }
 
+@keyframes home-character-float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-.35rem); }
+}
+
 @keyframes home-glow-pulse {
   0%, 100% { opacity: .55; transform: translateX(-50%) scale(.96); }
   50% { opacity: .9; transform: translateX(-50%) scale(1.04); }
@@ -136,6 +177,7 @@
   50% { opacity: 1; transform: translateY(-.65rem) rotate(8deg); }
 }
 
+.world-home-scene[data-reduced-motion="true"] .home-character-art,
 .world-home-scene[data-reduced-motion="true"] .home-effect-glow,
 .world-home-scene[data-reduced-motion="true"] .home-effect-sparkle {
   animation: none;
@@ -159,6 +201,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-character-art,
   .home-effect-glow,
   .home-effect-sparkle {
     animation: none !important;
