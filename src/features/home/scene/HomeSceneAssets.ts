@@ -1,5 +1,3 @@
-import { SCENE_ASSETS } from '../../../ui/sceneAssets'
-
 export interface HomeSceneAssetRegistry {
   backgrounds: {
     sky: string
@@ -13,6 +11,7 @@ export interface HomeSceneAssetRegistry {
     buddy: string
   }
   character: {
+    idle: string
     shadow: string
   }
   effects: {
@@ -26,21 +25,22 @@ const transparentFallback =
 
 export const HOME_SCENE_ASSETS: HomeSceneAssetRegistry = {
   backgrounds: {
-    sky: SCENE_ASSETS.worldHome,
+    sky: '/assets/home/backgrounds/sky-ground.webp',
     distant: transparentFallback,
     ground: transparentFallback,
   },
   landmarks: {
-    collection: transparentFallback,
-    record: transparentFallback,
-    adventure: transparentFallback,
-    buddy: transparentFallback,
+    collection: '/assets/home/landmarks/collection-house.webp',
+    record: '/assets/home/landmarks/camera-building.webp',
+    adventure: '/assets/home/landmarks/adventure-castle.webp',
+    buddy: '/assets/home/landmarks/buddy-house.webp',
   },
   character: {
+    idle: '/assets/home/characters/foody-idle.webp',
     shadow: transparentFallback,
   },
   effects: {
-    sparkle: transparentFallback,
-    glow: transparentFallback,
+    sparkle: '/assets/home/effects/sparkles.webp',
+    glow: '/assets/home/effects/glow-ring.webp',
   },
 }
