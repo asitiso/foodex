@@ -12,6 +12,7 @@ import { SceneLandmarkLayer } from './scene/SceneLandmarkLayer'
 import './homeScene.css'
 import './homeSceneUi.css'
 import './homeSceneV4.css'
+import './homeSceneHudFix.css'
 
 export interface WorldHomeSceneProps {
   coinBalance: number
