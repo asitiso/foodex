@@ -1,0 +1,59 @@
+/* v4 HUD containment fix.
+   Shared game styles previously left full-screen sizing and absolute rail rules
+   on the home HUD. Reset those properties before applying the compact overlay. */
+
+.world-home-scene[data-layered-scene="true"] > .game-hud {
+  inset: auto .75rem auto .75rem !important;
+  top: max(.7rem, env(safe-area-inset-top)) !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  align-self: auto !important;
+}
+
+.world-home-scene[data-layered-scene="true"] > .game-hud .game-status-rail {
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  transform: none !important;
+  margin: 0 !important;
+  grid-column: 1 / -1 !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: .42rem !important;
+}
+
+.world-home-scene[data-layered-scene="true"] > .game-hud .game-status-button {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  overflow: hidden;
+}
+
+.world-home-scene[data-layered-scene="true"] > .game-hud .game-status-title,
+.world-home-scene[data-layered-scene="true"] > .game-hud .game-hud-value {
+  writing-mode: horizontal-tb !important;
+  white-space: nowrap;
+}
+
+@media (max-width: 359px) {
+  .world-home-scene[data-layered-scene="true"] > .game-hud {
+    right: .45rem !important;
+    left: .45rem !important;
+  }
+}
