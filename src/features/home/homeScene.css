@@ -118,7 +118,6 @@
 }
 
 .world-home-scene[data-layered-scene="true"] > :not(.home-scene-layer) {
-  position: relative;
   z-index: 6;
 }
 
