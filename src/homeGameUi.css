@@ -25,20 +25,21 @@ body:has(.world-home-scene) {
   display: none;
 }
 
-/* Keep account protection available to assistive tech without covering the world art. */
+/* Keep account protection discoverable without turning it into a full-width banner. */
 .app-shell:has(> .world-home-scene) > .account-protection {
-  position: absolute;
+  position: fixed;
   z-index: 19;
-  width: 1px;
-  height: 1px;
+  top: calc(max(.55rem, env(safe-area-inset-top)) + 9.25rem);
+  right: max(.75rem, env(safe-area-inset-right));
+  width: 6rem;
+  height: auto;
   padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  overflow: visible;
 }
 
-.app-shell:has(> .world-home-scene) > .account-protection:focus-within {
-  position: fixed;
+.app-shell:has(> .world-home-scene) > .account-protection:has(> .protect-collection) {
+  top: auto;
+  right: auto;
   bottom: calc(7.75rem + env(safe-area-inset-bottom));
   left: 50%;
   width: min(calc(100vw - 1.5rem), 30rem);
@@ -74,9 +75,27 @@ body:has(.world-home-scene) {
   white-space: normal;
 }
 
+.app-shell:has(> .world-home-scene) > .sync-status.sync-failed {
+  position: fixed;
+  z-index: 21;
+  right: .75rem;
+  bottom: calc(7.75rem + env(safe-area-inset-bottom));
+  left: .75rem;
+  width: auto;
+  height: auto;
+  padding: .55rem .65rem;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+}
+
+.app-shell:has(> .world-home-scene) > .sync-status.sync-failed button {
+  min-height: 2.75rem;
+}
+
 .app-shell:has(> .world-home-scene) > .account-protection > .inline-button {
   min-width: 0;
-  min-height: 2.25rem;
+  min-height: 2.75rem;
   width: 6rem;
   border: .15rem solid #56318f;
   border-radius: .8rem;
@@ -706,7 +725,7 @@ body:has(.world-home-scene) {
 
   .world-landmark-collection { width: 4.65rem; height: 4.75rem; }
   .world-landmark-adventure { width: 4.8rem; height: 2.75rem; }
-  .meal-record-orb { width: 6.4rem; height: 2.7rem; }
+  .meal-record-orb { width: 6.4rem; height: 2.7rem; min-height: 2.75rem; }
   .world-landmark-buddy { width: 4.5rem; height: 2.75rem; }
   .world-home-scene .world-hotspot > span,
   .world-home-scene .meal-record-orb > span { font-size: .8rem; }

@@ -11,9 +11,12 @@ describe('reference home CSS contract', () => {
     expect(existsSync(resolve(process.cwd(), 'public/art/world/world-home-reference-city.png'))).toBe(true)
   })
 
-  it('keeps account protection accessible but outside the painted composition', () => {
-    expect(css).toMatch(/\.account-protection\s*\{[^}]*width:\s*1px;[^}]*height:\s*1px;[^}]*clip-path:\s*inset\(50%\)/s)
-    expect(css).toMatch(/\.sync-status\s*\{[^}]*width:\s*1px;[^}]*height:\s*1px;[^}]*clip-path:\s*inset\(50%\)/s)
+  it('keeps account protection and failed-sync recovery touch accessible', () => {
+    expect(css).toMatch(/\.account-protection\s*\{[^}]*position:\s*fixed;[^}]*width:\s*6rem;[^}]*overflow:\s*visible/s)
+    expect(css).toMatch(/\.account-protection\s*>\s*\.inline-button\s*\{[^}]*min-height:\s*2\.75rem/s)
+    expect(css).toMatch(/\.account-protection:has\(>\s*\.protect-collection\)\s*\{[^}]*width:\s*min\(calc\(100vw - 1\.5rem\),\s*30rem\)/s)
+    expect(css).toMatch(/\.sync-status\.sync-failed\s*\{[^}]*position:\s*fixed;[^}]*width:\s*auto;[^}]*clip-path:\s*none/s)
+    expect(css).toMatch(/\.sync-status\.sync-failed\s+button\s*\{[^}]*min-height:\s*2\.75rem/s)
   })
 
   it('binds the meal plaque to the painted camera instead of drawing a camera card', () => {
@@ -38,5 +41,6 @@ describe('reference home CSS contract', () => {
   it('preserves a reference-scaled short HUD and starts the logo near y 62', () => {
     expect(css).toMatch(/@media \(max-height:\s*700px\)[\s\S]*?\.foodex-game-logo\s*\{[^}]*top:\s*calc\(var\(--home-safe-top\) \+ 3\.3rem\)/)
     expect(css).toMatch(/@media \(max-height:\s*700px\)[\s\S]*?\.game-status-button:nth-child\(3\)\s*\{\s*min-height:\s*4\.5rem;/)
+    expect(css).toMatch(/@media \(max-height:\s*700px\)[\s\S]*?\.meal-record-orb\s*\{[^}]*min-height:\s*2\.75rem;/)
   })
 })
