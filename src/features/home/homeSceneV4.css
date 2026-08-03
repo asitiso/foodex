@@ -1,0 +1,159 @@
+.world-home-scene[data-layered-scene="true"] {
+  --home-safe-top: max(.7rem, env(safe-area-inset-top));
+  --home-safe-bottom: max(.65rem, env(safe-area-inset-bottom));
+}
+
+.world-home-scene[data-layered-scene="true"] .world-hotspot {
+  min-width: 4.35rem;
+  min-height: 3.25rem;
+  display: grid;
+  place-items: end center;
+  padding: 0 0 .1rem;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  filter: drop-shadow(0 .2rem .2rem rgba(58, 35, 78, .38));
+}
+
+.world-home-scene[data-layered-scene="true"] .world-hotspot svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.world-home-scene[data-layered-scene="true"] .world-hotspot span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.4rem;
+  min-height: 1.55rem;
+  padding: .18rem .55rem;
+  border: 2px solid rgba(255,255,255,.74);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(113,75,165,.94), rgba(71,43,112,.96));
+  box-shadow: 0 .2rem 0 rgba(54, 31, 82, .45), 0 .35rem .7rem rgba(56, 34, 84, .2);
+  font-size: .74rem;
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -.02em;
+  text-shadow: 0 1px 0 rgba(0,0,0,.2);
+}
+
+.world-home-scene[data-layered-scene="true"] .world-hotspot:active span {
+  transform: translateY(.12rem);
+  box-shadow: 0 .08rem 0 rgba(54, 31, 82, .45);
+}
+
+.world-home-scene[data-layered-scene="true"] .world-hotspot:focus-visible,
+.world-home-scene[data-layered-scene="true"] .meal-record-orb:focus-visible,
+.world-home-scene[data-layered-scene="true"] .home-menu-card:focus-visible,
+.world-home-scene[data-layered-scene="true"] .game-status-button:focus-visible,
+.world-home-scene[data-layered-scene="true"] .game-coin-pill:focus-visible {
+  outline: 3px solid #fff4a8;
+  outline-offset: 3px;
+}
+
+.world-home-scene[data-layered-scene="true"] .world-landmark-collection {
+  left: 4%;
+  bottom: 27.5%;
+}
+
+.world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
+  right: 6%;
+  bottom: 38.5%;
+}
+
+.world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
+  right: 5%;
+  bottom: 19.5%;
+}
+
+.world-home-scene[data-layered-scene="true"] .meal-record-orb {
+  bottom: 29.5%;
+  border-radius: 50%;
+  filter: drop-shadow(0 .45rem .5rem rgba(73, 43, 105, .28));
+}
+
+.world-home-scene[data-layered-scene="true"] .game-hud {
+  right: .65rem;
+  left: .65rem;
+  padding: .48rem .55rem;
+  border-color: rgba(255,255,255,.62);
+  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(246,239,255,.8));
+}
+
+.world-home-scene[data-layered-scene="true"] .home-menu-dock {
+  right: .6rem;
+  left: .6rem;
+  padding: .42rem;
+  border-color: rgba(255,255,255,.65);
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(239,230,255,.86));
+}
+
+.world-home-scene[data-layered-scene="true"] .home-menu-card {
+  min-height: 3.55rem;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.world-home-scene[data-layered-scene="true"] .home-character-art {
+  bottom: 10.5%;
+  width: clamp(7.9rem, 32vw, 10.8rem);
+}
+
+.world-home-scene[data-layered-scene="true"] .home-character-interaction {
+  bottom: 10.5%;
+  width: clamp(7.9rem, 32vw, 10.8rem);
+}
+
+.world-home-scene[data-layered-scene="true"] .home-character-shadow {
+  bottom: 10.8%;
+}
+
+.world-home-scene[data-layered-scene="true"] .home-effect-glow {
+  bottom: 8.2%;
+  opacity: .72;
+}
+
+@media (min-width: 390px) and (max-width: 430px) {
+  .home-landmark-art--collection {
+    left: 2.5%;
+    width: clamp(9rem, 34vw, 11.8rem);
+  }
+
+  .home-landmark-art--record {
+    width: clamp(9.6rem, 36vw, 12.8rem);
+  }
+
+  .home-landmark-art--adventure {
+    right: 1%;
+    width: clamp(9.4rem, 35vw, 12.4rem);
+  }
+}
+
+@media (max-width: 359px) {
+  .world-home-scene[data-layered-scene="true"] .world-hotspot span {
+    min-width: 3.05rem;
+    padding-inline: .42rem;
+    font-size: .68rem;
+  }
+
+  .world-home-scene[data-layered-scene="true"] .world-landmark-collection {
+    left: 2%;
+  }
+
+  .world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
+    right: 2%;
+  }
+
+  .world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
+    right: 2%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world-home-scene[data-layered-scene="true"] .home-menu-card,
+  .world-home-scene[data-layered-scene="true"] .world-hotspot span {
+    transition: none;
+  }
+}
