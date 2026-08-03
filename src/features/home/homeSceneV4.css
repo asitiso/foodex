@@ -3,9 +3,46 @@
   --home-safe-bottom: max(.65rem, env(safe-area-inset-bottom));
 }
 
+/* The current sky-ground artwork already contains the collection house,
+   camera building and castle. Hide duplicate generated assets until clean
+   transparent replacements are available. */
+.world-home-scene[data-layered-scene="true"] .home-scene-landmarks,
+.world-home-scene[data-layered-scene="true"] .home-character-art,
+.world-home-scene[data-layered-scene="true"] .home-character-shadow,
+.world-home-scene[data-layered-scene="true"] .home-scene-effects {
+  display: none;
+}
+
+/* Restore the original transparent interactive companion instead of the
+   generated character image that still contains a dark rectangular matte. */
+.world-home-scene[data-layered-scene="true"] .home-character-interaction {
+  left: 50%;
+  bottom: 10.5%;
+  width: clamp(7.3rem, 29vw, 9.8rem);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.world-home-scene[data-layered-scene="true"] .home-character-interaction .hero-companion-wrap {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: end center;
+}
+
+.world-home-scene[data-layered-scene="true"] .home-character-interaction .companion-character {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  opacity: 1;
+  filter: drop-shadow(0 .45rem .35rem rgba(69, 46, 44, .24));
+}
+
 .world-home-scene[data-layered-scene="true"] .world-hotspot {
-  min-width: 4.35rem;
-  min-height: 3.25rem;
+  min-width: 4rem;
+  min-height: 2.8rem;
   display: grid;
   place-items: end center;
   padding: 0 0 .1rem;
@@ -26,14 +63,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 3.4rem;
-  min-height: 1.55rem;
-  padding: .18rem .55rem;
-  border: 2px solid rgba(255,255,255,.74);
+  min-width: 3.25rem;
+  min-height: 1.48rem;
+  padding: .16rem .5rem;
+  border: 2px solid rgba(255,255,255,.82);
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(113,75,165,.94), rgba(71,43,112,.96));
-  box-shadow: 0 .2rem 0 rgba(54, 31, 82, .45), 0 .35rem .7rem rgba(56, 34, 84, .2);
-  font-size: .74rem;
+  background: linear-gradient(180deg, rgba(113,75,165,.95), rgba(71,43,112,.98));
+  box-shadow: 0 .18rem 0 rgba(54,31,82,.46), 0 .3rem .6rem rgba(56,34,84,.2);
+  font-size: .72rem;
   font-weight: 950;
   line-height: 1;
   letter-spacing: -.02em;
@@ -42,7 +79,7 @@
 
 .world-home-scene[data-layered-scene="true"] .world-hotspot:active span {
   transform: translateY(.12rem);
-  box-shadow: 0 .08rem 0 rgba(54, 31, 82, .45);
+  box-shadow: 0 .06rem 0 rgba(54,31,82,.45);
 }
 
 .world-home-scene[data-layered-scene="true"] .world-hotspot:focus-visible,
@@ -54,25 +91,30 @@
   outline-offset: 3px;
 }
 
+/* Anchor labels to the buildings already painted into the background. */
 .world-home-scene[data-layered-scene="true"] .world-landmark-collection {
-  left: 4%;
-  bottom: 27.5%;
+  left: 7%;
+  bottom: 43%;
 }
 
 .world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
-  right: 6%;
-  bottom: 38.5%;
+  right: 9%;
+  bottom: 57%;
 }
 
 .world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
-  right: 5%;
-  bottom: 19.5%;
+  right: 8%;
+  bottom: 40%;
 }
 
 .world-home-scene[data-layered-scene="true"] .meal-record-orb {
-  bottom: 29.5%;
+  left: 50%;
+  bottom: 43%;
+  width: clamp(5.2rem, 21vw, 6.7rem);
+  min-height: clamp(5.2rem, 21vw, 6.7rem);
+  transform: translateX(-50%);
   border-radius: 50%;
-  filter: drop-shadow(0 .45rem .5rem rgba(73, 43, 105, .28));
+  filter: drop-shadow(0 .35rem .42rem rgba(73,43,105,.25));
 }
 
 .world-home-scene[data-layered-scene="true"] .game-hud {
@@ -83,71 +125,61 @@
   background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(246,239,255,.8));
 }
 
+.world-home-scene[data-layered-scene="true"] .foodex-game-logo {
+  top: calc(var(--home-safe-top) + 4.75rem);
+  width: min(48vw, 12.5rem);
+  height: 4rem;
+}
+
 .world-home-scene[data-layered-scene="true"] .home-menu-dock {
   right: .6rem;
   left: .6rem;
-  padding: .42rem;
+  padding: .34rem;
   border-color: rgba(255,255,255,.65);
   background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(239,230,255,.86));
 }
 
 .world-home-scene[data-layered-scene="true"] .home-menu-card {
-  min-height: 3.55rem;
+  min-height: 3.25rem;
   transition: transform .15s ease, box-shadow .15s ease;
 }
 
-.world-home-scene[data-layered-scene="true"] .home-character-art {
-  bottom: 10.5%;
-  width: clamp(7.9rem, 32vw, 10.8rem);
-}
-
-.world-home-scene[data-layered-scene="true"] .home-character-interaction {
-  bottom: 10.5%;
-  width: clamp(7.9rem, 32vw, 10.8rem);
-}
-
-.world-home-scene[data-layered-scene="true"] .home-character-shadow {
-  bottom: 10.8%;
-}
-
-.world-home-scene[data-layered-scene="true"] .home-effect-glow {
-  bottom: 8.2%;
-  opacity: .72;
-}
-
 @media (min-width: 390px) and (max-width: 430px) {
-  .home-landmark-art--collection {
-    left: 2.5%;
-    width: clamp(9rem, 34vw, 11.8rem);
+  .world-home-scene[data-layered-scene="true"] .world-landmark-collection {
+    left: 8%;
   }
 
-  .home-landmark-art--record {
-    width: clamp(9.6rem, 36vw, 12.8rem);
+  .world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
+    right: 10%;
   }
 
-  .home-landmark-art--adventure {
-    right: 1%;
-    width: clamp(9.4rem, 35vw, 12.4rem);
+  .world-home-scene[data-layered-scene="true"] .home-character-interaction {
+    bottom: 10.8%;
   }
 }
 
 @media (max-width: 359px) {
   .world-home-scene[data-layered-scene="true"] .world-hotspot span {
-    min-width: 3.05rem;
-    padding-inline: .42rem;
-    font-size: .68rem;
+    min-width: 2.95rem;
+    padding-inline: .38rem;
+    font-size: .66rem;
   }
 
   .world-home-scene[data-layered-scene="true"] .world-landmark-collection {
-    left: 2%;
+    left: 4%;
   }
 
   .world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
-    right: 2%;
+    right: 4%;
   }
 
   .world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
-    right: 2%;
+    right: 4%;
+  }
+
+  .world-home-scene[data-layered-scene="true"] .foodex-game-logo {
+    top: calc(var(--home-safe-top) + 4.45rem);
+    width: 10.4rem;
   }
 }
 
