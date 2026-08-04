@@ -1,0 +1,167 @@
+.world-home-scene[data-reference-home="true"] {
+  --reference-hud-top: max(.55rem, env(safe-area-inset-top));
+  --reference-logo-top: 1rem;
+  --reference-character-bottom: 5.7rem;
+  min-height: 100dvh;
+  padding-bottom: 5.6rem;
+}
+
+.world-home-scene[data-reference-home="true"] .reference-game-hud {
+  position: absolute;
+  z-index: 12;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.reference-status-stack {
+  position: absolute;
+  top: var(--reference-hud-top);
+  left: .65rem;
+  display: grid;
+  gap: .35rem;
+  width: 5.2rem;
+  pointer-events: auto;
+}
+
+.reference-status-card {
+  min-width: 0;
+  min-height: 3.3rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "title value" "helper helper" "progress progress";
+  align-items: center;
+  gap: .1rem .28rem;
+  padding: .38rem .48rem;
+  border: 2px solid #7046a7;
+  border-radius: .95rem;
+  background: #fff8df;
+  color: #302260;
+  box-shadow: 0 .22rem 0 #4d2a78, inset 0 1px 0 #fff;
+  text-align: left;
+}
+
+.reference-status-title { grid-area: title; font-size: .72rem; font-weight: 900; }
+.reference-status-value { grid-area: value; font-size: 1.05rem; font-weight: 1000; }
+.reference-status-helper { grid-area: helper; font-size: .66rem; font-weight: 900; color: #e24f2f; }
+.reference-status-progress { grid-area: progress; height: .28rem; overflow: hidden; border: 1px solid #7046a7; border-radius: 999px; background: #fff; }
+.reference-status-progress > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #b663e9, #6f3fd1); }
+
+.reference-game-hud .foodex-game-logo {
+  top: var(--reference-logo-top);
+  left: 50%;
+  width: min(48vw, 14rem);
+  pointer-events: none;
+}
+
+.reference-coin-capsule {
+  position: absolute;
+  top: var(--reference-hud-top);
+  right: .65rem;
+  min-width: 6.6rem;
+  min-height: 3rem;
+  display: grid;
+  grid-template-columns: 2rem 1fr 1.75rem;
+  align-items: center;
+  gap: .25rem;
+  padding: .25rem .35rem;
+  border: 2px solid #7143a2;
+  border-radius: 999px;
+  background: #fff3cf;
+  color: #392166;
+  box-shadow: 0 .22rem 0 #4d2a78, inset 0 1px 0 #fff;
+  pointer-events: auto;
+}
+.reference-coin-icon,
+.reference-coin-plus { display: grid; place-items: center; border-radius: 50%; }
+.reference-coin-icon { width: 2rem; height: 2rem; background: #ffbf2f; color: #fff; }
+.reference-coin-plus { width: 1.65rem; height: 1.65rem; background: #ffb72d; color: #7a3a00; font-size: 1.3rem; font-weight: 1000; }
+.reference-coin-capsule strong { font-size: 1rem; font-weight: 1000; }
+
+.reference-landmark-button,
+.reference-record-button {
+  position: absolute;
+  z-index: 9;
+  min-width: 3.25rem;
+  min-height: 3.25rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+.reference-landmark-face {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  min-height: 2.5rem;
+  padding: .36rem .58rem;
+  border: 3px solid #fff;
+  border-radius: .75rem;
+  box-shadow: 0 .22rem 0 #4e2b76, 0 .45rem .8rem rgba(48, 27, 78, .24);
+  color: #fff;
+  font-weight: 1000;
+}
+.reference-landmark-face svg { width: 1.35rem; height: 1.35rem; }
+.reference-landmark-button--collection .reference-landmark-face { background: linear-gradient(#f05a64, #b92743); }
+.reference-landmark-button--adventure .reference-landmark-face { background: linear-gradient(#8f68d5, #57339d); }
+.reference-landmark-button--buddy .reference-landmark-face { background: linear-gradient(#50d4ca, #209ba3); }
+.world-home-scene[data-reference-home="true"] .world-landmark-collection { left: 6%; top: 45%; }
+.world-home-scene[data-reference-home="true"] .world-landmark-adventure { right: 15%; top: 35%; }
+.world-home-scene[data-reference-home="true"] .world-landmark-buddy { right: 7%; top: 48%; }
+
+.reference-record-button {
+  left: 50%;
+  top: 44%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: .15rem;
+  color: #fff;
+  font-weight: 1000;
+}
+.reference-record-camera {
+  position: relative;
+  width: 6.2rem;
+  height: 5.35rem;
+  display: grid;
+  place-items: center;
+  border: 4px solid #fff0b0;
+  border-radius: 1.2rem;
+  background: linear-gradient(#58b9ed, #2073bc);
+  box-shadow: 0 .3rem 0 #4a2a76, 0 .65rem 1rem rgba(48, 27, 78, .28);
+}
+.reference-record-camera-top { position: absolute; top: -.72rem; width: 2.5rem; height: 1rem; border: 3px solid #fff0b0; border-bottom: 0; border-radius: .65rem .65rem 0 0; background: #4a9ad3; }
+.reference-record-lens { width: 3.25rem; height: 3.25rem; display: grid; place-items: center; border: .45rem solid #183f83; border-radius: 50%; background: #6fd5ff; color: #fff; }
+.reference-record-button strong { padding: .28rem .65rem; border: 2px solid #fff; border-radius: .65rem; background: #5b3ca2; box-shadow: 0 .18rem 0 #3d256d; }
+
+.world-home-scene[data-reference-home="true"] .home-menu-dock { display: none !important; }
+.world-home-scene[data-reference-home="true"] .home-landmark-art,
+.world-home-scene[data-reference-home="true"] .home-character-art,
+.world-home-scene[data-reference-home="true"] .home-effect-sparkle,
+.world-home-scene[data-reference-home="true"] .home-effect-glow { display: none !important; }
+.world-home-scene[data-reference-home="true"] .home-character-interaction { bottom: var(--reference-character-bottom); width: clamp(10rem, 38vw, 13.5rem); opacity: 1; }
+.world-home-scene[data-reference-home="true"] .home-character-interaction .companion-character { opacity: 1; }
+
+.reference-landmark-button:active .reference-landmark-face,
+.reference-record-button:active > * { transform: translateY(.12rem); }
+.reference-landmark-button:focus-visible,
+.reference-record-button:focus-visible,
+.reference-status-card:focus-visible,
+.reference-coin-capsule:focus-visible { outline: 3px solid #fff267; outline-offset: 3px; }
+
+@media (max-width: 390px) {
+  .reference-status-stack { left: .4rem; width: 4.65rem; }
+  .reference-status-card { min-height: 3rem; padding: .3rem .38rem; }
+  .reference-coin-capsule { right: .4rem; min-width: 5.9rem; }
+  .reference-game-hud .foodex-game-logo { top: 1.25rem; width: min(45vw, 11.5rem); }
+  .reference-record-button { top: 46%; }
+  .reference-record-camera { width: 5.5rem; height: 4.8rem; }
+  .world-home-scene[data-reference-home="true"] .world-landmark-collection { left: 3%; }
+  .world-home-scene[data-reference-home="true"] .world-landmark-adventure { right: 10%; }
+  .world-home-scene[data-reference-home="true"] .world-landmark-buddy { right: 3%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reference-landmark-button:active .reference-landmark-face,
+  .reference-record-button:active > * { transform: none; }
+}
