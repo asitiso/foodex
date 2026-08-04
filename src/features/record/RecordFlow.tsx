@@ -33,6 +33,7 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
   const [foodType, setFoodType] = useState<FoodType>()
   const [foodName, setFoodName] = useState<string>()
   const [selectedFoodId, setSelectedFoodId] = useState<string>()
+  const [customFoods, setCustomFoods] = useState<FoodDefinition[]>([])
   const [amount, setAmount] = useState<MealAmount>()
   const [photoError, setPhotoError] = useState<string>()
   const [isOpeningCamera, setIsOpeningCamera] = useState(false)
@@ -74,6 +75,14 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
   }
 
   const selectFood = (food: FoodDefinition) => {
+    if (food.id.startsWith('custom-')) {
+      const normalized = food.name.trim()
+      setCustomFoods((previous) => {
+        const known = previous.some((entry) => entry.name.trim().toLocaleLowerCase('ko-KR') === normalized.toLocaleLowerCase())
+        return known ? previous : [...previous, food]
+      })
+    }
+
     setFoodType(food.foodType)
     setFoodName(food.name)
     setSelectedFoodId(food.id)
@@ -82,6 +91,19 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
   return (
     <section className="record-flow" aria-label="식사 기록">
       <p className="eyebrow">FOODEX 기록하기</p>
+      <div className="record-stage-header">
+        <div>
+          <span className="record-stage-kicker">오늘의 식사 던전</span>
+          <strong>한 끼를 기록하고 보상을 받아요</strong>
+        </div>
+        <span className="record-stage-count">{step === 'photo' ? '1' : step === 'food' ? '2' : '3'} / 3</span>
+      </div>
+      <div className="record-progress" data-testid="record-progress" aria-label="식사 기록 진행률">
+        {(['photo', 'food', 'amount'] as RecordStep[]).map((stage, index) => (
+          <span key={stage} className={stage === step ? 'active' : index < ['photo', 'food', 'amount'].indexOf(step) ? 'complete' : ''} />
+        ))}
+      </div>
+      <div className="record-stage-labels" aria-hidden="true"><span className={step === 'photo' ? 'active' : ''}>📸 사진</span><span className={step === 'food' ? 'active' : ''}>🍽️ 음식</span><span className={step === 'amount' ? 'active' : ''}>🎁 보상</span></div>
       {step === 'photo' && (
         <div className="record-step">
           <h1>오늘 먹은 것을 찍어 볼까?</h1>
@@ -137,7 +159,12 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
         <div className="record-step">
           <h1>무엇을 먹었어?</h1>
           <p>가장 가까운 친구를 골라 줘.</p>
-          <FoodQuickPicker suggestions={suggestions} selectedId={selectedFoodId} onSelect={selectFood} />
+          <FoodQuickPicker
+            suggestions={[...suggestions, ...customFoods]}
+            customFoods={customFoods}
+            selectedId={selectedFoodId}
+            onSelect={selectFood}
+          />
           <div className="record-actions">
             <button className="text-button" type="button" onClick={() => setStep('photo')}>이전</button>
             <button type="button" onClick={() => setStep('amount')} disabled={!foodType}>다음</button>

@@ -7,11 +7,11 @@ import { FusionLab } from './FusionLab'
 import { PlayScreen } from './PlayScreen'
 import { Wardrobe } from './Wardrobe'
 
-function entry(catalogId: 'ramen' | 'rice', name: string) {
+function entry(catalogId: 'ramen' | 'rice' | 'dumpling', name: string) {
   const meal: MealRecord = {
     id: `meal-${catalogId}`,
     imageData: null,
-    foodName: '라면',
+    foodName: catalogId === 'ramen' ? '라면' : catalogId === 'dumpling' ? '만두' : '밥',
     foodType: catalogId,
     amount: 'taste',
     recordedAt: 1,
@@ -25,7 +25,7 @@ function entry(catalogId: 'ramen' | 'rice', name: string) {
     quote: 'test',
     xp: 10,
     isNew: true,
-    regionId: 'korea',
+    regionId: catalogId === 'dumpling' ? 'china' : 'korea',
     evolutionStage: 1,
     createdAt: 1,
   }
@@ -34,6 +34,7 @@ function entry(catalogId: 'ramen' | 'rice', name: string) {
 
 const ramen = entry('ramen', '불꽃 라면')
 const rice = entry('rice', '든든 밥방패')
+const dumpling = entry('dumpling', '구름 만두')
 const reward: UserReward = {
   key: 'background:sunny-picnic',
   id: 'reward-1',
@@ -58,14 +59,36 @@ describe('V3 play features', () => {
 
     expect(onFuse).toHaveBeenCalledWith(
       expect.objectContaining({
-        leftCardId: ramen.card.id,
-        rightCardId: rice.card.id,
+        sourceCardIds: [ramen.card.id, rice.card.id],
         fusionCatalogId: 'ramen-rice-hero',
       }),
       expect.objectContaining({ rewardType: 'fusion-card', rewardId: 'ramen-rice-hero' }),
+      [],
     )
     expect(screen.getByText('라밥 용사')).toBeInTheDocument()
     expect(screen.getByText('원본 카드는 그대로 보관돼요.')).toBeInTheDocument()
+  })
+
+  it('consumes source cards for a 3-card fusion', async () => {
+    const user = userEvent.setup()
+    const onFuse = vi.fn()
+    render(<FusionLab entries={[ramen, rice, dumpling]} onFuse={onFuse} />)
+
+    await user.click(screen.getByRole('button', { name: '불꽃 라면 선택' }))
+    await user.click(screen.getByRole('button', { name: '든든 밥방패 선택' }))
+    await user.click(screen.getByRole('button', { name: '구름 만두 선택' }))
+    await user.click(screen.getByRole('button', { name: '퓨전 발견하기' }))
+
+    expect(onFuse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sourceCardIds: [ramen.card.id, rice.card.id, dumpling.card.id],
+        fusionCatalogId: 'korea-china-japan-trio',
+      }),
+      expect.objectContaining({ rewardType: 'fusion-card', rewardId: 'korea-china-japan-trio' }),
+      [ramen.card.id, rice.card.id, dumpling.card.id],
+    )
+    expect(screen.getByText('한중일 삼총사')).toBeInTheDocument()
+    expect(screen.getByText('원본 카드가 합쳐져 사라졌어요. 전설의 카드가 탄생했어요!')).toBeInTheDocument()
   })
 
   it('allows only owned cosmetics to be applied', async () => {

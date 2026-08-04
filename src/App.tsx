@@ -6,7 +6,10 @@ import type { FoodexRepository } from './data/foodexDb'
 import { createSupabaseRepository } from './data/supabaseRepository'
 import { createSyncRepository } from './data/syncRepository'
 import { createCard } from './domain/cardRules'
-import { buildProgression } from './domain/progression'
+import { buildMealAdventureResult, buildProgression } from './domain/progression'
+import { buildWorldProgress } from './domain/v6WorldProgression'
+import { buildGameLoop } from './domain/v61GameLoop'
+import { makeMealId } from './domain/ids'
 import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG as V3_FOOD_CATALOG, REGIONS } from './domain/v3Content'
 import { FOOD_CATALOG as NAMED_FOOD_CATALOG } from './domain/foodCatalog'
 import { buildCompanionContext } from './domain/companionContext'
@@ -16,17 +19,28 @@ import { deriveRoomUnlocks } from './domain/roomProgression'
 import type { FoodCard, MealRecord } from './domain/types'
 import type { UserReward } from './data/foodexDb'
 import type { ExperienceSettings } from './domain/companionTypes'
+import { getCompanionCharacter, type CompanionCharacterId } from './domain/companionCharacters'
+import { buildCompanionEvolution } from './domain/companionEvolution'
+import { buildCompanionClasses } from './domain/companionClasses'
+import type { CompanionClassId } from './domain/companionClasses'
+import { buildAdvancedGameSystems } from './domain/advancedGameSystems'
+import { buildIntegratedMealResult } from './domain/integratedMealResult'
+import type { IntegratedMealResult } from './domain/integratedMealResult'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
 import { AdventureScreen } from './features/adventure/AdventureScreen'
+import { rewardBoxKey } from './domain/coinWallet'
+import type { CoinTransaction } from './domain/coinWallet'
 import { CollectionScreen } from './features/collection/CollectionScreen'
 import { ProtectCollection } from './features/account/ProtectCollection'
 import { CompanionScreen } from './features/companion/CompanionScreen'
+import type { CompanionTab } from './features/companion/CompanionScreen'
 import { HomeScreen } from './features/home/HomeScreen'
 import { RecordFlow } from './features/record/RecordFlow'
 import type { MealDraft } from './features/record/RecordFlow'
 import { CardReveal } from './features/reveal/CardReveal'
 import type { V3DiscoveryResult } from './features/reveal/V3DiscoverySummary'
 import { SyncStatus } from './features/sync/SyncStatus'
+import { InstallAppButton } from './features/pwa/InstallAppButton'
 import type { SyncState } from './features/sync/SyncStatus'
 import { BottomNav } from './ui/BottomNav'
 import './styles.css'
@@ -45,10 +59,6 @@ const emptySummary = {
   todayCount: 0,
   discoveredCount: 0,
   totalXp: 0,
-}
-
-function makeMealId(now: number) {
-  return `meal-${now}-${Math.random().toString(36).slice(2, 8)}`
 }
 
 function isQuotaError(error: unknown) {
@@ -79,17 +89,39 @@ export function App({
 }) {
   const [repository, setRepository] = useState<FoodexRepository>(providedRepository)
   const [screen, setScreen] = useState<Screen>('home')
+  const [companionInitialTab, setCompanionInitialTab] = useState<CompanionTab>('journal')
   const [entries, setEntries] = useState<Array<{ card: FoodCard; meal: MealRecord }>>([])
   const [summary, setSummary] = useState(emptySummary)
   const [pending, setPending] = useState<PendingDiscovery>()
+  const [lastIntegratedResult, setLastIntegratedResult] = useState<IntegratedMealResult>()
+  const [showIntegratedResult, setShowIntegratedResult] = useState(false)
   const [saveError, setSaveError] = useState<SaveError>()
   const [readError, setReadError] = useState<ReadError>()
   const [failedDraft, setFailedDraft] = useState<MealDraft>()
   const [rewards, setRewards] = useState<UserReward[]>([])
+  const [coinBalance, setCoinBalance] = useState(0)
   const [experienceSettings, setExperienceSettings] = useState<ExperienceSettings>(() => ({
     ...DEFAULT_EXPERIENCE_SETTINGS,
     reducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
   }))
+  const [characterId, setCharacterId] = useState<CompanionCharacterId>(() => {
+    const saved = window.localStorage.getItem('foodex-companion-character')
+    return saved === 'berry' || saved === 'noodle' || saved === 'cocoa' || saved === 'daqong' ? saved : 'daqong'
+  })
+  const [characterName, setCharacterName] = useState<string>(() => {
+    const saved = window.localStorage.getItem('foodex-companion-name')
+    return saved && saved.trim() ? saved : '다쿵이'
+  })
+  const [classId, setClassId] = useState<CompanionClassId | undefined>(() => {
+    const saved = window.localStorage.getItem('foodex-companion-class')
+    return saved as CompanionClassId | undefined
+  })
+  const [roomBackgroundId, setRoomBackgroundId] = useState<string | undefined>(() =>
+    window.localStorage.getItem('foodex-room-background') ?? undefined)
+  const [roomAccessoryId, setRoomAccessoryId] = useState<string | undefined>(() =>
+    window.localStorage.getItem('foodex-room-accessory') ?? undefined)
+  const [openedRewardBoxDay, setOpenedRewardBoxDay] = useState<string | undefined>(() =>
+    window.localStorage.getItem('foodex-rewardbox-day') ?? undefined)
   const [discovery, setDiscovery] = useState<V3DiscoveryResult>()
   const [syncState, setSyncState] = useState<SyncState>(
     initialAuthResult?.mode === 'local' ? 'local-only' : 'idle',
@@ -100,10 +132,16 @@ export function App({
   const [saveMode, setSaveMode] = useState<SaveMode>('withPhoto')
   const latestRefresh = useRef(0)
   const supabaseClient = useRef<SupabaseClient | null>(null)
+  const companionDisplayName = characterId === 'daqong' ? (characterName || '다쿵이').trim() || '다쿵이' : getCompanionCharacter(characterId).name
   const progression = useMemo(
     () => buildProgression(entries, Date.now(), rewards.map((reward) => reward.rewardId)),
     [entries, rewards],
   )
+  const companionEvolution = useMemo(() => buildCompanionEvolution(characterId, entries.map(({ meal }) => ({ meal }))), [characterId, entries])
+  const companionClasses = useMemo(() => buildCompanionClasses(entries.map(({ meal }) => ({ meal })), classId), [entries, classId])
+  const advancedSystems = useMemo(() => buildAdvancedGameSystems(entries.map(({ meal, card }) => ({ meal, card })), classId, companionEvolution.stage), [entries, classId, companionEvolution.stage])
+  const worldProgress = useMemo(() => buildWorldProgress(entries.map(({ meal }) => ({ meal }))), [entries])
+  const gameLoop = useMemo(() => buildGameLoop(entries, Date.now()), [entries])
   const companion = useMemo(() => {
     const now = Date.now()
     const context = buildCompanionContext(entries, progression, now)
@@ -127,23 +165,36 @@ export function App({
       celebratory: 'celebrating',
       positive: 'expectant',
     } as const
+    const personalizeDialogue = (text: string) => {
+      const ownerName = companionDisplayName || getCompanionCharacter(characterId).name
+      return text.replace(/푸디/g, ownerName)
+    }
 
     return {
-      line: discovery ? `${discovery.regionTitle}에 새 친구가 나타났어요` : dialogue.text,
+      line: discovery ? `${discovery.regionTitle}에 새 친구가 나타났어요` : personalizeDialogue(dialogue.text),
       emotion: emotion[events.primary.tone],
     }
-  }, [discovery, entries, progression])
+  }, [characterId, companionDisplayName, discovery, entries, progression])
   const roomUnlocks = useMemo(() => deriveRoomUnlocks(progression), [progression])
+  const pendingAdventureResult = useMemo(() => pending
+    ? buildMealAdventureResult({
+      previousEntries: entries,
+      currentEntry: pending,
+      unlockedRewardIds: rewards.map((reward) => reward.rewardId),
+    })
+    : undefined,
+  [entries, pending, rewards])
 
   const refresh = useCallback(async () => {
     const refreshId = ++latestRefresh.current
 
     try {
-      const [nextEntries, nextSummary, nextRewards, nextExperienceSettings] = await Promise.all([
+      const [nextEntries, nextSummary, nextRewards, nextExperienceSettings, nextCoinBalance] = await Promise.all([
         repository.listCards(),
         repository.getSummary(Date.now()),
         repository.listRewards?.() ?? Promise.resolve(undefined),
         repository.getExperienceSettings?.() ?? Promise.resolve(undefined),
+        repository.getCoinBalance?.() ?? Promise.resolve(undefined),
       ])
       if (refreshId !== latestRefresh.current) return
 
@@ -151,6 +202,7 @@ export function App({
       setSummary(nextSummary)
       if (nextRewards) setRewards(nextRewards)
       if (nextExperienceSettings) setExperienceSettings(nextExperienceSettings)
+      if (nextCoinBalance !== undefined) setCoinBalance(nextCoinBalance)
       setReadError((error) => error === 'load' ? undefined : error)
     } catch {
       if (refreshId === latestRefresh.current) setReadError('load')
@@ -218,7 +270,7 @@ export function App({
   const completeRecord = async (draft: MealDraft) => {
     const now = Date.now()
     const meal: MealRecord = {
-      id: makeMealId(now),
+      id: makeMealId(),
       imageData: draft.imageData,
       foodType: draft.foodType,
       foodName: draft.foodName,
@@ -262,15 +314,23 @@ export function App({
         Date.now(),
         rewards.map((reward) => reward.rewardId),
       )
+      const integratedResult = buildIntegratedMealResult({
+        meal,
+        card: pending.card,
+        history: entries.map((entry) => entry.meal),
+        before: progression,
+        after: nextProgression,
+        classId,
+        existingRewardKeys: rewards.map((reward) => reward.key),
+      })
       const unlockedAt = Date.now()
-      const newRewards = nextProgression.v3.newRewards.map((reward) => ({
+      const newRewards = integratedResult.persistedRewards.map((reward) => ({
         ...reward,
-        key: `${reward.rewardType}:${reward.rewardId}`,
         id: crypto.randomUUID(),
         unlockedAt,
       }))
 
-      await repository.saveMealAndCard(meal, pending.card, newRewards)
+      await repository.saveMealAndCard(meal, pending.card, newRewards, integratedResult.coinTransaction)
       const region = REGIONS.find((candidate) => candidate.id === pending.card.regionId)
       const completedSetTitles = nextProgression.v3.completedSetIds
         .filter((id) => !progression.v3.completedSetIds.includes(id))
@@ -294,7 +354,8 @@ export function App({
         ...current,
         ...newRewards.filter((reward) => !current.some((item) => item.key === reward.key)),
       ])
-      setPending(undefined)
+      setLastIntegratedResult(integratedResult)
+      setShowIntegratedResult(true)
       await refresh()
       setScreen('home')
     } catch (error) {
@@ -306,10 +367,39 @@ export function App({
 
   const navigate = (tab: Exclude<Screen, 'reveal'>) => {
     setSaveError(undefined)
+    if (showIntegratedResult) {
+      setPending(undefined)
+      setShowIntegratedResult(false)
+    }
     setScreen(tab)
   }
 
   const activeTab = screen === 'reveal' ? 'record' : screen
+  const applyRoomCosmetic = (selection: { type: 'background' | 'accessory'; id?: string }) => {
+    if (selection.type === 'background') {
+      setRoomBackgroundId(selection.id)
+      if (selection.id) window.localStorage.setItem('foodex-room-background', selection.id)
+      else window.localStorage.removeItem('foodex-room-background')
+    } else {
+      setRoomAccessoryId(selection.id)
+      if (selection.id) window.localStorage.setItem('foodex-room-accessory', selection.id)
+      else window.localStorage.removeItem('foodex-room-accessory')
+    }
+  }
+  const openRewardBox = async () => {
+    if (openedRewardBoxDay === progression.rewardBox.dayKey) return
+    const transaction: CoinTransaction = {
+      id: crypto.randomUUID(),
+      key: rewardBoxKey(progression.rewardBox.dayKey),
+      kind: 'box-earned',
+      amount: progression.rewardBox.coinAmount,
+      createdAt: Date.now(),
+    }
+    await repository.grantCoins?.(transaction)
+    setCoinBalance((balance) => balance + progression.rewardBox.coinAmount)
+    setOpenedRewardBoxDay(progression.rewardBox.dayKey)
+    window.localStorage.setItem('foodex-rewardbox-day', progression.rewardBox.dayKey)
+  }
   const historyRecovery = screen === 'record' && readError === 'history' && failedDraft ? (
     <RecoveryAlert>
       <p>카드를 만들 준비를 하지 못했어요. 다시 시도해 주세요.</p>
@@ -333,17 +423,30 @@ export function App({
       {screen === 'home' && (
         <HomeScreen
           summary={summary}
+          coinBalance={coinBalance}
           level={progression.level}
           streak={progression.streak}
           dailyQuests={progression.dailyQuests}
+          adventureBoard={progression.adventureBoard}
+          mealGameLoop={progression.mealGameLoop}
+          mealAdventure={progression.mealAdventure}
+          characterId={characterId}
+          characterName={companionDisplayName}
+          evolution={companionEvolution}
+          companionClass={companionClasses.find((item) => item.recommended)}
+          advancedSystems={advancedSystems}
           companionLine={companion.line}
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}
           reducedMotion={experienceSettings.reducedMotion}
+          roomBackgroundId={roomBackgroundId}
+          roomAccessoryId={roomAccessoryId}
+          nextGoal={lastIntegratedResult?.nextGoal.label}
           onRecord={() => navigate('record')}
           onOpenCollection={() => navigate('collection')}
           onOpenAdventure={() => navigate('adventure')}
-          onOpenCompanion={() => navigate('companion')}
+          onOpenCompanion={() => { setCompanionInitialTab('journal'); navigate('companion') }}
+          onOpenShop={() => { setCompanionInitialTab('room'); navigate('companion') }}
         />
       )}
       {screen === 'record' && <RecordFlow onComplete={completeRecord} onCancel={() => navigate('home')} recovery={historyRecovery} recentMeals={entries.map(({ meal }) => meal)} />}
@@ -351,10 +454,15 @@ export function App({
         <CollectionScreen
           entries={entries}
           progression={progression}
+          recentCardId={lastIntegratedResult?.cardId}
           rewards={rewards}
-          onFuse={(fusion, reward) => {
+          onFuse={(fusion, reward, consumedCardIds) => {
             void repository.saveFusion?.(fusion)
             void repository.saveRewards?.([reward])
+            if (consumedCardIds.length > 0) {
+              void repository.deleteCards?.(consumedCardIds)
+              setEntries((current) => current.filter(({ card }) => !consumedCardIds.includes(card.id)))
+            }
             setRewards((current) => current.some((item) => item.key === reward.key)
               ? current
               : [...current, reward])
@@ -371,7 +479,18 @@ export function App({
           }}
         />
       )}
-      {screen === 'adventure' && <AdventureScreen progression={progression} />}
+      {screen === 'adventure' && (
+        <AdventureScreen
+          progression={progression}
+          worldProgress={worldProgress}
+          gameLoop={gameLoop}
+          advancedSystems={advancedSystems}
+          recentQuestIds={lastIntegratedResult?.completedQuestIds}
+          recentAchievementIds={lastIntegratedResult?.unlockedAchievementIds}
+          rewardBoxOpened={openedRewardBoxDay === progression.rewardBox.dayKey}
+          onOpenRewardBox={() => void openRewardBox()}
+        />
+      )}
       {screen === 'companion' && (
         <CompanionScreen
           entries={entries}
@@ -383,6 +502,24 @@ export function App({
             setExperienceSettings(value)
             void repository.saveExperienceSettings?.(value)
           }}
+          characterId={characterId}
+          characterName={companionDisplayName}
+          onCharacterChange={(id) => { setCharacterId(id); window.localStorage.setItem('foodex-companion-character', id); if (id !== 'daqong') { setCharacterName('다쿵이'); window.localStorage.setItem('foodex-companion-name', '다쿵이') } }}
+          onCharacterNameChange={(name) => { setCharacterName(name); window.localStorage.setItem('foodex-companion-name', name) }}
+          evolution={companionEvolution}
+          companionClasses={companionClasses}
+          onClassChange={(id) => { setClassId(id); window.localStorage.setItem('foodex-companion-class', id) }}
+          coinBalance={coinBalance}
+          shopOnline={Boolean(repository.purchaseShopProduct && navigator.onLine)}
+          onPurchaseProduct={async (product) => {
+            if (!repository.purchaseShopProduct) throw new Error('shop-offline')
+            await repository.purchaseShopProduct(product)
+            await refresh()
+          }}
+          initialTab={companionInitialTab}
+          roomBackgroundId={roomBackgroundId}
+          roomAccessoryId={roomAccessoryId}
+          onApplyRoomCosmetic={applyRoomCosmetic}
         />
       )}
       {screen === 'home' && canProtectCollection && (
@@ -411,22 +548,37 @@ export function App({
             .catch(() => setSyncState('failed'))
         } : undefined}
       />
+      <InstallAppButton />
       {readError === 'load' && (
         <RecoveryAlert className="app-read-error">
           <p>불러오지 못했어요. 다시 시도해 주세요.</p>
           <button type="button" onClick={() => void refresh()}>다시 불러오기</button>
         </RecoveryAlert>
       )}
-      {screen === 'reveal' && pending && (
+      {pending && (screen === 'reveal' || showIntegratedResult) && (
         <CardReveal
           card={pending.card}
           foodType={pending.meal.foodType}
           imageData={pending.meal.imageData}
           isSaving={isSaving}
           recovery={saveRecovery}
+          adventureResult={pendingAdventureResult}
+          integratedResult={lastIntegratedResult}
           experienceSettings={experienceSettings}
-          onSave={() => void savePending('withPhoto')}
-          onDiscard={() => { setPending(undefined); navigate('record') }}
+          onSave={() => {
+            if (lastIntegratedResult) {
+              setPending(undefined)
+              setShowIntegratedResult(false)
+              navigate('home')
+            } else {
+              void savePending('withPhoto')
+            }
+          }}
+          onDiscard={() => {
+            setPending(undefined)
+            setShowIntegratedResult(false)
+            navigate('record')
+          }}
         />
       )}
       {screen !== 'reveal' && <BottomNav active={activeTab} onNavigate={navigate} />}

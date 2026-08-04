@@ -1,9 +1,13 @@
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { CompanionRoom } from './CompanionRoom'
 
 describe('CompanionRoom', () => {
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+  })
   it('renders the emotion, line, and stable decoration layers', async () => {
     const onOpenCompanion = vi.fn()
     render(
@@ -35,5 +39,137 @@ describe('CompanionRoom', () => {
     )
 
     expect(screen.getByLabelText('차분한 푸디').closest('.companion-room')).toHaveClass('reduced-motion')
+  })
+
+  it('lets the character and room objects react to taps', async () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="오늘도 같이 놀자!"
+        decorationIds={['small-plant']}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    await userEvent.click(screen.getAllByRole('button', { name: /푸디/ }).at(-1)!)
+    expect(screen.getByText(/통통/)).toBeInTheDocument()
+    await userEvent.click(screen.getAllByRole('button', { name: /창문/ }).at(-1)!)
+    expect(screen.getByText(/바람/)).toBeInTheDocument()
+    await userEvent.click(screen.getAllByTestId('decoration-small-plant').at(-1)!)
+    expect(screen.getByText(/화분/)).toBeInTheDocument()
+  })
+
+  it('opens the dungeon popup when the window is tapped and the board popup when the shelf is tapped', async () => {
+    const onOpenDungeon = vi.fn()
+    const onOpenBoard = vi.fn()
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="오늘도 같이 놀자!"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+        onOpenDungeon={onOpenDungeon}
+        onOpenBoard={onOpenBoard}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: '창문' }))
+    expect(onOpenDungeon).toHaveBeenCalledOnce()
+    expect(onOpenBoard).not.toHaveBeenCalled()
+
+    await userEvent.click(screen.getByRole('button', { name: '카드 선반' }))
+    expect(onOpenBoard).toHaveBeenCalledOnce()
+  })
+
+  it('shows a tactile sparkle when the character is clicked', async () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="click me"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    await userEvent.click(screen.getAllByRole('button', { name: /푸디/ }).at(-1)!)
+    expect(screen.getAllByTestId('companion-click-sparkle').at(-1)).toBeInTheDocument()
+  })
+
+  it('varies the character motion on consecutive clicks', async () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="click me"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    const character = () => screen.getAllByRole('button', { name: /푸디/ }).at(-1)!
+    await userEvent.click(character())
+    const firstMotion = character().className
+    await userEvent.click(character())
+    expect(character().className).not.toBe(firstMotion)
+  })
+
+  it('applies purchased room background and accessory as visual classes', () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="새 방이야!"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+        backgroundId="shop-moonroom"
+        accessoryId="shop-leaf-crown"
+        timeOfDay="night"
+        celebrating
+      />,
+    )
+
+    const room = screen.getByLabelText('푸디의 방')
+    expect(room).toHaveClass('room-bg-shop-moonroom')
+    expect(room).toHaveClass('time-night')
+    expect(room).toHaveClass('celebrating')
+    expect(room.querySelector('.companion-accessory.accessory-shop-leaf-crown')).toBeInTheDocument()
+  })
+
+  it('renders no background, accessory, or celebration classes by default', () => {
+    render(
+      <CompanionRoom
+        emotion="happy"
+        line="기본 방이야"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    const room = screen.getByLabelText('푸디의 방')
+    expect(room.className).not.toMatch(/room-bg-/)
+    expect(room).not.toHaveClass('celebrating')
+    expect(room.querySelector('.companion-accessory')).not.toBeInTheDocument()
+  })
+
+  it('clears pending click reactions when the room unmounts', async () => {
+    const clearTimeout = vi.spyOn(window, 'clearTimeout')
+    const view = render(
+      <CompanionRoom
+        emotion="happy"
+        line="click me"
+        decorationIds={[]}
+        reducedMotion={false}
+        onOpenCompanion={() => undefined}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: '기뻐하는 푸디' }))
+    view.unmount()
+
+    expect(clearTimeout).toHaveBeenCalledTimes(2)
   })
 })

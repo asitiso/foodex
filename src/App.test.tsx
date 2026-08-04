@@ -15,12 +15,16 @@ class SuccessfulFileReader {
   }
 }
 
-function createMemoryRepository(options: { failSave?: (meal: MealRecord) => Error | undefined } = {}): FoodexRepository {
+function createMemoryRepository(options: {
+  failSave?: (meal: MealRecord) => Error | undefined
+  saveGate?: Promise<void>
+} = {}): FoodexRepository {
   const meals: MealRecord[] = []
   const cards: FoodCard[] = []
 
   return {
     async saveMealAndCard(meal, card) {
+      await options.saveGate
       const failure = options.failSave?.(meal)
       if (failure) throw failure
       meals.push(meal)
@@ -95,12 +99,13 @@ describe('App', () => {
     expect(screen.getByText('연속 기록')).toBeInTheDocument()
     expect(screen.getByText('1일')).toBeInTheDocument()
     expect(screen.getByText('오늘의 도전')).toBeInTheDocument()
-    expect(screen.getByText('상큼 카드')).toBeInTheDocument()
     expect(screen.queryByText('여름 한입 시즌')).not.toBeInTheDocument()
     expect(screen.queryByText('오늘의 상자')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '도감' }))
     expect((await screen.findAllByText(/라면/)).length).toBeGreaterThan(0)
     expect(await screen.findByText('도감 완성률 9%')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '모험' }))
+    await user.click(screen.getByRole('tab', { name: '업적' }))
     expect(screen.getByText('첫 식사')).toBeInTheDocument()
     expect(screen.getByText('면 스타터')).toBeInTheDocument()
   })
@@ -108,7 +113,22 @@ describe('App', () => {
   it('uses the specified home call to action copy', () => {
     render(<App repository={createMemoryRepository()} />)
 
-    expect(screen.getByRole('button', { name: '식사 카드 획득하기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
+  })
+
+  it('shows the unified reward result only after the meal is safely persisted', async () => {
+    const user = userEvent.setup()
+    const saveGate = deferred<void>()
+    render(<App repository={createMemoryRepository({ saveGate: saveGate.promise })} />)
+
+    await completeRecordFlow(user)
+    await user.click(screen.getByRole('button', { name: '도감에 저장' }))
+    expect(screen.queryByRole('region', { name: '통합 보상' })).not.toBeInTheDocument()
+
+    saveGate.resolve()
+
+    expect(await screen.findByRole('region', { name: '통합 보상' })).toBeInTheDocument()
+    expect(screen.getByText('다음 목표')).toBeInTheDocument()
   })
 
   it('shows an empty collection without blaming the user', async () => {

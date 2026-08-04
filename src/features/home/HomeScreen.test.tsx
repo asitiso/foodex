@@ -1,15 +1,49 @@
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { HomeScreen } from './HomeScreen'
 
 const props = {
   summary: { todayCount: 1, discoveredCount: 1, totalXp: 20 },
+  coinBalance: 13,
   level: { level: 1, currentLevelXp: 20, nextLevelXp: 30, totalXp: 20 },
   streak: { currentDays: 1, recordedToday: true },
   dailyQuests: [
     { id: 'today-card', title: '식사 카드 1장', description: '한 장 기록해요.', completed: true },
     { id: 'new-food', title: '새 음식 발견', description: '새 음식을 찾아요.', completed: false },
   ],
+  adventureBoard: {
+    title: '오늘의 모험 보드',
+    nextFocus: '라면 1번 더 기록하면 불꽃 라면 Lv.2',
+    items: [
+      { id: 'today-card', title: '식사 카드 1장', reward: '보상: 20 XP', completed: false },
+      { id: 'new-discovery', title: '새 음식 발견', reward: '보상: 박물관 전시 +1', completed: false },
+      { id: 'evolution', title: '라면 진화 준비', reward: '진화까지 1끼', completed: false },
+    ],
+  },
+  mealGameLoop: {
+    todayMeals: 1,
+    gaugeSteps: [true, false, false] as [boolean, boolean, boolean],
+    nextMealTarget: 2 as 1 | 2 | 3,
+    nextMealRemaining: 1,
+    comboLabel: '첫 끼 출발 콤보',
+    comboReward: 5,
+    weeklyMeals: 1,
+    weeklyTarget: 5 as 5 | 10 | 15,
+    recoveryAvailable: false,
+    totalMeals: 1,
+    growth: { current: 0, next: 3, remaining: 2 },
+  },
+  mealAdventure: {
+    choice: { title: '오늘 식사 루트를 골라보세요', options: ['집밥 마을', '빠른 한 끼', '새로운 음식'] },
+    route: { id: 'lunch', label: '에너지 충전 루트', stage: 1, completed: false },
+    mood: 'energized' as const,
+    recipes: [],
+    roomReward: { title: '방 꾸미기 장식', remaining: 2 },
+    chapter: { title: '푸디의 첫 식탁', line: '1장 진행 중' },
+    rewardChoices: ['XP 보너스', '방 장식', '내일 보호권'],
+    monthly: { breakfast: 1, lunch: 1, dinner: 0, completeDays: 1 },
+  },
   companionLine: '새 친구를 환영해!',
   companionEmotion: 'happy' as const,
   decorationIds: [],
@@ -18,6 +52,7 @@ const props = {
   onOpenCollection: () => undefined,
   onOpenAdventure: () => undefined,
   onOpenCompanion: () => undefined,
+  onOpenShop: () => undefined,
 }
 
 describe('HomeScreen', () => {
@@ -35,8 +70,85 @@ describe('HomeScreen', () => {
     expect(screen.queryByText('최근 발견')).not.toBeInTheDocument()
   })
 
+  it('keeps the details tucked away until a room object is tapped', () => {
+    render(<HomeScreen {...props} />)
+
+    expect(screen.queryByRole('region', { name: '오늘의 식사 게이지' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: '오늘의 모험 보드' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: '식사 모험' })).not.toBeInTheDocument()
+  })
+
   it('keeps the main recording action visible', () => {
     render(<HomeScreen {...props} />)
-    expect(screen.getByRole('button', { name: '식사 카드 획득하기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
+  })
+
+  it('shows the compact coin wallet beside the level', () => {
+    render(<HomeScreen {...props} />)
+    expect(screen.getByLabelText('보유 코인 13개 · 방 꾸미기 상점 열기')).toBeInTheDocument()
+  })
+
+  it('opens the cosmetic shop when the coin pill is tapped', async () => {
+    const user = userEvent.setup()
+    const onOpenShop = vi.fn()
+    render(<HomeScreen {...props} onOpenShop={onOpenShop} />)
+
+    await user.click(screen.getByLabelText('보유 코인 13개 · 방 꾸미기 상점 열기'))
+    expect(onOpenShop).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows the level popup with progress toward the next level when the level pill is tapped', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen {...props} />)
+
+    await user.click(screen.getByLabelText('레벨 1 · 다음 레벨까지 필요한 경험치 보기'))
+    const popup = screen.getByRole('region', { name: '레벨 정보' })
+    expect(popup).toHaveTextContent('LV.1')
+    expect(popup).toHaveTextContent('20/30 XP')
+    expect(popup).toHaveTextContent('다음 레벨까지 10 XP 남았어요')
+  })
+
+  it('shows the unified next goal in the existing hero mission', () => {
+    render(<HomeScreen {...props} nextGoal="저녁 방을 열어보세요" />)
+    expect(screen.getByRole('region', { name: '오늘의 다음 행동' })).toHaveTextContent('저녁 방을 열어보세요')
+  })
+
+  it('uses the selected companion name in the room title', () => {
+    render(<HomeScreen {...props} characterName="다쿵이" />)
+    expect(screen.getByRole('heading', { name: '다쿵이의 맛있는 방' })).toBeInTheDocument()
+  })
+
+  it('opens the meal adventure popup when the room title is tapped, using the companion name in the chapter title', async () => {
+    render(<HomeScreen {...props} characterName="다쿵이" />)
+
+    await userEvent.click(screen.getByRole('heading', { name: '다쿵이의 맛있는 방' }))
+    expect(screen.getByRole('region', { name: '식사 모험' })).toHaveTextContent('다쿵이의 첫 식탁')
+
+    await userEvent.click(screen.getByRole('button', { name: '식사 모험 닫기' }))
+    expect(screen.queryByRole('region', { name: '식사 모험' })).not.toBeInTheDocument()
+  })
+
+  it('opens the meal gauge popup when the window is tapped', async () => {
+    render(<HomeScreen {...props} />)
+
+    await userEvent.click(screen.getByRole('button', { name: '창문' }))
+
+    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('1끼')
+    expect(screen.getByText('다음 성장까지 2끼')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('첫 끼 출발 콤보')
+  })
+
+  it('opens the adventure board popup with rewards and the next evolution focus when the shelf is tapped', async () => {
+    render(<HomeScreen {...props} />)
+
+    await userEvent.click(screen.getByRole('button', { name: '카드 선반' }))
+
+    expect(screen.getByRole('region', { name: '오늘의 모험 보드' })).toHaveTextContent('식사 카드 1장')
+    expect(screen.getByText('보상: 20 XP')).toBeInTheDocument()
+    expect(screen.getByText('새 음식 발견')).toBeInTheDocument()
+    expect(screen.getByText('보상: 박물관 전시 +1')).toBeInTheDocument()
+    expect(screen.getByText('라면 진화 준비')).toBeInTheDocument()
+    expect(screen.getByText('진화까지 1끼')).toBeInTheDocument()
+    expect(screen.getByText('라면 1번 더 기록하면 불꽃 라면 Lv.2')).toBeInTheDocument()
   })
 })

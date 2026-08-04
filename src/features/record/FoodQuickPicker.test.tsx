@@ -11,6 +11,7 @@ const kimchiRice: FoodDefinition = {
   foodType: 'rice',
   flavor: 'spicy',
   periods: ['lunch', 'dinner'],
+  tags: ['meal'],
 }
 
 describe('FoodQuickPicker', () => {
@@ -33,5 +34,15 @@ describe('FoodQuickPicker', () => {
     await userEvent.click(screen.getByRole('button', { name: '돈가스' }))
 
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ name: '돈가스' }))
+  })
+
+  it('lets the user save a custom food when it is not in the catalog', async () => {
+    const onSelect = vi.fn()
+    render(<FoodQuickPicker suggestions={[]} onSelect={onSelect} />)
+
+    await userEvent.type(screen.getByRole('searchbox', { name: '직접 입력' }), '치즈 김치찜')
+    await userEvent.click(screen.getByRole('button', { name: '직접 등록' }))
+
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ name: '치즈 김치찜', foodType: 'other' }))
   })
 })

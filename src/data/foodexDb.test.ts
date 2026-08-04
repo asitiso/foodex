@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { createFoodexRepository, deleteFoodexDatabase } from './foodexDb'
 import type { FoodCard, MealRecord } from '../domain/types'
 import type { ExperienceSettings } from '../domain/companionTypes'
+import type { CoinTransaction } from '../domain/coinWallet'
+import { SHOP_PRODUCTS } from '../domain/shopCatalog'
 
 const databaseName = 'foodex-test'
 
@@ -87,8 +89,7 @@ describe('Foodex repository', () => {
     }])
     await repo.saveFusion({
       id: 'fusion-1',
-      leftCardId: 'card-1',
-      rightCardId: 'card-2',
+      sourceCardIds: ['card-1', 'card-2'],
       fusionCatalogId: 'ramen-rice-hero',
       createdAt: 1,
     })
@@ -97,6 +98,25 @@ describe('Foodex repository', () => {
     expect(await repo.listRewards()).toHaveLength(1)
     expect(await repo.listFusions()).toHaveLength(1)
     expect(await repo.getSetting('migration_complete')).toBe('true')
+  })
+
+  it('saves a retried meal bundle without duplicating its reward', async () => {
+    const repo = createFoodexRepository(databaseName)
+    const reward = {
+      key: 'background:sunny-picnic',
+      id: 'reward-1',
+      rewardType: 'background' as const,
+      rewardId: 'sunny-picnic',
+      sourceType: 'set' as const,
+      sourceId: 'sunny-bites',
+      unlockedAt: 1,
+    }
+
+    await repo.saveMealAndCard(mealAt(1), cardAt(1), [reward])
+    await repo.saveMealAndCard(mealAt(1), cardAt(1), [reward])
+
+    expect(await repo.listCards()).toHaveLength(1)
+    expect((await repo.listRewards()).filter((item) => item.key === reward.key)).toHaveLength(1)
   })
 
   it('stores dialogue history and experience settings in the V4 database', async () => {
@@ -131,5 +151,57 @@ describe('Foodex repository', () => {
       hapticsEnabled: true,
       reducedMotion: false,
     })
+  })
+
+  it('stores a meal coin transaction atomically and deduplicates its stable key', async () => {
+    const repo = createFoodexRepository(databaseName)
+    const coinTransaction: CoinTransaction = {
+      id: 'coin-1',
+      key: 'meal:meal-1:coins',
+      kind: 'meal-earned',
+      amount: 5,
+      mealId: 'meal-1',
+      createdAt: 1,
+    }
+
+    await repo.saveMealAndCard(mealAt(1), cardAt(1), [], coinTransaction)
+    await repo.saveMealAndCard(mealAt(1), cardAt(1), [], coinTransaction)
+
+    expect(await repo.listCoinTransactions()).toEqual([coinTransaction])
+    expect(await repo.getCoinBalance()).toBe(5)
+  })
+
+  it('purchases a product with one atomic debit and owned reward', async () => {
+    const repo = createFoodexRepository(databaseName)
+    const product = SHOP_PRODUCTS[0]
+    await repo.saveMealAndCard(mealAt(1), cardAt(1), [], {
+      id: 'coin-1',
+      key: 'meal:meal-1:coins',
+      kind: 'meal-earned',
+      amount: product.price,
+      mealId: 'meal-1',
+      createdAt: 1,
+    })
+
+    const reward = await repo.purchaseProduct(product, 'purchase-1', 2)
+
+    expect(reward).toEqual(expect.objectContaining({
+      key: `background:${product.id}`,
+      rewardId: product.id,
+      sourceType: 'shop',
+    }))
+    expect(await repo.getCoinBalance()).toBe(0)
+    expect(await repo.listRewards()).toContainEqual(reward)
+    await expect(repo.purchaseProduct(product, 'purchase-2', 3)).rejects.toThrow('already-owned')
+  })
+
+  it('does not create a reward or debit when the wallet is short', async () => {
+    const repo = createFoodexRepository(databaseName)
+    const product = SHOP_PRODUCTS[0]
+
+    await expect(repo.purchaseProduct(product, 'purchase-1', 1)).rejects.toThrow('insufficient-coins')
+    expect(await repo.getCoinBalance()).toBe(0)
+    expect(await repo.listRewards()).toEqual([])
+    expect(await repo.listCoinTransactions()).toEqual([])
   })
 })

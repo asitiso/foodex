@@ -1,5 +1,9 @@
 export type FoodType = 'ramen' | 'rice' | 'fruit' | 'bread' | 'side' | 'snack' | 'drink' | 'dumpling' | 'sushi' | 'pasta' | 'other'
 export type FoodCategory = 'meal' | 'produce' | 'bakery' | 'treat' | 'drink' | 'other'
+export type FoodTag =
+  | 'meal' | 'fruit' | 'bakery' | 'snack' | 'candy' | 'chocolate'
+  | 'drink' | 'coffee' | 'tea' | 'soda' | 'juice' | 'dairy' | 'convenience'
+  | 'dessert' | 'noodle' | 'spicy' | 'healthy' | 'other'
 export type MealAmount = 'taste' | 'half' | 'almostAll'
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary'
 export type RegionId = 'korea' | 'china' | 'japan' | 'west' | 'snack-island'
@@ -36,6 +40,9 @@ export interface FoodCard {
   skinId?: string
   backgroundId?: string
   createdAt: number
+  stats?: { power: number; luck: number; warmth: number }
+  isShiny?: boolean
+  secretTags?: string[]
 }
 
 interface CardCopy {
@@ -103,6 +110,20 @@ export const FOOD_META: Record<FoodType, {
     category: 'other',
     variants: [{ name: '새로운 발견대', quote: '새로운 한입을 기록했어.' }],
   },
+}
+
+export const FOOD_EMOJI: Record<FoodType, string> = {
+  ramen: '🍜',
+  rice: '🍚',
+  fruit: '🍎',
+  bread: '🥐',
+  side: '🥗',
+  snack: '🍪',
+  drink: '🧃',
+  dumpling: '🥟',
+  sushi: '🍣',
+  pasta: '🍝',
+  other: '✨',
 }
 
 export const AMOUNT_META: Record<MealAmount, { label: string; xp: number }> = {

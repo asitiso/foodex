@@ -25,6 +25,7 @@ export interface V3Progress {
   activeEvent?: {
     id: string
     title: string
+    description: string
     completed: number
     total: number
     endsAt: string
@@ -50,11 +51,13 @@ export function seasonForDate(now: number): SeasonId {
   return 'winter'
 }
 
-export function resolveFusion(left: FoodCard, right: FoodCard) {
-  if (left.id === right.id) return undefined
-  const pair = [left.catalogId, right.catalogId].sort().join(':')
+export function resolveFusion(cards: readonly FoodCard[]) {
+  if (cards.length < 2) return undefined
+  const uniqueIds = new Set(cards.map((card) => card.id))
+  if (uniqueIds.size !== cards.length) return undefined
+  const catalogIds = cards.map((card) => card.catalogId).sort().join(':')
   return FUSION_RECIPES.find((recipe) =>
-    [recipe.leftCatalogId, recipe.rightCatalogId].sort().join(':') === pair,
+    [...recipe.requiredCatalogIds].sort().join(':') === catalogIds,
   )
 }
 
@@ -128,6 +131,9 @@ export function buildV3Progress(
       activeEvent: {
         id: activeEventDefinition.id,
         title: activeEventDefinition.title,
+        description: `${activeEventDefinition.requiredCatalogIds
+          .map((id) => FOOD_CATALOG.find((food) => food.id === id)?.label ?? id)
+          .join(', ')} 카드를 모두 모으면 보상을 받아요.`,
         completed: activeEventDefinition.requiredCatalogIds.filter((id) => discovered.has(id)).length,
         total: activeEventDefinition.requiredCatalogIds.length,
         endsAt: activeEventDefinition.endsAt,

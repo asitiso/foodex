@@ -24,9 +24,9 @@ const LEVEL_UNLOCKS: readonly (RoomUnlock & { level: number })[] = [
 ]
 
 const SET_UNLOCKS: readonly (RoomUnlock & { setIds: readonly string[] })[] = [
-  { id: 'korean-lamp', title: '전통 조명', source: 'collection', setIds: ['korean-table', 'korean-feast'] },
-  { id: 'fruit-cushion', title: '과일 쿠션', source: 'collection', setIds: ['fruit-set', 'sunny-bites'] },
-  { id: 'noodle-pot', title: '냄비 장식', source: 'collection', setIds: ['noodle-set', 'street-team'] },
+  { id: 'korean-lamp', title: '전통 조명', source: 'collection', setIds: ['korea-full-course'] },
+  { id: 'fruit-cushion', title: '과일 쿠션', source: 'collection', setIds: ['sunny-bites'] },
+  { id: 'noodle-pot', title: '냄비 장식', source: 'collection', setIds: ['street-team'] },
 ]
 
 export function deriveRoomUnlocks(progression: Progression): RoomUnlock[] {

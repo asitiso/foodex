@@ -40,7 +40,7 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
       rewards: UserReward[],
       photoPath: string | null,
     ) {
-      const mealResult = await client.from('meal_records').upsert({
+      const mealPayload = {
         id: meal.id,
         user_id: userId,
         food_type: meal.foodType,
@@ -49,8 +49,23 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
         recorded_at: new Date(meal.recordedAt).toISOString(),
         photo_path: photoPath,
         client_created_at: new Date(meal.recordedAt).toISOString(),
-      }, { onConflict: 'id' })
-      throwIfError(mealResult)
+      }
+      const mealResult = await client.from('meal_records').upsert(mealPayload, { onConflict: 'id' })
+      const missingFoodName = mealResult.error
+        && typeof mealResult.error === 'object'
+        && mealResult.error !== null
+        && 'code' in mealResult.error
+        && mealResult.error.code === 'PGRST204'
+        && 'message' in mealResult.error
+        && typeof mealResult.error.message === 'string'
+        && mealResult.error.message.includes('food_name')
+      if (missingFoodName) {
+        const { food_name: _foodName, ...legacyMealPayload } = mealPayload
+        const legacyResult = await client.from('meal_records').upsert(legacyMealPayload, { onConflict: 'id' })
+        throwIfError(legacyResult)
+      } else {
+        throwIfError(mealResult)
+      }
 
       const cardResult = await client.from('food_cards').upsert({
         id: card.id,
@@ -67,6 +82,9 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
         skin_id: card.skinId ?? null,
         background_id: card.backgroundId ?? null,
         created_at: new Date(card.createdAt).toISOString(),
+        stats: card.stats ?? null,
+        is_shiny: card.isShiny ?? false,
+        secret_tags: card.secretTags ?? [],
       }, { onConflict: 'user_id,meal_id' })
       throwIfError(cardResult)
 
@@ -101,6 +119,46 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
         used_at: new Date(item.usedAt).toISOString(),
       }, { onConflict: 'user_id,id' })
       throwIfError(result)
+    },
+
+    async claimMealCoins(mealId: string, transactionKey: string) {
+      const result = await client.rpc('claim_meal_coins', {
+        p_meal_id: mealId,
+        p_transaction_key: transactionKey,
+      })
+      throwIfError(result)
+      const row = result.data?.[0]
+      if (!row) throw new Error('coin-claim-empty')
+      return {
+        balance: row.balance as number,
+        awarded: row.awarded as number,
+        transactionKey: row.transaction_key as string,
+      }
+    },
+
+    async purchaseShopProduct(productId: string, transactionKey: string) {
+      const result = await client.rpc('purchase_shop_product', {
+        p_product_id: productId,
+        p_transaction_key: transactionKey,
+      })
+      throwIfError(result)
+      const row = result.data?.[0]
+      if (!row) throw new Error('shop-purchase-empty')
+      const purchasedAt = Date.now()
+      const reward: UserReward = {
+        key: `${row.reward_type}:${row.product_id}`,
+        id: row.reward_id,
+        rewardType: row.reward_type,
+        rewardId: row.product_id,
+        sourceType: 'shop',
+        sourceId: row.product_id,
+        unlockedAt: purchasedAt,
+      }
+      return {
+        balance: row.balance as number,
+        transactionKey: row.transaction_key as string,
+        reward,
+      }
     },
   }
 }

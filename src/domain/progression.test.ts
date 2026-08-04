@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildProgression } from './progression'
+import { buildMealAdventureResult, buildProgression } from './progression'
 import type { FoodCard, MealRecord } from './types'
 import { catalogForFoodType } from './v3Content'
 
@@ -77,7 +77,7 @@ describe('progression', () => {
     expect(progression.dailyQuests.map((quest) => [quest.id, quest.completed])).toEqual([
       ['today-card', true],
       ['new-discovery', true],
-      ['fruit-or-drink', true],
+      ['meal-anchor', false],
     ])
   })
 
@@ -106,15 +106,39 @@ describe('progression', () => {
     expect(progression.season).toEqual({
       id: 'summer-bite',
       title: '여름 한입 시즌',
+      description: '여름 한정 이벤트예요. 아래 4가지를 모두 채우면 특별한 보상을 받아요.',
       completedSteps: 3,
       totalSteps: 4,
       rewardTitle: '전설의 여름 식탁',
       completed: false,
+      steps: [
+        { label: '과일 카드 발견하기', completed: true },
+        { label: '음료 카드 발견하기', completed: true },
+        { label: '밥이나 라면 2번 기록하기', completed: true },
+        { label: '5일 연속 기록하기', completed: false },
+      ],
     })
+    expect(progression.seasonMissions.length).toBeGreaterThanOrEqual(2)
+    expect(progression.seasonMissions.length).toBeLessThanOrEqual(3)
+    for (const mission of progression.seasonMissions) {
+      expect(mission).toEqual(expect.objectContaining({
+        id: expect.any(String),
+        title: expect.any(String),
+        description: expect.any(String),
+        completedSteps: expect.any(Number),
+        totalSteps: expect.any(Number),
+        rewardTitle: expect.any(String),
+        completed: expect.any(Boolean),
+        steps: expect.any(Array),
+      }))
+    }
+    expect(progression.seasonMissions[0]).toEqual(progression.season)
     expect(progression.rewardBox).toEqual({
       available: true,
       title: '오늘의 상자',
-      rewardPreview: 'XP 보너스 또는 시즌 조각',
+      rewardPreview: expect.stringMatching(/^보너스 코인 \d+개$/),
+      dayKey: '2026-07-30',
+      coinAmount: expect.any(Number),
     })
     expect(progression.collectionBonuses.filter((bonus) => bonus.unlocked).map((bonus) => bonus.id)).toEqual([
       'noodle-explorer',
@@ -130,5 +154,54 @@ describe('progression', () => {
 
     expect(progression.v3.completedSetIds).toContain('sunny-bites')
     expect(progression.v3.newRewards).toEqual([])
+  })
+
+  it('exposes a meal-first game loop from the same saved entries', () => {
+    const now = new Date(2026, 6, 30, 12).getTime()
+    const progression = buildProgression([entry('rice', 10, now), entry('ramen', 10, now)], now)
+
+    expect(progression.mealGameLoop.todayMeals).toBe(2)
+    expect(progression.mealGameLoop.nextMealRemaining).toBe(1)
+    expect(progression.mealGameLoop.growth.next).toBe(3)
+  })
+
+  it('summarizes a saved meal as a V5 adventure turn', () => {
+    const now = new Date(2026, 6, 30, 12).getTime()
+    const previousEntries = [
+      entry('ramen', 30, now - 86_400_000, 'rare'),
+      entry('rice', 20, now - 172_800_000),
+    ]
+    const currentEntry = entry('fruit', 30, now, 'epic')
+
+    const result = buildMealAdventureResult({
+      previousEntries,
+      currentEntry,
+      now,
+      unlockedRewardIds: [],
+    })
+
+    expect(result.headline).toBe('과일 카드로 오늘의 모험을 진행했어요')
+    expect(result.xpText).toBe('+30 XP')
+    expect(result.levelText).toBe('캐릭터 Lv.3')
+    expect(result.questText).toBe('오늘 퀘스트 2/3 완료')
+    expect(result.museumText).toBe('음식 박물관 3/11 전시')
+    expect(result.evolutionText).toBe('햇살 과일단 1/3 성장')
+    expect(result.nextGoalText).toBe('다음 목표: 햇살 과일단 2번 더 기록하면 진화')
+  })
+
+  it('builds a V5.2 home adventure board with rewards and an evolution target', () => {
+    const now = new Date(2026, 6, 30, 12).getTime()
+    const progression = buildProgression([
+      entry('ramen', 30, now - 86_400_000, 'rare'),
+      entry('ramen', 20, now - 172_800_000),
+    ], now)
+
+    expect(progression.adventureBoard.title).toBe('오늘의 모험 보드')
+    expect(progression.adventureBoard.items.map((item) => [item.title, item.reward, item.completed])).toEqual([
+      ['식사 카드 1장', '보상: 20 XP', false],
+      ['새 음식 발견', '보상: 박물관 전시 +1', false],
+      ['라면 진화 준비', '진화까지 1끼', false],
+    ])
+    expect(progression.adventureBoard.nextFocus).toBe('라면 1번 더 기록하면 불꽃 라면 Lv.2')
   })
 })
