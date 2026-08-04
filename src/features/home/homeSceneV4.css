@@ -1,55 +1,19 @@
 .world-home-scene[data-layered-scene="true"] {
   --home-safe-top: max(.7rem, env(safe-area-inset-top));
-  --home-safe-bottom: max(.65rem, env(safe-area-inset-bottom));
+  --home-safe-bottom: max(.55rem, env(safe-area-inset-bottom));
 }
 
-/* The current sky-ground artwork already contains the collection house,
-   camera building and castle. Hide duplicate generated assets until clean
-   transparent replacements are available. */
-.world-home-scene[data-layered-scene="true"] .home-scene-landmarks,
-.world-home-scene[data-layered-scene="true"] .home-character-art,
-.world-home-scene[data-layered-scene="true"] .home-character-shadow,
-.world-home-scene[data-layered-scene="true"] .home-scene-effects {
-  display: none;
-}
-
-/* Restore the original transparent interactive companion instead of the
-   generated character image that still contains a dark rectangular matte. */
-.world-home-scene[data-layered-scene="true"] .home-character-interaction {
-  left: 50%;
-  bottom: 10.5%;
-  width: clamp(7.3rem, 29vw, 9.8rem);
-  aspect-ratio: 1;
-  transform: translateX(-50%);
-  pointer-events: auto;
-}
-
-.world-home-scene[data-layered-scene="true"] .home-character-interaction .hero-companion-wrap {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: end center;
-}
-
-.world-home-scene[data-layered-scene="true"] .home-character-interaction .companion-character {
-  width: 100% !important;
-  height: 100% !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-  opacity: 1;
-  filter: drop-shadow(0 .45rem .35rem rgba(69, 46, 44, .24));
-}
-
+/* ===== 인터랙션 버튼 기본 ===== */
 .world-home-scene[data-layered-scene="true"] .world-hotspot {
   min-width: 4rem;
-  min-height: 2.8rem;
+  min-height: 3rem;
   display: grid;
   place-items: end center;
   padding: 0 0 .1rem;
   border: 0;
   background: transparent;
   color: #fff;
-  filter: drop-shadow(0 .2rem .2rem rgba(58, 35, 78, .38));
+  filter: drop-shadow(0 .18rem .18rem rgba(58, 35, 78, .32));
 }
 
 .world-home-scene[data-layered-scene="true"] .world-hotspot svg {
@@ -63,25 +27,114 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 3.25rem;
-  min-height: 1.48rem;
-  padding: .16rem .5rem;
-  border: 2px solid rgba(255,255,255,.82);
+  min-width: 3.1rem;
+  min-height: 1.45rem;
+  padding: .16rem .52rem;
+  border: 2px solid rgba(255,255,255,.78);
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(113,75,165,.95), rgba(71,43,112,.98));
-  box-shadow: 0 .18rem 0 rgba(54,31,82,.46), 0 .3rem .6rem rgba(56,34,84,.2);
+  background: linear-gradient(180deg, rgba(118,80,172,.96), rgba(72,45,115,.98));
+  box-shadow:
+    0 .18rem 0 rgba(54, 31, 82, .42),
+    0 .28rem .55rem rgba(56, 34, 84, .18);
   font-size: .72rem;
   font-weight: 950;
   line-height: 1;
   letter-spacing: -.02em;
-  text-shadow: 0 1px 0 rgba(0,0,0,.2);
+  text-shadow: 0 1px 0 rgba(0,0,0,.18);
 }
 
 .world-home-scene[data-layered-scene="true"] .world-hotspot:active span {
-  transform: translateY(.12rem);
-  box-shadow: 0 .06rem 0 rgba(54,31,82,.45);
+  transform: translateY(.1rem);
+  box-shadow: 0 .08rem 0 rgba(54, 31, 82, .42);
 }
 
+/* ===== 버튼 위치 재조정 ===== */
+/* 도감: 왼쪽 잘림 방지 */
+.world-home-scene[data-layered-scene="true"] .world-landmark-collection {
+  left: 3.5%;
+  bottom: 33.5%;
+}
+
+/* 모험: 오른쪽 상단 하늘/성 부근 */
+.world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
+  right: 17%;
+  bottom: 46%;
+}
+
+/* 버디: 오른쪽 중단 */
+.world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
+  right: 10%;
+  bottom: 34%;
+}
+
+/* 식사 기록: 크기 줄이고 조금 아래 */
+.world-home-scene[data-layered-scene="true"] .meal-record-orb {
+  left: 50%;
+  bottom: 29%;
+  width: clamp(4.8rem, 19vw, 6.1rem);
+  min-height: clamp(4.8rem, 19vw, 6.1rem);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  filter: drop-shadow(0 .35rem .4rem rgba(73, 43, 105, .24));
+}
+
+/* ===== HUD ===== */
+.world-home-scene[data-layered-scene="true"] .game-hud {
+  right: .55rem;
+  left: .55rem;
+  padding: .42rem .48rem;
+  border-color: rgba(255,255,255,.68);
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,239,255,.82));
+}
+
+/* 로고와 HUD 간격 */
+.world-home-scene[data-layered-scene="true"] .foodex-game-logo {
+  top: 5.25rem;
+}
+
+/* ===== 캐릭터 ===== */
+.world-home-scene[data-layered-scene="true"] .home-character-art,
+.world-home-scene[data-layered-scene="true"] .home-character-interaction {
+  bottom: 12.8%;
+  width: clamp(6.9rem, 28vw, 9.2rem);
+}
+
+.world-home-scene[data-layered-scene="true"] .home-character-shadow {
+  bottom: 12.3%;
+  width: clamp(4.3rem, 18vw, 5.8rem);
+}
+
+.world-home-scene[data-layered-scene="true"] .home-effect-glow {
+  bottom: 11.5%;
+  width: clamp(8.2rem, 32vw, 11rem);
+  opacity: .42;
+}
+
+/* ===== 하단 메뉴 ===== */
+.world-home-scene[data-layered-scene="true"] .home-menu-dock {
+  right: .45rem;
+  left: .45rem;
+  bottom: max(.35rem, env(safe-area-inset-bottom));
+  padding: .3rem;
+  border-color: rgba(255,255,255,.7);
+  background: linear-gradient(180deg, rgba(255,255,255,.93), rgba(239,230,255,.88));
+  border-radius: 1rem;
+}
+
+.world-home-scene[data-layered-scene="true"] .home-menu-card {
+  min-height: 3rem;
+  gap: .12rem;
+  padding: .24rem .16rem;
+  font-size: .68rem;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.world-home-scene[data-layered-scene="true"] .home-menu-card svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* ===== 포커스 ===== */
 .world-home-scene[data-layered-scene="true"] .world-hotspot:focus-visible,
 .world-home-scene[data-layered-scene="true"] .meal-record-orb:focus-visible,
 .world-home-scene[data-layered-scene="true"] .home-menu-card:focus-visible,
@@ -91,95 +144,56 @@
   outline-offset: 3px;
 }
 
-/* Anchor labels to the buildings already painted into the background. */
-.world-home-scene[data-layered-scene="true"] .world-landmark-collection {
-  left: 7%;
-  bottom: 43%;
-}
-
-.world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
-  right: 9%;
-  bottom: 57%;
-}
-
-.world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
-  right: 8%;
-  bottom: 40%;
-}
-
-.world-home-scene[data-layered-scene="true"] .meal-record-orb {
-  left: 50%;
-  bottom: 43%;
-  width: clamp(5.2rem, 21vw, 6.7rem);
-  min-height: clamp(5.2rem, 21vw, 6.7rem);
-  transform: translateX(-50%);
-  border-radius: 50%;
-  filter: drop-shadow(0 .35rem .42rem rgba(73,43,105,.25));
-}
-
-.world-home-scene[data-layered-scene="true"] .game-hud {
-  right: .65rem;
-  left: .65rem;
-  padding: .48rem .55rem;
-  border-color: rgba(255,255,255,.62);
-  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(246,239,255,.8));
-}
-
-.world-home-scene[data-layered-scene="true"] .foodex-game-logo {
-  top: calc(var(--home-safe-top) + 4.75rem);
-  width: min(48vw, 12.5rem);
-  height: 4rem;
-}
-
-.world-home-scene[data-layered-scene="true"] .home-menu-dock {
-  right: .6rem;
-  left: .6rem;
-  padding: .34rem;
-  border-color: rgba(255,255,255,.65);
-  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(239,230,255,.86));
-}
-
-.world-home-scene[data-layered-scene="true"] .home-menu-card {
-  min-height: 3.25rem;
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
+/* ===== 390~430 ===== */
 @media (min-width: 390px) and (max-width: 430px) {
   .world-home-scene[data-layered-scene="true"] .world-landmark-collection {
-    left: 8%;
+    left: 5%;
+    bottom: 34%;
   }
 
   .world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
-    right: 10%;
+    right: 18%;
+    bottom: 46.5%;
   }
 
+  .world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
+    right: 11%;
+    bottom: 34.5%;
+  }
+
+  .world-home-scene[data-layered-scene="true"] .meal-record-orb {
+    bottom: 29.5%;
+  }
+
+  .world-home-scene[data-layered-scene="true"] .home-character-art,
   .world-home-scene[data-layered-scene="true"] .home-character-interaction {
-    bottom: 10.8%;
+    bottom: 13.2%;
   }
 }
 
+/* ===== 작은 화면 ===== */
 @media (max-width: 359px) {
   .world-home-scene[data-layered-scene="true"] .world-hotspot span {
-    min-width: 2.95rem;
+    min-width: 2.9rem;
     padding-inline: .38rem;
     font-size: .66rem;
   }
 
   .world-home-scene[data-layered-scene="true"] .world-landmark-collection {
-    left: 4%;
+    left: 2.5%;
   }
 
   .world-home-scene[data-layered-scene="true"] .world-landmark-adventure {
-    right: 4%;
+    right: 13%;
   }
 
   .world-home-scene[data-layered-scene="true"] .world-landmark-buddy {
-    right: 4%;
+    right: 7%;
   }
 
-  .world-home-scene[data-layered-scene="true"] .foodex-game-logo {
-    top: calc(var(--home-safe-top) + 4.45rem);
-    width: 10.4rem;
+  .world-home-scene[data-layered-scene="true"] .home-menu-card {
+    min-height: 2.85rem;
+    font-size: .64rem;
   }
 }
 
