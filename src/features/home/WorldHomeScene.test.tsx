@@ -28,45 +28,42 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
-it('exposes the required landmark actions and reference menu cards', async () => {
+it('exposes the required reference landmark actions without the old internal dock', async () => {
   const user = userEvent.setup()
   render(<WorldHomeScene {...props} />)
 
   const scene = screen.getByRole('region', { name: '푸덱 월드 홈' })
   expect(scene).toHaveAttribute('data-layered-scene', 'true')
+  expect(scene).toHaveAttribute('data-reference-home', 'true')
   expect(scene).toHaveAttribute('data-reduced-motion', 'true')
-  expect(screen.getByRole('button', { name: '도감 열기' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: '모험 열기' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: '식사 기록하기' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: '버디 열기' })).toBeInTheDocument()
-  expect(screen.getByRole('navigation', { name: '홈 게임 메뉴' })).toBeInTheDocument()
-  for (const label of ['업적', '퀘스트', '상점', '소식']) {
-    expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
-  }
-  expect(screen.getAllByTestId('game-hud-status')).toHaveLength(3)
+
+  expect(screen.getByRole('button', { name: '도감 열기' })).toHaveAttribute('data-landmark-variant', 'collection')
+  expect(screen.getByRole('button', { name: '모험 열기' })).toHaveAttribute('data-landmark-variant', 'adventure')
+  expect(screen.getByRole('button', { name: '버디 열기' })).toHaveAttribute('data-landmark-variant', 'buddy')
+  expect(screen.getByRole('button', { name: '식사 기록하기' })).toHaveAttribute('data-home-landmark', 'record')
+  expect(screen.queryByRole('navigation', { name: '홈 게임 메뉴' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: '업적' })).not.toBeInTheDocument()
 
   await user.click(screen.getByRole('button', { name: '도감 열기' }))
   await user.click(screen.getByRole('button', { name: '모험 열기' }))
   await user.click(screen.getByRole('button', { name: '식사 기록하기' }))
   await user.click(screen.getByRole('button', { name: '버디 열기' }))
-  await user.click(screen.getByRole('button', { name: '업적' }))
-  await user.click(screen.getByRole('button', { name: '퀘스트' }))
-  await user.click(screen.getByRole('button', { name: '상점' }))
-  await user.click(screen.getByRole('button', { name: '소식' }))
 
-  expect(props.onOpenCollection).toHaveBeenCalledTimes(2)
-  expect(props.onOpenAdventure).toHaveBeenCalledTimes(3)
-  expect(props.onRecord).toHaveBeenCalledOnce()
-  expect(props.onOpenCompanion).toHaveBeenCalledTimes(2)
+  expect(props.onOpenCollection).toHaveBeenCalledTimes(1)
+  expect(props.onOpenAdventure).toHaveBeenCalledTimes(1)
+  expect(props.onRecord).toHaveBeenCalledTimes(1)
+  expect(props.onOpenCompanion).toHaveBeenCalledTimes(1)
 })
 
-it('renders live HUD values and independent visual layers', () => {
+it('renders live reference HUD values and independent visual layers', () => {
   render(<WorldHomeScene {...props} />)
 
   expect(screen.getByLabelText('보유 코인 13개')).toBeInTheDocument()
   expect(screen.getByLabelText('레벨 2, 성장 50%')).toBeInTheDocument()
   expect(screen.getByLabelText('오늘의 카드 1장')).toBeInTheDocument()
   expect(screen.getByLabelText('오늘 식사 1회 목표 3회 연속 2일')).toBeInTheDocument()
+  expect(screen.getAllByTestId('reference-status-card')).toHaveLength(3)
+  expect(screen.getByRole('img', { name: 'FOODEX' })).toBeInTheDocument()
   expect(screen.getByTestId('home-layer-background')).toBeInTheDocument()
   expect(screen.getByTestId('home-layer-landmarks')).toBeInTheDocument()
   expect(screen.getByTestId('home-layer-character')).toBeInTheDocument()
