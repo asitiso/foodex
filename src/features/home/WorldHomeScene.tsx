@@ -1,10 +1,9 @@
 import type { PlayerLevel } from '../../domain/progression'
 import type { CompanionCharacterId } from '../../domain/companionCharacters'
 import type { CompanionEmotion } from '../companion/HeroCompanion'
-import { GameHud } from './GameHud'
-import { HomeMenuCard } from './HomeMenuCard'
-import { MealRecordOrb } from './MealRecordOrb'
-import { WorldHotspot } from './WorldHotspot'
+import { ReferenceGameHud } from './ReferenceGameHud'
+import { ReferenceLandmarkButton } from './ReferenceLandmarkButton'
+import { ReferenceRecordButton } from './ReferenceRecordButton'
 import { SceneBackgroundLayer } from './scene/SceneBackgroundLayer'
 import { SceneCharacterLayer } from './scene/SceneCharacterLayer'
 import { SceneEffectsLayer } from './scene/SceneEffectsLayer'
@@ -13,6 +12,7 @@ import './homeScene.css'
 import './homeSceneUi.css'
 import './homeSceneV4.css'
 import './homeSceneHudFix.css'
+import './referenceHomeUi.css'
 
 export interface WorldHomeSceneProps {
   coinBalance: number
@@ -60,6 +60,7 @@ export function WorldHomeScene({
       className="world-home-scene"
       aria-label="푸덱 월드 홈"
       data-layered-scene="true"
+      data-reference-home="true"
       data-reduced-motion={reducedMotion ? 'true' : 'false'}
     >
       <SceneBackgroundLayer />
@@ -71,7 +72,7 @@ export function WorldHomeScene({
       />
       <SceneEffectsLayer reducedMotion={reducedMotion} />
 
-      <GameHud
+      <ReferenceGameHud
         coinBalance={coinBalance}
         level={level.level}
         levelProgress={levelProgress}
@@ -84,34 +85,32 @@ export function WorldHomeScene({
         onOpenMeals={onOpenMeals}
         onOpenCoins={onOpenCoins}
       />
-      <WorldHotspot
+
+      <ReferenceLandmarkButton
+        variant="collection"
         className="world-landmark-collection"
         label="도감 열기"
         text="도감"
         icon="collection"
         onActivate={onOpenCollection}
       />
-      <WorldHotspot
+      <ReferenceLandmarkButton
+        variant="adventure"
         className="world-landmark-adventure"
         label="모험 열기"
         text="모험"
         icon="adventure"
         onActivate={onOpenAdventure}
       />
-      <MealRecordOrb onRecord={onRecord} />
-      <WorldHotspot
+      <ReferenceRecordButton onRecord={onRecord} />
+      <ReferenceLandmarkButton
+        variant="buddy"
         className="world-landmark-buddy"
         label="버디 열기"
         text="버디"
         icon="buddy"
         onActivate={onOpenCompanion}
       />
-      <nav className="home-menu-dock" aria-label="홈 게임 메뉴">
-        <HomeMenuCard label="업적" icon="achievement" onActivate={onOpenAdventure} />
-        <HomeMenuCard label="퀘스트" icon="quest" onActivate={onOpenAdventure} />
-        <HomeMenuCard label="상점" icon="shop" onActivate={onOpenCollection} />
-        <HomeMenuCard label="소식" icon="news" onActivate={onOpenCompanion} />
-      </nav>
     </section>
   )
 }
