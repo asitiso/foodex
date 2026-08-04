@@ -16,8 +16,8 @@ import { CosmeticShop } from './CosmeticShop'
 export type CompanionTab = 'journal' | 'report' | 'room' | 'character'
 
 const TABS: readonly { id: CompanionTab; label: string }[] = [
-  { id: 'journal', label: '식사 일기' },
-  { id: 'report', label: '월간 리포트' },
+  { id: 'journal', label: '일기' },
+  { id: 'report', label: '리포트' },
   { id: 'room', label: '내 방' },
   { id: 'character', label: '캐릭터' },
 ]

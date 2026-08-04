@@ -53,8 +53,8 @@ describe('CompanionScreen', () => {
       />,
     )
 
-    expect(screen.getByRole('tab', { name: '식사 일기' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '월간 리포트' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: '일기' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: '리포트' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: '내 방' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: '캐릭터' })).toBeInTheDocument()
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
@@ -161,7 +161,7 @@ describe('CompanionScreen', () => {
       />,
     )
 
-    await user.click(screen.getByRole('tab', { name: '월간 리포트' }))
+    await user.click(screen.getByRole('tab', { name: '리포트' }))
     const bestCard = screen.getByRole('region', { name: '이달의 베스트 카드' })
     expect(bestCard).toHaveTextContent('불꽃 라면 카드')
     expect(screen.getByRole('region', { name: '요일별 기록 현황' })).toBeInTheDocument()

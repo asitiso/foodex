@@ -177,13 +177,15 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .album-summary small { color: #756980; font-weight: 800; }
 .album-progress-track { height: .55rem; overflow: hidden; border-radius: 999px; background: #e8e0f2; }
 .album-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f3bd45, #6543eb); transition: width .4s ease; }
-.collection-card { min-height: 12.5rem; overflow: hidden; display: grid; align-content: end; gap: .3rem; position: relative; padding: .8rem; border: 0; border-radius: 1.2rem; color: #fff; background: linear-gradient(150deg, #6746f6, #3a1f8a); text-align: left; box-shadow: 0 .3rem 0 rgba(58,31,138,.28); }
+.collection-card { min-height: 12.5rem; overflow: hidden; display: grid; align-content: end; gap: .3rem; position: relative; padding: .8rem; border: 0; border-radius: 1.2rem; color: #fff; background: linear-gradient(150deg, #8891a8, #4a5268); text-align: left; box-shadow: 0 .3rem 0 rgba(58,31,138,.28); content-visibility: auto; contain-intrinsic-size: auto 12.5rem; }
 .collection-card.rarity-rare { background: linear-gradient(150deg, #167db7, #11407a); }
 .collection-card.rarity-epic { background: linear-gradient(150deg, #a942a7, #47238f); }
-.collection-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .48; }
-.collection-card > span { position: absolute; top: 1.3rem; left: 50%; font-size: 3rem; transform: translateX(-50%); }
-.collection-card > .new-card-badge { z-index: 1; top: .75rem; right: .75rem; left: auto; padding: .3rem .55rem; border-radius: 999px; background: #ffe278; color: #493568; font-size: .7rem; font-weight: 950; transform: none; text-shadow: none; }
-.collection-card small, .collection-card strong { position: relative; z-index: 1; text-shadow: 0 .1rem .2rem rgba(0,0,0,.35); }
+.collection-card.rarity-legendary { background: linear-gradient(150deg, #ffb238, #c9401f); box-shadow: 0 0 0 3px #ffd166, 0 .3rem 0 rgba(58,31,138,.28); }
+.collection-card::before { content: ""; position: absolute; z-index: 1; inset: 0; background: linear-gradient(to top, rgba(18,10,38,.82) 0%, rgba(18,10,38,.1) 55%, transparent 72%); pointer-events: none; }
+.collection-card img { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .94; }
+.collection-card > span { position: absolute; z-index: 2; top: 1.3rem; left: 50%; font-size: 3rem; transform: translateX(-50%); }
+.collection-card > .new-card-badge { z-index: 2; top: .75rem; right: .75rem; left: auto; padding: .3rem .55rem; border-radius: 999px; background: #ffe278; color: #493568; font-size: .7rem; font-weight: 950; transform: none; text-shadow: none; }
+.collection-card small, .collection-card strong { position: relative; z-index: 2; text-shadow: 0 .14rem .26rem rgba(0,0,0,.55); }
 .collection-card small { font-size: .72rem; font-weight: 900; }
 .collection-card strong { font-size: 1rem; }
 .collection-card.album-locked { align-content: center; justify-items: center; min-height: 12.5rem; border: 3px dashed #d5c9e4; background: repeating-linear-gradient(135deg, #f3eef9 0 10px, #ebe4f4 10px 20px); color: #9a8eaa; text-align: center; box-shadow: none; }
@@ -288,15 +290,37 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .tag-progress-item strong { color: #493568; }
 .tag-progress-track { height: .38rem; overflow: hidden; border-radius: 999px; background: #eee9ff; }
 .tag-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7254e8, #ffb347); }
-.card-detail { width: min(calc(100% - 2rem), 28rem); overflow: hidden; padding: 0 0 1.4rem; border: 0; border-radius: 1.35rem; color: #2b1e3f; background: #fff; box-shadow: 0 1.2rem 3rem rgba(52,31,83,.35); }
+.card-detail { position: relative; width: min(calc(100% - 2rem), 28rem); max-height: min(88vh, 42rem); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: 0 0 1.4rem; border: 0; border-radius: 1.35rem; color: #2b1e3f; background: #fff; box-shadow: 0 1.2rem 3rem rgba(52,31,83,.35); }
 .card-detail::backdrop { background: rgba(35,22,62,.48); }
-.card-detail > img, .detail-no-photo { width: 100%; height: 13rem; display: grid; place-items: center; object-fit: cover; background: #eee9ff; }
+.card-detail > img, .detail-no-photo { position: relative; width: 100%; height: 15rem; display: grid; place-items: center; object-fit: cover; background: #eee9ff; border-bottom: 5px solid #6543eb; }
+.card-detail.rarity-rare > img, .card-detail.rarity-rare .detail-no-photo { border-bottom-color: #167db7; }
+.card-detail.rarity-epic > img, .card-detail.rarity-epic .detail-no-photo { border-bottom-color: #a942a7; }
+.card-detail.rarity-legendary > img, .card-detail.rarity-legendary .detail-no-photo { border-bottom-color: #e6a53d; }
+.card-detail.rarity-legendary::after,
+.card-detail.shiny::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 15rem;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.6) 40%, rgba(255,214,102,.7) 50%, rgba(255,255,255,.6) 60%, transparent 80%);
+  background-size: 220% 220%;
+  animation: shiny-sheen 2.8s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-detail.rarity-legendary::after, .card-detail.shiny::after { animation: none; }
+}
 .detail-no-photo { font-size: 4rem; }
 .dialog-close { float: right; position: relative; z-index: 1; margin: .65rem .65rem -3rem 0; border: 0; border-radius: 999px; padding: .45rem .7rem; background: rgba(255,255,255,.9); color: #493568; font-weight: 900; }
 .detail-rarity, .card-detail h2, .card-detail p, .card-detail blockquote { display: block; margin-right: 1.25rem; margin-left: 1.25rem; }
-.detail-rarity { margin-top: 1.1rem; color: #6543eb; font-size: .78rem; font-weight: 900; }
+.detail-rarity { margin-top: 1.1rem; color: #6b7185; font-size: .78rem; font-weight: 900; }
 .detail-rarity.rarity-rare { color: #167db7; }
 .detail-rarity.rarity-epic { color: #a942a7; }
+.detail-rarity.rarity-legendary { color: #c9720f; }
 .card-detail h2 { margin-top: .3rem; margin-bottom: .35rem; font-size: 1.55rem; }
 .card-detail p { margin-top: 0; color: #776b87; }
 .card-detail blockquote { margin-top: 1rem; margin-bottom: 0; padding: .9rem; border-radius: .8rem; background: #f6f2ff; color: #55486a; line-height: 1.55; }
@@ -400,10 +424,26 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .food-card-front { min-height: 25rem; padding: 1.1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; background: linear-gradient(145deg, #6746f6, #3a1f8a); color: #fff; }
 .rarity-rare .food-card-front { background: linear-gradient(145deg, #167db7, #11407a); }
 .rarity-epic .food-card-front { background: linear-gradient(145deg, #a942a7, #47238f); }
+.rarity-legendary .food-card-front { background: linear-gradient(145deg, #ffb238, #c9401f); }
+.food-card.rarity-legendary:not(.shiny)::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: overlay; background: linear-gradient(120deg, transparent 30%, rgba(255,224,150,.6) 48%, transparent 66%); background-size: 220% 220%; animation: shiny-sheen 3.4s linear infinite; }
 .rarity-badge { align-self: flex-end; padding: .32rem .6rem; border-radius: 999px; background: rgba(255,255,255,.18); font-size: .72rem; font-weight: 900; letter-spacing: .09em; }
 .food-illustration { width: 10rem; height: 10rem; position: relative; display: grid; place-items: center; border: 3px solid rgba(255,255,255,.45); border-radius: 50%; background: rgba(255,255,255,.12); }
 .food-illustration > span { font-size: 5rem; filter: drop-shadow(0 .4rem .1rem rgba(0,0,0,.14)); }
-.food-illustration img { position: absolute; width: 3.1rem; height: 3.1rem; right: -.3rem; bottom: .3rem; border: 3px solid #fff; border-radius: 50%; object-fit: cover; }
+.food-illustration.has-photo {
+  width: 12rem;
+  height: 12rem;
+  border-radius: 1.5rem;
+  border: 4px solid rgba(255,255,255,.75);
+  background: rgba(255,255,255,.08);
+  box-shadow: 0 .5rem 1.2rem rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.25);
+  overflow: hidden;
+}
+.food-illustration.has-photo img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: inherit; object-fit: cover; }
+.rarity-rare .food-illustration.has-photo { border-color: #a9e6ff; box-shadow: 0 .5rem 1.2rem rgba(17,64,122,.5), 0 0 0 3px rgba(143,224,255,.4); }
+.rarity-epic .food-illustration.has-photo { border-color: #f0b8ff; box-shadow: 0 .5rem 1.2rem rgba(71,35,143,.5), 0 0 0 3px rgba(240,184,255,.4); }
+.rarity-legendary .food-illustration.has-photo { border-color: #ffd166; box-shadow: 0 .5rem 1.2rem rgba(146,66,15,.5), 0 0 0 3px rgba(255,209,102,.55); }
+.food-illustration-emoji-badge { position: absolute; z-index: 2; right: -.5rem; bottom: -.5rem; width: 3.1rem; height: 3.1rem; display: grid; place-items: center; border: 3px solid #fff; border-radius: 50%; background: rgba(38,20,64,.55); backdrop-filter: blur(2px); font-size: 1.6rem; }
+.food-illustration-stamp { position: absolute; z-index: 2; left: -.4rem; top: -.4rem; width: 2.6rem; height: 2.6rem; display: grid; place-items: center; border: 3px solid #fff; border-radius: 50%; background: rgba(38,20,64,.55); backdrop-filter: blur(2px); font-size: 1.35rem; transform: rotate(-12deg); }
 .food-card h1 { font-size: 1.9rem; }
 .food-card p { max-width: 15rem; margin: 0; line-height: 1.5; }
 .xp-pill { padding: .45rem .8rem; border-radius: 999px; background: #ffe278; color: #4b3272; font-weight: 950; }
@@ -463,7 +503,7 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 @keyframes sparkle { 50% { transform: scale(1.45) rotate(20deg); opacity: .5; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .food-card, .sparkles span, .food-card.shiny::before, .shiny-badge, .shiny-badge-inline, .shiny-marker, .evolution-reveal-banner { animation: none !important; }
+  .food-card, .sparkles span, .food-card.shiny::before, .food-card.rarity-legendary:not(.shiny)::before, .shiny-badge, .shiny-badge-inline, .shiny-marker, .evolution-reveal-banner { animation: none !important; }
 }
 
 @media (min-width: 42rem) {
@@ -826,9 +866,12 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .boss-hp-bar { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #6543eb, #a942a7); transition: width .4s ease; }
 .reward-cta { position: relative; overflow: hidden; background: linear-gradient(135deg,#ff8c70,#f05d7e 55%,#7150db); }
 .reward-cta::after { content: "✦  ✧  ✦"; position: absolute; right: .8rem; top: .35rem; color: #ffe581; opacity: .9; animation: reward-stars 1.8s ease-in-out infinite; }
-.collection-grid .collection-card { position: relative; overflow: hidden; border: 3px solid #e1d4ef; background: linear-gradient(145deg,#fff,#fff7df); box-shadow: 0 .25rem 0 #d3c2e5; transition: transform .16s ease, box-shadow .16s ease; }
-.collection-grid .collection-card:hover { transform: translateY(-4px) rotate(-1deg); box-shadow: 0 .48rem 0 #bda5dc; }
-.collection-grid .collection-card::after { content: "✦"; position: absolute; top: .35rem; right: .45rem; color: #ffe581; opacity: .8; }
+.collection-grid .collection-card { position: relative; overflow: hidden; border: 3px solid rgba(255,255,255,.4); transition: transform .16s ease, box-shadow .16s ease; }
+.collection-grid .collection-card:hover { transform: translateY(-4px) rotate(-1deg); }
+.collection-grid .collection-card::after { content: "✦"; position: absolute; z-index: 2; top: .35rem; right: .45rem; font-size: .95rem; color: #d8d2e6; opacity: .85; }
+.collection-grid .collection-card.rarity-rare::after { content: "◆"; color: #a9e6ff; }
+.collection-grid .collection-card.rarity-epic::after { content: "✦✦"; letter-spacing: -.15em; color: #f0b8ff; }
+.collection-grid .collection-card.rarity-legendary::after { content: "★"; font-size: 1.2rem; color: #ffd166; text-shadow: 0 0 .4rem rgba(255,209,102,.9); }
 .achievement-panel, .evolution-panel, .bonus-panel, .tag-progress-panel { background: linear-gradient(135deg,#fffdf6,#f8f1ff); box-shadow: 0 .2rem 0 #eadcf4; }
 .character-evolution-card { display: grid; gap: .4rem; padding: 1rem; border: 2px solid #ffe581; border-radius: 1.2rem; background: #fff8dc; }
 .character-evolution-card h2, .character-evolution-card p { margin: 0; }
@@ -946,6 +989,7 @@ h1 { margin: 0; font-size: clamp(1.65rem, 7vw, 2.35rem); letter-spacing: -.055em
 .card-reveal.reduced-motion .food-card,
 .card-reveal.reduced-motion .sparkles span,
 .card-reveal.reduced-motion .food-card.shiny::before,
+.card-reveal.reduced-motion .food-card.rarity-legendary:not(.shiny)::before,
 .card-reveal.reduced-motion .shiny-badge,
 .card-reveal.reduced-motion .evolution-reveal-banner { animation: none; }
 

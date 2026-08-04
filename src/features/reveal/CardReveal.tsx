@@ -89,9 +89,14 @@ export function CardReveal({
           {card.isShiny && <span className="shiny-badge">✨ 반짝이 카드!</span>}
           <div className="food-card-face food-card-front">
             <span className="rarity-badge">{card.rarity.toUpperCase()}</span>
-            <div className="food-illustration" aria-label={FOOD_META[foodType].label}>
-              <span>{FOOD_EMOJI[foodType]}</span>
-              {imageData && <img src={imageData} alt="기록한 식사" />}
+            <div className={`food-illustration${imageData ? ' has-photo' : ''}`} aria-label={FOOD_META[foodType].label}>
+              {imageData ? (
+                <img src={imageData} alt="기록한 식사" />
+              ) : (
+                <span>{FOOD_EMOJI[foodType]}</span>
+              )}
+              {imageData && <span className="food-illustration-emoji-badge" aria-hidden="true">{FOOD_EMOJI[foodType]}</span>}
+              {secretTags.length > 0 && <span className="food-illustration-stamp" aria-hidden="true">{card.secretTags?.[0] === 'midnight' ? '🌙' : card.secretTags?.[0] === 'seasonal' ? '🍉' : '🌈'}</span>}
             </div>
             <h1>{card.name}</h1>
             <p>“{card.quote}”</p>

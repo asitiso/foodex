@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Progression } from '../../domain/progression'
 import { filterCollection } from '../../domain/v3Progression'
 import { AMOUNT_META, FOOD_META } from '../../domain/types'
@@ -63,27 +63,29 @@ export function CardCollectionTab({
   const [albumFocus, setAlbumFocus] = useState<MealRecord['foodType'] | 'all'>('all')
   const [selected, setSelected] = useState<{ card: FoodCard; meal: MealRecord }>()
   const detailDialog = useRef<HTMLDialogElement>(null)
-  const filtered = filterCollection(entries, {
-    regionId: regionId || undefined,
-    rarity: rarity || undefined,
-  })
-  const visibleEntries = filtered.filter(({ meal }) =>
-    category === 'all' || FOOD_META[meal.foodType].category === category,
-  )
-  const focusedEntries = albumFocus === 'all'
-    ? visibleEntries
-    : visibleEntries.filter(({ meal }) => meal.foodType === albumFocus)
-  const normalizeFood = (value: string) => value.toLocaleLowerCase('ko-KR').replace(/\s+/g, '')
+  const focusedEntries = useMemo(() => {
+    const filtered = filterCollection(entries, {
+      regionId: regionId || undefined,
+      rarity: rarity || undefined,
+    })
+    const visibleEntries = filtered.filter(({ meal }) =>
+      category === 'all' || FOOD_META[meal.foodType].category === category,
+    )
+    return albumFocus === 'all'
+      ? visibleEntries
+      : visibleEntries.filter(({ meal }) => meal.foodType === albumFocus)
+  }, [entries, regionId, rarity, category, albumFocus])
 
-  const albumSlots = focusedEntries.map((entry) => ({
+  const albumSlots = useMemo(() => focusedEntries.map((entry) => ({
     food: {
       id: `custom-${entry.card.id}`,
       name: entry.card.name,
       foodType: entry.meal.foodType,
     },
     entry,
-  }))
-  const albumGroups = Object.values(focusedEntries.reduce((groups, entry) => {
+  })), [focusedEntries])
+
+  const albumGroups = useMemo(() => Object.values(focusedEntries.reduce((groups, entry) => {
     const key = entry.meal.foodType
     const group = groups[key] ?? {
       key,
@@ -95,7 +97,7 @@ export function CardCollectionTab({
     return groups
   }, {} as Record<string, { key: MealRecord['foodType']; label: string; cards: Array<{ card: FoodCard; meal: MealRecord }> }>))
     .sort((left, right) => right.cards.length - left.cards.length)
-    .filter(({ cards }) => cards.length > 1)
+    .filter(({ cards }) => cards.length > 1), [focusedEntries])
 
   const closeDetail = () => {
     const dialog = detailDialog.current
@@ -258,7 +260,7 @@ export function CardCollectionTab({
 
       {selected && (
         <dialog
-          className="card-detail"
+          className={`card-detail rarity-${selected.card.rarity}${selected.card.isShiny ? ' shiny' : ''}`}
           ref={detailDialog}
           aria-label={`${selected.card.name} 카드 상세`}
           onCancel={(event) => {
