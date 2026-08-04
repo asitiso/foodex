@@ -5,7 +5,7 @@ import { BottomNav } from './BottomNav'
 describe('BottomNav', () => {
   afterEach(cleanup)
 
-  it('keeps capture in the center of five destinations', () => {
+  it('keeps capture in the center of five reference destinations', () => {
     render(<BottomNav active="home" onNavigate={vi.fn()} />)
 
     expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
@@ -13,9 +13,10 @@ describe('BottomNav', () => {
       '도감',
       '촬영',
       '모험',
-      '버디',
+      '버디룸',
     ])
-    expect(screen.getByRole('button', { name: '촬영' })).toHaveClass('primary')
+    expect(screen.getByRole('button', { name: '촬영' })).toHaveClass('primary', 'reference-bottom-nav-item--primary')
+    expect(screen.getByRole('button', { name: '홈' })).toHaveAttribute('data-nav-tab', 'home')
   })
 
   it('renders one svg icon for every route', () => {
