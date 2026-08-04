@@ -82,6 +82,9 @@ export function createSupabaseRepository(client: SupabaseClient, userId: string)
         skin_id: card.skinId ?? null,
         background_id: card.backgroundId ?? null,
         created_at: new Date(card.createdAt).toISOString(),
+        stats: card.stats ?? null,
+        is_shiny: card.isShiny ?? false,
+        secret_tags: card.secretTags ?? [],
       }, { onConflict: 'user_id,meal_id' })
       throwIfError(cardResult)
 

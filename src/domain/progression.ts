@@ -1,6 +1,7 @@
 import { COLLECTION_SETS, COSMETICS, FOOD_CATALOG } from './v3Content'
 import { FOOD_META } from './types'
 import type { FoodCard, FoodType, MealRecord } from './types'
+import { tagsForMeal } from './foodCatalog'
 import { buildV3Progress } from './v3Progression'
 import type { V3Progress } from './v3Progression'
 import { buildTagAchievements, buildTagEvents, buildTagProgress } from './tagProgression'
@@ -9,6 +10,7 @@ import { buildMealGameLoop } from './mealGameLoop'
 import type { MealGameLoopState } from './mealGameLoop'
 import { buildMealAdventure } from './mealAdventure'
 import type { MealAdventureState } from './mealAdventure'
+import { rewardBoxCoinAmount } from './coinWallet'
 
 export interface PlayerLevel {
   level: number
@@ -54,16 +56,20 @@ export interface FoodEvolution {
 export interface SeasonEvent {
   id: string
   title: string
+  description: string
   completedSteps: number
   totalSteps: number
   rewardTitle: string
   completed: boolean
+  steps: Array<{ label: string; completed: boolean }>
 }
 
 export interface RewardBox {
   available: boolean
   title: string
   rewardPreview: string
+  dayKey: string
+  coinAmount: number
 }
 
 export interface CollectionBonus {
@@ -95,6 +101,7 @@ export interface Progression {
   adventureBoard: AdventureBoard
   evolutions: FoodEvolution[]
   season: SeasonEvent
+  seasonMissions: SeasonEvent[]
   rewardBox: RewardBox
   collectionBonuses: CollectionBonus[]
   tagProgress: TagCollectionProgress[]
@@ -137,6 +144,11 @@ function buildLevel(totalXp: number): PlayerLevel {
 
 function startOfLocalDay(time: number) {
   return new Date(time).setHours(0, 0, 0, 0)
+}
+
+function localDayKey(time: number) {
+  const date = new Date(time)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
 function buildStreak(entries: Array<{ meal: MealRecord }>, now: number): MealStreak {
@@ -228,11 +240,11 @@ export function buildProgression(
   const evolutions = [...countsByFood.entries()]
     .map(([foodType, count]) => buildEvolution(foodType, count))
     .sort((left, right) => right.count - left.count)
-  const seasonSteps = [
-    hasFood('fruit'),
-    hasFood('drink'),
-    entries.filter(({ meal }) => meal.foodType === 'rice' || meal.foodType === 'ramen').length >= 2,
-    buildStreak(entries, now).currentDays >= 5,
+  const seasonStepDefs = [
+    { label: '과일 카드 발견하기', completed: hasFood('fruit') },
+    { label: '음료 카드 발견하기', completed: hasFood('drink') },
+    { label: '밥이나 라면 2번 기록하기', completed: entries.filter(({ meal }) => meal.foodType === 'rice' || meal.foodType === 'ramen').length >= 2 },
+    { label: '5일 연속 기록하기', completed: buildStreak(entries, now).currentDays >= 5 },
   ]
   const collectionBonuses: CollectionBonus[] = [
     {
@@ -288,6 +300,51 @@ export function buildProgression(
   const tagAchievements = buildTagAchievements(entries)
   const tagEvents = buildTagEvents(entries)
 
+  const summerBiteMission: SeasonEvent = {
+    id: 'summer-bite',
+    title: '여름 한입 시즌',
+    description: '여름 한정 이벤트예요. 아래 4가지를 모두 채우면 특별한 보상을 받아요.',
+    completedSteps: seasonStepDefs.filter((step) => step.completed).length,
+    totalSteps: seasonStepDefs.length,
+    rewardTitle: '전설의 여름 식탁',
+    completed: seasonStepDefs.every((step) => step.completed),
+    steps: seasonStepDefs,
+  }
+
+  const riceHeartStepDefs = [
+    { label: '밥이나 반찬 3번 기록하기', completed: entries.filter(({ meal }) => meal.foodType === 'rice' || meal.foodType === 'side').length >= 3 },
+    { label: '면 요리 2번 기록하기', completed: entries.filter(({ meal }) => meal.foodType === 'ramen' || meal.foodType === 'pasta').length >= 2 },
+  ]
+  const riceHeartMission: SeasonEvent = {
+    id: 'rice-heart-challenge',
+    title: '밥심 챌린지',
+    description: '밥과 면 요리로 든든하게 모험을 채워 보세요.',
+    completedSteps: riceHeartStepDefs.filter((step) => step.completed).length,
+    totalSteps: riceHeartStepDefs.length,
+    rewardTitle: '든든 밥심 훈장',
+    completed: riceHeartStepDefs.every((step) => step.completed),
+    steps: riceHeartStepDefs,
+  }
+
+  const entryTags = entries.map(({ meal }) => tagsForMeal(meal.foodName, meal.foodType))
+  const snackExplorerStepDefs = [
+    { label: '간식 태그 카드 2번 만나기', completed: entryTags.filter((tags) => tags.includes('snack')).length >= 2 },
+    { label: '음료 태그 카드 2번 만나기', completed: entryTags.filter((tags) => tags.includes('drink')).length >= 2 },
+    { label: '디저트 태그 카드 1번 만나기', completed: entryTags.some((tags) => tags.includes('dessert')) },
+  ]
+  const snackExplorerMission: SeasonEvent = {
+    id: 'snack-exploration-squad',
+    title: '간식 탐험대',
+    description: '간식과 음료를 모아 달콤한 탐험을 완성해 보세요.',
+    completedSteps: snackExplorerStepDefs.filter((step) => step.completed).length,
+    totalSteps: snackExplorerStepDefs.length,
+    rewardTitle: '반짝 간식 지도',
+    completed: snackExplorerStepDefs.every((step) => step.completed),
+    steps: snackExplorerStepDefs,
+  }
+
+  const seasonMissions: SeasonEvent[] = [summerBiteMission, riceHeartMission, snackExplorerMission]
+
   return {
     level: buildLevel(totalXp),
     collection: {
@@ -326,19 +383,19 @@ export function buildProgression(
     dailyQuests,
     adventureBoard: buildAdventureBoard(dailyQuests, evolutions),
     evolutions,
-    season: {
-      id: 'summer-bite',
-      title: '여름 한입 시즌',
-      completedSteps: seasonSteps.filter(Boolean).length,
-      totalSteps: seasonSteps.length,
-      rewardTitle: '전설의 여름 식탁',
-      completed: seasonSteps.every(Boolean),
-    },
-    rewardBox: {
-      available: todayEntries.length > 0 && completedQuestCount >= 2,
-      title: '오늘의 상자',
-      rewardPreview: 'XP 보너스 또는 시즌 조각',
-    },
+    season: summerBiteMission,
+    seasonMissions,
+    rewardBox: (() => {
+      const dayKey = localDayKey(now)
+      const coinAmount = rewardBoxCoinAmount(dayKey)
+      return {
+        available: todayEntries.length > 0 && completedQuestCount >= 2,
+        title: '오늘의 상자',
+        rewardPreview: `보너스 코인 ${coinAmount}개`,
+        dayKey,
+        coinAmount,
+      }
+    })(),
     collectionBonuses,
     tagProgress,
     tagAchievements,

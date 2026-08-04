@@ -13,7 +13,7 @@ describe('BottomNav', () => {
       '▦도감',
       '📷촬영',
       '✦모험',
-      '●친구',
+      '☺친구',
     ])
     expect(screen.getByRole('button', { name: '촬영' })).toHaveClass('primary')
   })

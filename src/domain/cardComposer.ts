@@ -31,13 +31,18 @@ const QUOTES: Record<FoodFlavor, readonly string[]> = {
   neutral: ['새로운 한입이 작은 이야기를 열었어.', '신기한 발견이 카드로 깨어났어.'],
 }
 
-function hash(value: string) {
+export function hash(value: string) {
   return [...value].reduce((result, character) =>
     Math.imul(result ^ character.charCodeAt(0), 16777619) >>> 0, 2166136261)
 }
 
 function pick<T>(items: readonly T[], seed: string) {
   return items[hash(seed) % items.length]
+}
+
+/** Deterministically rolls a 1-99 stat value from a seed string. */
+export function rollStat(seed: string): number {
+  return (hash(seed) % 99) + 1
 }
 
 export function composeCardCopy({

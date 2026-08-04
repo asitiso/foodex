@@ -1,24 +1,45 @@
 import { AMOUNT_META, FOOD_META } from './types'
 import type { FoodCard, FoodHistory, FoodType, MealAmount, Rarity } from './types'
 import { catalogForFoodType } from './v3Content'
+import { seasonForDate } from './v3Progression'
 import { FOOD_CATALOG } from './foodCatalog'
 import type { FoodDefinition } from './foodCatalog'
-import { composeCardCopy } from './cardComposer'
+import { composeCardCopy, hash, rollStat } from './cardComposer'
+import { mealSlot } from './mealOutcome'
+import { todaysWeather } from './inGameWeather'
 
 export function xpForAmount(amount: MealAmount): number {
   return AMOUNT_META[amount].xp
 }
 
+function normalizeFoodName(value: string) {
+  return value
+    .toLocaleLowerCase('ko-KR')
+    .replace(/\s+/g, '')
+    .replace(/[^\p{L}\p{N}]/gu, '')
+}
+
 export function rarityForFood(foodType: FoodType, foodName: string, history: FoodHistory): Rarity {
-  if (history.foodNames.includes(foodName)) {
+  const normalizedName = normalizeFoodName(foodName)
+  const hasSeenFoodName = history.foodNames.some((knownName) => normalizeFoodName(knownName) === normalizedName)
+
+  if (hasSeenFoodName) {
     return 'common'
+  }
+
+  if (history.foodTypes.includes(foodType)) {
+    return 'rare'
   }
 
   if (history.categories.includes(FOOD_META[foodType].category)) {
     return 'rare'
   }
 
-  return 'epic'
+  if (history.foodNames.length === 0 && history.categories.length === 0) {
+    return 'epic'
+  }
+
+  return 'rare'
 }
 
 export function createCard(
@@ -39,6 +60,30 @@ export function createCard(
     tags: ['other'],
   }
   const copy = composeCardCopy({ food, rarity, seed: input.mealId })
+  const stats = {
+    power: rollStat(`${input.mealId}:power`),
+    luck: rollStat(`${input.mealId}:luck`),
+    warmth: rollStat(`${input.mealId}:warmth`),
+  }
+  // Rolled independently of rarity so a common card can be just as shiny as a legendary one.
+  const isShiny = hash(`${input.mealId}:shiny`) % 20 === 0
+  const secretTags: string[] = []
+  if (mealSlot(input.now) === 'late') {
+    secretTags.push('midnight')
+  }
+  if (catalog.seasonId && catalog.seasonId === seasonForDate(input.now)) {
+    secretTags.push('seasonal')
+  }
+  // 'rainbow' is the special/rare in-game weather value; treat it as a "lucky day" bonus.
+  if (todaysWeather(input.now) === 'rainbow') {
+    secretTags.push('rainy')
+  }
+  // TODO(v7 phase 2/3): 'combo' secret tag (same-day tag variety, see mealOutcome.ts's
+  // `combo`) is deferred — createCard() only receives a summarized FoodHistory
+  // (foodTypes/foodNames/categories, no recordedAt), not same-day MealRecords, so
+  // detecting a same-day combo here would require plumbing full meal history through
+  // App.tsx's completeRecord and the repository layer, which is out of scope for the
+  // domain-only phase.
 
   return {
     id: input.mealId,
@@ -53,5 +98,8 @@ export function createCard(
     seasonId: catalog.seasonId,
     evolutionStage: 1,
     createdAt: input.now,
+    stats,
+    isShiny,
+    secretTags,
   }
 }

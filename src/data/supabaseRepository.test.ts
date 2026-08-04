@@ -98,6 +98,44 @@ describe('Supabase Foodex repository', () => {
     )
   })
 
+  it('upserts a card with stats, shiny flag, and secret tags when present', async () => {
+    const { client, operations } = createClient()
+    const repository = createSupabaseRepository(client as never, 'user-1')
+    const flavorCard: FoodCard = {
+      ...card,
+      stats: { power: 5, luck: 3, warmth: 8 },
+      isShiny: true,
+      secretTags: ['midnight'],
+    }
+
+    await repository.upsertMealBundle(meal, flavorCard, [], null)
+
+    expect(operations.get('food_cards')?.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stats: { power: 5, luck: 3, warmth: 8 },
+        is_shiny: true,
+        secret_tags: ['midnight'],
+      }),
+      { onConflict: 'user_id,meal_id' },
+    )
+  })
+
+  it('falls back to null/false/empty for an older-shape card missing flavor fields', async () => {
+    const { client, operations } = createClient()
+    const repository = createSupabaseRepository(client as never, 'user-1')
+
+    await expect(repository.upsertMealBundle(meal, card, [], null)).resolves.not.toThrow()
+
+    expect(operations.get('food_cards')?.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stats: null,
+        is_shiny: false,
+        secret_tags: [],
+      }),
+      { onConflict: 'user_id,meal_id' },
+    )
+  })
+
   it('upserts dialogue history with the authenticated owner and event', async () => {
     const { client, operations } = createClient()
     const repository = createSupabaseRepository(client as never, 'user-1')

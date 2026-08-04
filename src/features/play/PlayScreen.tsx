@@ -14,7 +14,7 @@ export function PlayScreen({
 }: {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   rewards: UserReward[]
-  onFuse: (fusion: FusionRecord, reward: UserReward) => void
+  onFuse: (fusion: FusionRecord, reward: UserReward, consumedCardIds: readonly string[]) => void
   onApplyCosmetic: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
 }) {
   const [activeTab, setActiveTab] = useState<PlayTab>('fusion')

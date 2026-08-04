@@ -40,6 +40,9 @@ export interface FoodCard {
   skinId?: string
   backgroundId?: string
   createdAt: number
+  stats?: { power: number; luck: number; warmth: number }
+  isShiny?: boolean
+  secretTags?: string[]
 }
 
 interface CardCopy {
@@ -107,6 +110,20 @@ export const FOOD_META: Record<FoodType, {
     category: 'other',
     variants: [{ name: '새로운 발견대', quote: '새로운 한입을 기록했어.' }],
   },
+}
+
+export const FOOD_EMOJI: Record<FoodType, string> = {
+  ramen: '🍜',
+  rice: '🍚',
+  fruit: '🍎',
+  bread: '🥐',
+  side: '🥗',
+  snack: '🍪',
+  drink: '🧃',
+  dumpling: '🥟',
+  sushi: '🍣',
+  pasta: '🍝',
+  other: '✨',
 }
 
 export const AMOUNT_META: Record<MealAmount, { label: string; xp: number }> = {

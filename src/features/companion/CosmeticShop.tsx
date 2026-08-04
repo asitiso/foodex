@@ -7,16 +7,23 @@ export function CosmeticShop({
   ownedIds,
   online,
   onPurchase,
+  companionName = '푸디',
+  appliedIds = [],
+  onApply = () => undefined,
 }: {
   balance: number
   ownedIds: readonly string[]
   online: boolean
   onPurchase: (product: ShopProduct) => Promise<void>
+  companionName?: string
+  appliedIds?: readonly string[]
+  onApply?: (selection: { type: ShopProduct['type']; id?: string }) => void
 }) {
   const [preview, setPreview] = useState<ShopProduct>()
   const [purchasing, setPurchasing] = useState(false)
   const [message, setMessage] = useState('')
   const owned = new Set(ownedIds)
+  const personalize = (text: string) => text.replace(/푸디/g, companionName)
   const missingCoins = preview ? Math.max(0, preview.price - balance) : 0
   const canPurchase = Boolean(preview && online && !owned.has(preview.id) && missingCoins === 0)
 
@@ -46,13 +53,14 @@ export function CosmeticShop({
         </div>
         <strong className="coin-balance" aria-label={`보유 코인 ${balance}개`}>◆ {balance}</strong>
       </div>
-      <p className="shop-guide">식사를 기록해 모은 코인으로 푸디의 방을 꾸며보세요.</p>
+      <p className="shop-guide">{personalize(`식사를 기록해 모은 코인으로 ${companionName}의 방을 꾸며보세요.`)}</p>
       {!online && <p className="shop-offline-note">인터넷에 연결하면 안전하게 구매할 수 있어요.</p>}
       <div className="shop-product-grid">
         {SHOP_PRODUCTS.map((product) => {
           const isOwned = owned.has(product.id)
+          const isApplied = appliedIds.includes(product.id)
           return (
-            <article className={`shop-product ${isOwned ? 'owned' : ''}`} key={product.id}>
+            <article className={`shop-product ${isOwned ? 'owned' : ''}${isApplied ? ' applied' : ''}`} key={product.id}>
               <div className={`shop-product-preview ${product.previewClass}`} aria-hidden="true">
                 <span>{product.type === 'background' ? '▧' : '✦'}</span>
               </div>
@@ -61,14 +69,23 @@ export function CosmeticShop({
                 <h3>{product.title}</h3>
                 <p>{product.description}</p>
               </div>
-              <button
-                type="button"
-                aria-label={`${product.title} 미리보기`}
-                disabled={isOwned}
-                onClick={() => { setPreview(product); setMessage('') }}
-              >
-                {isOwned ? '보유 중' : `◆ ${product.price}`}
-              </button>
+              {isOwned ? (
+                <button
+                  type="button"
+                  aria-label={isApplied ? `${product.title} 해제` : `${product.title} 적용`}
+                  onClick={() => onApply({ type: product.type, id: isApplied ? undefined : product.id })}
+                >
+                  {isApplied ? '적용 중 · 해제' : '적용하기'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  aria-label={`${product.title} 미리보기`}
+                  onClick={() => { setPreview(product); setMessage('') }}
+                >
+                  {`◆ ${product.price}`}
+                </button>
+              )}
             </article>
           )
         })}
@@ -81,7 +98,7 @@ export function CosmeticShop({
           <section className="shop-dialog" role="dialog" aria-modal="true" aria-labelledby="shop-preview-title">
             <button className="shop-dialog-close" type="button" aria-label="미리보기 닫기" onClick={() => setPreview(undefined)}>×</button>
             <div className={`shop-dialog-preview ${preview.previewClass}`} aria-hidden="true">
-              <span>{preview.type === 'background' ? '푸디의 새 방' : '✦ 푸디 ✦'}</span>
+              <span>{preview.type === 'background' ? personalize(`${companionName}의 새 방`) : `✦ ${companionName} ✦`}</span>
             </div>
             <small>{preview.type === 'background' ? '방 배경' : '캐릭터 장식'}</small>
             <h3 id="shop-preview-title">{preview.title}</h3>

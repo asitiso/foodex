@@ -33,6 +33,7 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
   const [foodType, setFoodType] = useState<FoodType>()
   const [foodName, setFoodName] = useState<string>()
   const [selectedFoodId, setSelectedFoodId] = useState<string>()
+  const [customFoods, setCustomFoods] = useState<FoodDefinition[]>([])
   const [amount, setAmount] = useState<MealAmount>()
   const [photoError, setPhotoError] = useState<string>()
   const [isOpeningCamera, setIsOpeningCamera] = useState(false)
@@ -74,6 +75,14 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
   }
 
   const selectFood = (food: FoodDefinition) => {
+    if (food.id.startsWith('custom-')) {
+      const normalized = food.name.trim()
+      setCustomFoods((previous) => {
+        const known = previous.some((entry) => entry.name.trim().toLocaleLowerCase('ko-KR') === normalized.toLocaleLowerCase())
+        return known ? previous : [...previous, food]
+      })
+    }
+
     setFoodType(food.foodType)
     setFoodName(food.name)
     setSelectedFoodId(food.id)
@@ -150,7 +159,12 @@ export function RecordFlow({ onComplete, onCancel, recovery, recentMeals = [] }:
         <div className="record-step">
           <h1>무엇을 먹었어?</h1>
           <p>가장 가까운 친구를 골라 줘.</p>
-          <FoodQuickPicker suggestions={suggestions} selectedId={selectedFoodId} onSelect={selectFood} />
+          <FoodQuickPicker
+            suggestions={[...suggestions, ...customFoods]}
+            customFoods={customFoods}
+            selectedId={selectedFoodId}
+            onSelect={selectFood}
+          />
           <div className="record-actions">
             <button className="text-button" type="button" onClick={() => setStep('photo')}>이전</button>
             <button type="button" onClick={() => setStep('amount')} disabled={!foodType}>다음</button>

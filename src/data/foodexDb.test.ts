@@ -89,8 +89,7 @@ describe('Foodex repository', () => {
     }])
     await repo.saveFusion({
       id: 'fusion-1',
-      leftCardId: 'card-1',
-      rightCardId: 'card-2',
+      sourceCardIds: ['card-1', 'card-2'],
       fusionCatalogId: 'ramen-rice-hero',
       createdAt: 1,
     })

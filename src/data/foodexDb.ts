@@ -31,8 +31,7 @@ export interface UserReward {
 
 export interface FusionRecord {
   id: string
-  leftCardId: string
-  rightCardId: string
+  sourceCardIds: readonly string[]
   fusionCatalogId: string
   createdAt: number
 }
@@ -97,6 +96,7 @@ export interface FoodexRepository {
   listRewards?(): Promise<UserReward[]>
   saveFusion?(fusion: FusionRecord): Promise<void>
   updateCard?(card: FoodCard): Promise<void>
+  deleteCards?(cardIds: readonly string[]): Promise<void>
   syncPending?(): Promise<void>
   migrateLegacyData?(): Promise<void>
   listDialogueHistory?(): Promise<DialogueHistoryItem[]>
@@ -105,6 +105,7 @@ export interface FoodexRepository {
   saveExperienceSettings?(settings: ExperienceSettings): Promise<void>
   getCoinBalance?(): Promise<number>
   purchaseShopProduct?(product: ShopProduct): Promise<UserReward>
+  grantCoins?(transaction: CoinTransaction): Promise<void>
 }
 
 const DEFAULT_DATABASE_NAME = 'foodex'
@@ -166,6 +167,7 @@ export interface LocalFoodexRepository extends FoodexRepository {
   listRewards(): Promise<UserReward[]>
   saveFusion(fusion: FusionRecord): Promise<void>
   listFusions(): Promise<FusionRecord[]>
+  deleteCards(cardIds: readonly string[]): Promise<void>
   getSetting(key: string): Promise<string | undefined>
   setSetting(key: string, value: string): Promise<void>
   getEntry(mealId: string): Promise<{ meal: MealRecord; card: FoodCard } | undefined>
@@ -179,6 +181,7 @@ export interface LocalFoodexRepository extends FoodexRepository {
   getCoinTransaction(key: string): Promise<CoinTransaction | undefined>
   getCoinBalance(): Promise<number>
   purchaseProduct(product: ShopProduct, purchaseId: string, purchasedAt: number): Promise<UserReward>
+  grantCoins(transaction: CoinTransaction): Promise<void>
 }
 
 async function withDatabase<T>(name: string, action: (database: IDBPDatabase<FoodexDatabaseSchema>) => Promise<T>): Promise<T> {
@@ -298,6 +301,16 @@ export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): Lo
       return withDatabase(databaseName, (database) => database.getAll('fusions'))
     },
 
+    async deleteCards(cardIds) {
+      await withDatabase(databaseName, async (database) => {
+        const transaction = database.transaction('cards', 'readwrite')
+        await Promise.all([
+          ...cardIds.map((cardId) => transaction.store.delete(cardId)),
+          transaction.done,
+        ])
+      })
+    },
+
     async getSetting(key) {
       const setting = await withDatabase(databaseName, (database) => database.get('settings', key))
       return setting?.value
@@ -363,6 +376,10 @@ export function createFoodexRepository(databaseName = DEFAULT_DATABASE_NAME): Lo
     async getCoinBalance() {
       return withDatabase(databaseName, async (database) =>
         walletBalance(await database.getAll('coinTransactions')))
+    },
+
+    async grantCoins(transaction) {
+      await withDatabase(databaseName, (database) => database.put('coinTransactions', transaction))
     },
 
     async purchaseProduct(product, purchaseId, purchasedAt) {

@@ -1,5 +1,5 @@
 import '../../styles.css'
-import { FOOD_META } from '../../domain/types'
+import { FOOD_EMOJI, FOOD_META } from '../../domain/types'
 import type { FoodCard, FoodType } from '../../domain/types'
 import { useEffect, useMemo, useRef } from 'react'
 import type { ReactNode } from 'react'
@@ -22,25 +22,22 @@ interface CardRevealProps {
   onDiscard: () => void
 }
 
-const FOOD_EMOJI: Record<FoodType, string> = {
-  ramen: '🍜',
-  rice: '🍚',
-  fruit: '🍎',
-  bread: '🥐',
-  side: '🥗',
-  snack: '🍪',
-  drink: '🧃',
-  dumpling: '🥟',
-  sushi: '🍣',
-  pasta: '🍝',
-  other: '✨',
-}
-
 const DEFAULT_EXPERIENCE_SETTINGS: ExperienceSettings = {
   soundEnabled: true,
   musicEnabled: false,
   hapticsEnabled: true,
   reducedMotion: false,
+}
+
+const SECRET_TAG_META: Record<string, string> = {
+  midnight: '🌙 심야 카드',
+  seasonal: '🍉 제철 카드',
+  rainy: '🌈 행운의 날 카드',
+}
+
+function secretTagLabels(secretTags?: string[]) {
+  if (!secretTags) return []
+  return secretTags.map((tag) => SECRET_TAG_META[tag]).filter((label): label is string => Boolean(label))
 }
 
 export function CardReveal({
@@ -57,6 +54,7 @@ export function CardReveal({
 }: CardRevealProps) {
   const feedback = useMemo(() => directFeedback({ type: 'card', rarity: card.rarity }), [card.rarity])
   const feedbackPlayed = useRef(false)
+  const secretTags = useMemo(() => secretTagLabels(card.secretTags), [card.secretTags])
 
   useEffect(() => {
     if (feedbackPlayed.current) return
@@ -74,9 +72,21 @@ export function CardReveal({
       <div className="reward-spotlight" aria-hidden="true"><span>✦</span><span>✦</span><span>✦</span></div>
       <p className="reward-headline">식사 카드 획득!</p>
       <p className="eyebrow">새 카드 발견!</p>
+      {integratedResult?.evolvedFood && (
+        <section className="evolution-reveal-banner" aria-label="진화 알림">
+          <span aria-hidden="true">🎉</span>
+          <strong>{integratedResult.evolvedFood.title}(으)로 진화했어요!</strong>
+        </section>
+      )}
       <div className="card-scene card-scene-reveal">
-        <article className={`food-card rarity-${card.rarity} card-arrival-pop`}>
+        <article className={`food-card rarity-${card.rarity} card-arrival-pop${card.isShiny ? ' shiny' : ''}`}>
           <div className="sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span></div>
+          {card.isShiny && (
+            <div className="sparkles shiny-sparkles" aria-hidden="true">
+              <span>✨</span><span>⭐</span><span>✨</span><span>⭐</span><span>✨</span>
+            </div>
+          )}
+          {card.isShiny && <span className="shiny-badge">✨ 반짝이 카드!</span>}
           <div className="food-card-face food-card-front">
             <span className="rarity-badge">{card.rarity.toUpperCase()}</span>
             <div className="food-illustration" aria-label={FOOD_META[foodType].label}>
@@ -89,6 +99,18 @@ export function CardReveal({
           </div>
         </article>
       </div>
+      {card.stats && (
+        <div className="card-stats-row" aria-label="힘 · 행운 · 온기">
+          <span><b>힘</b>{card.stats.power}</span>
+          <span><b>행운</b>{card.stats.luck}</span>
+          <span><b>온기</b>{card.stats.warmth}</span>
+        </div>
+      )}
+      {secretTags.length > 0 && (
+        <div className="secret-tag-badges" aria-label="비밀 조건 카드">
+          {secretTags.map((label) => <span className="secret-tag-badge" key={label}>{label}</span>)}
+        </div>
+      )}
       {integratedResult && (
         <section className="integrated-reward-result" aria-label="통합 보상">
           <p className="eyebrow">MEAL REWARD</p>

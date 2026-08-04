@@ -106,15 +106,39 @@ describe('progression', () => {
     expect(progression.season).toEqual({
       id: 'summer-bite',
       title: '여름 한입 시즌',
+      description: '여름 한정 이벤트예요. 아래 4가지를 모두 채우면 특별한 보상을 받아요.',
       completedSteps: 3,
       totalSteps: 4,
       rewardTitle: '전설의 여름 식탁',
       completed: false,
+      steps: [
+        { label: '과일 카드 발견하기', completed: true },
+        { label: '음료 카드 발견하기', completed: true },
+        { label: '밥이나 라면 2번 기록하기', completed: true },
+        { label: '5일 연속 기록하기', completed: false },
+      ],
     })
+    expect(progression.seasonMissions.length).toBeGreaterThanOrEqual(2)
+    expect(progression.seasonMissions.length).toBeLessThanOrEqual(3)
+    for (const mission of progression.seasonMissions) {
+      expect(mission).toEqual(expect.objectContaining({
+        id: expect.any(String),
+        title: expect.any(String),
+        description: expect.any(String),
+        completedSteps: expect.any(Number),
+        totalSteps: expect.any(Number),
+        rewardTitle: expect.any(String),
+        completed: expect.any(Boolean),
+        steps: expect.any(Array),
+      }))
+    }
+    expect(progression.seasonMissions[0]).toEqual(progression.season)
     expect(progression.rewardBox).toEqual({
       available: true,
       title: '오늘의 상자',
-      rewardPreview: 'XP 보너스 또는 시즌 조각',
+      rewardPreview: expect.stringMatching(/^보너스 코인 \d+개$/),
+      dayKey: '2026-07-30',
+      coinAmount: expect.any(Number),
     })
     expect(progression.collectionBonuses.filter((bonus) => bonus.unlocked).map((bonus) => bonus.id)).toEqual([
       'noodle-explorer',

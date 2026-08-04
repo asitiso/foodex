@@ -16,6 +16,7 @@ const FORMS: Record<CompanionCharacterId, readonly string[]> = {
   berry: ['작은 베리', '상큼한 베리', '숲의 탐험가', '생명의 정원사'],
   noodle: ['작은 누들', '용감한 누들', '면 요리 기사', '국물의 전설'],
   cocoa: ['작은 코코아', '달콤한 코코아', '간식 연금술사', '축제의 파티셰'],
+  daqong: ['작은 다쿵이', '깜찍한 다쿵이', '씩씩한 병아리 기사', '눈부신 황금빛 닭'],
 }
 const THRESHOLDS: readonly number[] = [0, 3, 7, 14]
 

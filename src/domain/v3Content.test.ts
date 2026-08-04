@@ -20,19 +20,18 @@ describe('V3 content catalog', () => {
       expect(cosmeticIds.has(set.reward.rewardId)).toBe(true)
     })
     FUSION_RECIPES.forEach((recipe) => {
-      expect(foodIds.has(recipe.leftCatalogId)).toBe(true)
-      expect(foodIds.has(recipe.rightCatalogId)).toBe(true)
+      recipe.requiredCatalogIds.forEach((id) => expect(foodIds.has(id)).toBe(true))
     })
     FOOD_EVENTS.forEach((event) => expect(foodIds.has(event.rewardCatalogId)).toBe(true))
   })
 
-  it('has unique ids and order-independent fusion pairs', () => {
+  it('has unique ids and order-independent fusion combinations', () => {
     const ids = FOOD_CATALOG.map((food) => food.id)
-    const pairs = FUSION_RECIPES.map((recipe) =>
-      [recipe.leftCatalogId, recipe.rightCatalogId].sort().join(':'),
+    const combinations = FUSION_RECIPES.map((recipe) =>
+      [...recipe.requiredCatalogIds].sort().join(':'),
     )
 
     expect(new Set(ids).size).toBe(ids.length)
-    expect(new Set(pairs).size).toBe(pairs.length)
+    expect(new Set(combinations).size).toBe(combinations.length)
   })
 })

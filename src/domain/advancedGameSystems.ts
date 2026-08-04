@@ -1,8 +1,8 @@
 import type { CompanionClassId } from './companionClasses'
-import type { FoodType, MealRecord } from './types'
+import type { FoodCard, FoodType, MealRecord } from './types'
 import { buildMealOutcome } from './mealOutcome'
 
-type Entry = { meal: MealRecord }
+type Entry = { meal: MealRecord; card?: FoodCard }
 export interface AdvancedGameSystems {
   skill: { name: string; effect: string; active: boolean }
   dungeon: { rooms: Array<{ id: string; name: string; cleared: boolean }>; cleared: number; bossCleared: boolean }
@@ -10,8 +10,12 @@ export interface AdvancedGameSystems {
   transformation: { ready: boolean; message: string }
   recipes: string[]
   equipment: string[]
-  boss: { name: string; hp: number; maxHp: number; defeated: boolean }
+  boss: { name: string; hp: number; maxHp: number; defeated: boolean; mvpCard?: { name: string; bonusDamage: number } }
   npcs: string[]
+}
+
+function bestStat(card: FoodCard) {
+  return card.stats ? Math.max(card.stats.power, card.stats.luck, card.stats.warmth) : 0
 }
 
 export function buildAdvancedGameSystems(entries: Entry[], classId: CompanionClassId | undefined, evolutionStage: number): AdvancedGameSystems {
@@ -31,7 +35,13 @@ export function buildAdvancedGameSystems(entries: Entry[], classId: CompanionCla
   const bossMax = 100
   const todayRecords = meals.filter((meal) => new Date(meal.recordedAt).toDateString() === new Date().toDateString())
   const bossDamage = todayRecords.reduce((sum, meal, index) => sum + buildMealOutcome(meal, todayRecords.slice(0, index), classId).bossDamage, 0)
-  const bossHp = Math.max(0, bossMax - Math.min(100, bossDamage))
+  const todayCards = entries
+    .filter(({ meal, card }) => card && new Date(meal.recordedAt).toDateString() === today)
+    .map(({ card }) => card as FoodCard)
+  const mvpCard = todayCards.reduce<FoodCard | undefined>((best, card) =>
+    !best || bestStat(card) > bestStat(best) ? card : best, undefined)
+  const mvpBonusDamage = mvpCard ? Math.round(bestStat(mvpCard) / 10) : 0
+  const bossHp = Math.max(0, bossMax - Math.min(100, bossDamage + mvpBonusDamage))
   const recipes = [types.has('rice') && types.has('side') ? '든든한 집밥' : '', types.has('bread') && types.has('fruit') ? '아침 탐험 세트' : '', types.has('ramen') && types.has('side') ? '면 요새 세트' : ''].filter(Boolean)
   const equipment = [total >= 3 ? '푸디 앞치마' : '', total >= 7 ? '탐험 배낭' : '', total >= 14 ? '빛나는 왕관' : ''].filter(Boolean)
   const npcs = [types.has('rice') ? '쌀 마을 이장' : '', types.has('fruit') ? '숲의 요정' : '', types.has('ramen') ? '국물 장인' : '', types.has('bread') ? '빵집 셰프' : ''].filter(Boolean)
@@ -42,7 +52,13 @@ export function buildAdvancedGameSystems(entries: Entry[], classId: CompanionCla
     transformation: { ready: evolutionStage >= 2, message: evolutionStage >= 2 ? '새로운 변신의 힘이 깨어났어요!' : '식사 3끼를 기록하면 변신해요.' },
     recipes,
     equipment,
-    boss: { name: '야식 몬스터', hp: bossHp, maxHp: bossMax, defeated: bossHp === 0 },
+    boss: {
+      name: '야식 몬스터',
+      hp: bossHp,
+      maxHp: bossMax,
+      defeated: bossHp === 0,
+      ...(mvpCard && mvpBonusDamage > 0 ? { mvpCard: { name: mvpCard.name, bonusDamage: mvpBonusDamage } } : {}),
+    },
     npcs,
   }
 }

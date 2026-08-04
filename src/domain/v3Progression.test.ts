@@ -46,13 +46,22 @@ describe('V3 progression', () => {
     expect(buildV3Progress(entries, ['sunny-picnic'], Date.now()).newRewards).toEqual([])
   })
 
-  it('resolves fusion regardless of selection order without changing source cards', () => {
+  it('resolves 2-card fusion regardless of selection order', () => {
     const ramen = entry('ramen', 'ramen', 'korea').card
     const rice = entry('rice', 'rice', 'korea').card
 
-    expect(resolveFusion(ramen, rice)?.id).toBe('ramen-rice-hero')
-    expect(resolveFusion(rice, ramen)?.id).toBe('ramen-rice-hero')
-    expect([ramen.id, rice.id]).toEqual(['card-ramen', 'card-rice'])
+    expect(resolveFusion([ramen, rice])?.id).toBe('ramen-rice-hero')
+    expect(resolveFusion([rice, ramen])?.id).toBe('ramen-rice-hero')
+  })
+
+  it('resolves 3-card fusion and rejects duplicate cards', () => {
+    const ramen = entry('ramen', 'ramen', 'korea').card
+    const rice = entry('rice', 'rice', 'korea').card
+    const dumpling = entry('dumpling', 'dumpling', 'china').card
+
+    expect(resolveFusion([ramen, rice, dumpling])?.id).toBe('korea-china-japan-trio')
+    expect(resolveFusion([dumpling, rice, ramen])?.id).toBe('korea-china-japan-trio')
+    expect(resolveFusion([ramen, ramen, rice])).toBeUndefined()
   })
 
   it('uses Korean calendar months for seasons and exposes active events', () => {

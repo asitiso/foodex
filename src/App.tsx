@@ -19,7 +19,7 @@ import { deriveRoomUnlocks } from './domain/roomProgression'
 import type { FoodCard, MealRecord } from './domain/types'
 import type { UserReward } from './data/foodexDb'
 import type { ExperienceSettings } from './domain/companionTypes'
-import type { CompanionCharacterId } from './domain/companionCharacters'
+import { getCompanionCharacter, type CompanionCharacterId } from './domain/companionCharacters'
 import { buildCompanionEvolution } from './domain/companionEvolution'
 import { buildCompanionClasses } from './domain/companionClasses'
 import type { CompanionClassId } from './domain/companionClasses'
@@ -28,9 +28,12 @@ import { buildIntegratedMealResult } from './domain/integratedMealResult'
 import type { IntegratedMealResult } from './domain/integratedMealResult'
 import type { AuthBootstrapResult } from './auth/anonymousSession'
 import { AdventureScreen } from './features/adventure/AdventureScreen'
+import { rewardBoxKey } from './domain/coinWallet'
+import type { CoinTransaction } from './domain/coinWallet'
 import { CollectionScreen } from './features/collection/CollectionScreen'
 import { ProtectCollection } from './features/account/ProtectCollection'
 import { CompanionScreen } from './features/companion/CompanionScreen'
+import type { CompanionTab } from './features/companion/CompanionScreen'
 import { HomeScreen } from './features/home/HomeScreen'
 import { RecordFlow } from './features/record/RecordFlow'
 import type { MealDraft } from './features/record/RecordFlow'
@@ -86,6 +89,7 @@ export function App({
 }) {
   const [repository, setRepository] = useState<FoodexRepository>(providedRepository)
   const [screen, setScreen] = useState<Screen>('home')
+  const [companionInitialTab, setCompanionInitialTab] = useState<CompanionTab>('journal')
   const [entries, setEntries] = useState<Array<{ card: FoodCard; meal: MealRecord }>>([])
   const [summary, setSummary] = useState(emptySummary)
   const [pending, setPending] = useState<PendingDiscovery>()
@@ -102,12 +106,22 @@ export function App({
   }))
   const [characterId, setCharacterId] = useState<CompanionCharacterId>(() => {
     const saved = window.localStorage.getItem('foodex-companion-character')
-    return saved === 'berry' || saved === 'noodle' || saved === 'cocoa' ? saved : 'foody'
+    return saved === 'berry' || saved === 'noodle' || saved === 'cocoa' || saved === 'daqong' ? saved : 'daqong'
+  })
+  const [characterName, setCharacterName] = useState<string>(() => {
+    const saved = window.localStorage.getItem('foodex-companion-name')
+    return saved && saved.trim() ? saved : '다쿵이'
   })
   const [classId, setClassId] = useState<CompanionClassId | undefined>(() => {
     const saved = window.localStorage.getItem('foodex-companion-class')
     return saved as CompanionClassId | undefined
   })
+  const [roomBackgroundId, setRoomBackgroundId] = useState<string | undefined>(() =>
+    window.localStorage.getItem('foodex-room-background') ?? undefined)
+  const [roomAccessoryId, setRoomAccessoryId] = useState<string | undefined>(() =>
+    window.localStorage.getItem('foodex-room-accessory') ?? undefined)
+  const [openedRewardBoxDay, setOpenedRewardBoxDay] = useState<string | undefined>(() =>
+    window.localStorage.getItem('foodex-rewardbox-day') ?? undefined)
   const [discovery, setDiscovery] = useState<V3DiscoveryResult>()
   const [syncState, setSyncState] = useState<SyncState>(
     initialAuthResult?.mode === 'local' ? 'local-only' : 'idle',
@@ -118,13 +132,14 @@ export function App({
   const [saveMode, setSaveMode] = useState<SaveMode>('withPhoto')
   const latestRefresh = useRef(0)
   const supabaseClient = useRef<SupabaseClient | null>(null)
+  const companionDisplayName = characterId === 'daqong' ? (characterName || '다쿵이').trim() || '다쿵이' : getCompanionCharacter(characterId).name
   const progression = useMemo(
     () => buildProgression(entries, Date.now(), rewards.map((reward) => reward.rewardId)),
     [entries, rewards],
   )
   const companionEvolution = useMemo(() => buildCompanionEvolution(characterId, entries.map(({ meal }) => ({ meal }))), [characterId, entries])
   const companionClasses = useMemo(() => buildCompanionClasses(entries.map(({ meal }) => ({ meal })), classId), [entries, classId])
-  const advancedSystems = useMemo(() => buildAdvancedGameSystems(entries.map(({ meal }) => ({ meal })), classId, companionEvolution.stage), [entries, classId, companionEvolution.stage])
+  const advancedSystems = useMemo(() => buildAdvancedGameSystems(entries.map(({ meal, card }) => ({ meal, card })), classId, companionEvolution.stage), [entries, classId, companionEvolution.stage])
   const worldProgress = useMemo(() => buildWorldProgress(entries.map(({ meal }) => ({ meal }))), [entries])
   const gameLoop = useMemo(() => buildGameLoop(entries, Date.now()), [entries])
   const companion = useMemo(() => {
@@ -150,12 +165,16 @@ export function App({
       celebratory: 'celebrating',
       positive: 'expectant',
     } as const
+    const personalizeDialogue = (text: string) => {
+      const ownerName = companionDisplayName || getCompanionCharacter(characterId).name
+      return text.replace(/푸디/g, ownerName)
+    }
 
     return {
-      line: discovery ? `${discovery.regionTitle}에 새 친구가 나타났어요` : dialogue.text,
+      line: discovery ? `${discovery.regionTitle}에 새 친구가 나타났어요` : personalizeDialogue(dialogue.text),
       emotion: emotion[events.primary.tone],
     }
-  }, [discovery, entries, progression])
+  }, [characterId, companionDisplayName, discovery, entries, progression])
   const roomUnlocks = useMemo(() => deriveRoomUnlocks(progression), [progression])
   const pendingAdventureResult = useMemo(() => pending
     ? buildMealAdventureResult({
@@ -356,6 +375,31 @@ export function App({
   }
 
   const activeTab = screen === 'reveal' ? 'record' : screen
+  const applyRoomCosmetic = (selection: { type: 'background' | 'accessory'; id?: string }) => {
+    if (selection.type === 'background') {
+      setRoomBackgroundId(selection.id)
+      if (selection.id) window.localStorage.setItem('foodex-room-background', selection.id)
+      else window.localStorage.removeItem('foodex-room-background')
+    } else {
+      setRoomAccessoryId(selection.id)
+      if (selection.id) window.localStorage.setItem('foodex-room-accessory', selection.id)
+      else window.localStorage.removeItem('foodex-room-accessory')
+    }
+  }
+  const openRewardBox = async () => {
+    if (openedRewardBoxDay === progression.rewardBox.dayKey) return
+    const transaction: CoinTransaction = {
+      id: crypto.randomUUID(),
+      key: rewardBoxKey(progression.rewardBox.dayKey),
+      kind: 'box-earned',
+      amount: progression.rewardBox.coinAmount,
+      createdAt: Date.now(),
+    }
+    await repository.grantCoins?.(transaction)
+    setCoinBalance((balance) => balance + progression.rewardBox.coinAmount)
+    setOpenedRewardBoxDay(progression.rewardBox.dayKey)
+    window.localStorage.setItem('foodex-rewardbox-day', progression.rewardBox.dayKey)
+  }
   const historyRecovery = screen === 'record' && readError === 'history' && failedDraft ? (
     <RecoveryAlert>
       <p>카드를 만들 준비를 하지 못했어요. 다시 시도해 주세요.</p>
@@ -387,6 +431,7 @@ export function App({
           mealGameLoop={progression.mealGameLoop}
           mealAdventure={progression.mealAdventure}
           characterId={characterId}
+          characterName={companionDisplayName}
           evolution={companionEvolution}
           companionClass={companionClasses.find((item) => item.recommended)}
           advancedSystems={advancedSystems}
@@ -394,11 +439,14 @@ export function App({
           companionEmotion={companion.emotion}
           decorationIds={roomUnlocks.map((unlock) => unlock.id)}
           reducedMotion={experienceSettings.reducedMotion}
+          roomBackgroundId={roomBackgroundId}
+          roomAccessoryId={roomAccessoryId}
           nextGoal={lastIntegratedResult?.nextGoal.label}
           onRecord={() => navigate('record')}
           onOpenCollection={() => navigate('collection')}
           onOpenAdventure={() => navigate('adventure')}
-          onOpenCompanion={() => navigate('companion')}
+          onOpenCompanion={() => { setCompanionInitialTab('journal'); navigate('companion') }}
+          onOpenShop={() => { setCompanionInitialTab('room'); navigate('companion') }}
         />
       )}
       {screen === 'record' && <RecordFlow onComplete={completeRecord} onCancel={() => navigate('home')} recovery={historyRecovery} recentMeals={entries.map(({ meal }) => meal)} />}
@@ -408,9 +456,13 @@ export function App({
           progression={progression}
           recentCardId={lastIntegratedResult?.cardId}
           rewards={rewards}
-          onFuse={(fusion, reward) => {
+          onFuse={(fusion, reward, consumedCardIds) => {
             void repository.saveFusion?.(fusion)
             void repository.saveRewards?.([reward])
+            if (consumedCardIds.length > 0) {
+              void repository.deleteCards?.(consumedCardIds)
+              setEntries((current) => current.filter(({ card }) => !consumedCardIds.includes(card.id)))
+            }
             setRewards((current) => current.some((item) => item.key === reward.key)
               ? current
               : [...current, reward])
@@ -427,7 +479,18 @@ export function App({
           }}
         />
       )}
-      {screen === 'adventure' && <AdventureScreen progression={progression} worldProgress={worldProgress} gameLoop={gameLoop} recentQuestIds={lastIntegratedResult?.completedQuestIds} recentAchievementIds={lastIntegratedResult?.unlockedAchievementIds} />}
+      {screen === 'adventure' && (
+        <AdventureScreen
+          progression={progression}
+          worldProgress={worldProgress}
+          gameLoop={gameLoop}
+          advancedSystems={advancedSystems}
+          recentQuestIds={lastIntegratedResult?.completedQuestIds}
+          recentAchievementIds={lastIntegratedResult?.unlockedAchievementIds}
+          rewardBoxOpened={openedRewardBoxDay === progression.rewardBox.dayKey}
+          onOpenRewardBox={() => void openRewardBox()}
+        />
+      )}
       {screen === 'companion' && (
         <CompanionScreen
           entries={entries}
@@ -440,11 +503,12 @@ export function App({
             void repository.saveExperienceSettings?.(value)
           }}
           characterId={characterId}
-          onCharacterChange={(id) => { setCharacterId(id); window.localStorage.setItem('foodex-companion-character', id) }}
+          characterName={companionDisplayName}
+          onCharacterChange={(id) => { setCharacterId(id); window.localStorage.setItem('foodex-companion-character', id); if (id !== 'daqong') { setCharacterName('다쿵이'); window.localStorage.setItem('foodex-companion-name', '다쿵이') } }}
+          onCharacterNameChange={(name) => { setCharacterName(name); window.localStorage.setItem('foodex-companion-name', name) }}
           evolution={companionEvolution}
           companionClasses={companionClasses}
           onClassChange={(id) => { setClassId(id); window.localStorage.setItem('foodex-companion-class', id) }}
-          advancedSystems={advancedSystems}
           coinBalance={coinBalance}
           shopOnline={Boolean(repository.purchaseShopProduct && navigator.onLine)}
           onPurchaseProduct={async (product) => {
@@ -452,6 +516,10 @@ export function App({
             await repository.purchaseShopProduct(product)
             await refresh()
           }}
+          initialTab={companionInitialTab}
+          roomBackgroundId={roomBackgroundId}
+          roomAccessoryId={roomAccessoryId}
+          onApplyRoomCosmetic={applyRoomCosmetic}
         />
       )}
       {screen === 'home' && canProtectCollection && (

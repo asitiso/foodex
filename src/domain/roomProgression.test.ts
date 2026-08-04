@@ -22,7 +22,7 @@ describe('deriveRoomUnlocks', () => {
       season: { ...progression.season, completed: true },
       v3: {
         ...progression.v3,
-        completedSetIds: ['korean-table', 'sunny-bites', 'street-team'],
+        completedSetIds: ['korea-full-course', 'sunny-bites', 'street-team'],
       },
     })
 

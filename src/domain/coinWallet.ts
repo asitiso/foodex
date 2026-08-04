@@ -1,7 +1,8 @@
 import type { MealRecord } from './types'
 import type { ShopProduct } from './shopCatalog'
+import { hash } from './cardComposer'
 
-export type CoinTransactionKind = 'meal-earned' | 'shop-spent'
+export type CoinTransactionKind = 'meal-earned' | 'shop-spent' | 'box-earned'
 
 export interface CoinTransaction {
   id: string
@@ -36,6 +37,16 @@ export function coinsForMeal(meal: MealRecord, history: readonly MealRecord[]): 
   ))
 
   return earlierMealsToday.length === 0 ? 5 : 8
+}
+
+export function rewardBoxKey(day: string): string {
+  return `box:${day}:coins`
+}
+
+const REWARD_BOX_AMOUNTS = [10, 15, 20, 25, 30] as const
+
+export function rewardBoxCoinAmount(seed: string): number {
+  return REWARD_BOX_AMOUNTS[hash(seed) % REWARD_BOX_AMOUNTS.length]
 }
 
 export function walletBalance(transactions: readonly CoinTransaction[]): number {

@@ -85,4 +85,47 @@ describe('integrated meal result', () => {
 
     expect(result.persistedRewards.map((reward) => reward.key)).not.toContain(key)
   })
+
+  it('reports evolvedFood when a save crosses an evolution threshold', () => {
+    const earlierRamen = (index: number): { meal: MealRecord; card: FoodCard } => {
+      const recordedAtEarlier = recordedAt - (index + 1) * 86_400_000
+      const earlierMeal: MealRecord = { ...meal, id: `meal-ramen-${index}`, recordedAt: recordedAtEarlier }
+      const earlierCard: FoodCard = { ...card, id: `card-ramen-${index}`, mealId: earlierMeal.id, createdAt: recordedAtEarlier }
+      return { meal: earlierMeal, card: earlierCard }
+    }
+    const previousEntries = [earlierRamen(0), earlierRamen(1)]
+    const before = buildProgression(previousEntries, recordedAt)
+    const after = buildProgression([...previousEntries, { meal, card }], recordedAt)
+
+    const result = buildIntegratedMealResult({
+      meal,
+      card,
+      history: previousEntries.map((entry) => entry.meal),
+      before,
+      after,
+      existingRewardKeys: [],
+    })
+
+    expect(result.evolvedFood).toEqual({
+      foodType: 'ramen',
+      title: '불꽃 라면 Lv.2',
+      stage: 2,
+    })
+  })
+
+  it('leaves evolvedFood undefined when no threshold is crossed', () => {
+    const before = buildProgression([], recordedAt)
+    const after = buildProgression([{ meal, card }], recordedAt)
+
+    const result = buildIntegratedMealResult({
+      meal,
+      card,
+      history: [],
+      before,
+      after,
+      existingRewardKeys: [],
+    })
+
+    expect(result.evolvedFood).toBeUndefined()
+  })
 })

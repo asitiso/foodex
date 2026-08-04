@@ -3,6 +3,8 @@ import type { MealRecord } from './types'
 import {
   coinsForMeal,
   mealCoinKey,
+  rewardBoxCoinAmount,
+  rewardBoxKey,
   validatePurchase,
   walletBalance,
   type CoinTransaction,
@@ -61,6 +63,13 @@ describe('coin wallet rules', () => {
     ]
 
     expect(walletBalance(transactions)).toBe(2)
+  })
+
+  it('rolls a deterministic reward box amount and a stable per-day key', () => {
+    expect(rewardBoxKey('2026-07-10')).toBe('box:2026-07-10:coins')
+    const amount = rewardBoxCoinAmount('2026-07-10')
+    expect(rewardBoxCoinAmount('2026-07-10')).toBe(amount)
+    expect([10, 15, 20, 25, 30]).toContain(amount)
   })
 
   it('blocks owned products and reports the exact missing coin amount', () => {

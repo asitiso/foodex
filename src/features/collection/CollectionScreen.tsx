@@ -11,19 +11,18 @@ import type { CosmeticType } from '../../domain/types'
 interface CollectionScreenProps {
   entries: Array<{ card: FoodCard; meal: MealRecord }>
   progression: Progression
-  onFuse?: (fusion: FusionRecord, reward: UserReward) => void
+  onFuse?: (fusion: FusionRecord, reward: UserReward, consumedCardIds: readonly string[]) => void
   rewards?: UserReward[]
   onApplyCosmetic?: (cardId: string, cosmetic: { type: CosmeticType; id: string }) => void
   recentCardId?: string
 }
 
-type CollectionTab = 'cards' | 'growth' | 'world' | 'sets' | 'fusion'
+type CollectionTab = 'cards' | 'world' | 'sets' | 'fusion'
 
 const tabs: Array<{ id: CollectionTab; label: string }> = [
   { id: 'cards', label: '앨범' },
-  { id: 'growth', label: '성장' },
-  { id: 'world', label: '세계지도' },
-  { id: 'sets', label: '세트 도감' },
+  { id: 'world', label: '발견 지역' },
+  { id: 'sets', label: '세트' },
   { id: 'fusion', label: '퓨전' },
 ]
 
@@ -77,21 +76,25 @@ export function CollectionScreen({
         id={`collection-panel-${activeTab}`}
         aria-labelledby={`collection-tab-${activeTab}`}
       >
-        {(activeTab === 'cards' || activeTab === 'growth') && (
+        {activeTab === 'cards' && (
           <CardCollectionTab
             entries={entries}
             progression={progression}
             rewards={rewards}
             onApplyCosmetic={onApplyCosmetic}
-            showProgression={activeTab === 'growth'}
             recentCardId={recentCardId}
           />
         )}
-        {activeTab === 'world' && <WorldMapTab progress={progression.v3} />}
+        {activeTab === 'world' && (
+          <WorldMapTab
+            progress={progression.v3}
+            discovered={new Set(entries.map(({ card }) => card.catalogId))}
+          />
+        )}
         {activeTab === 'sets' && <SetDexTab entries={entries} progress={progression.v3} />}
         {activeTab === 'fusion' && (
           entries.length > 0
-            ? <FusionLab entries={entries} onFuse={onFuse} />
+            ? <FusionLab entries={entries} onFuse={onFuse} rewards={rewards} />
             : <p className="gentle-empty">카드를 모으면 퓨전 연구를 시작할 수 있어요.</p>
         )}
       </div>

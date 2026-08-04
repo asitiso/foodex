@@ -1,5 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { HomeScreen } from './HomeScreen'
 
 const props = {
@@ -51,6 +52,7 @@ const props = {
   onOpenCollection: () => undefined,
   onOpenAdventure: () => undefined,
   onOpenCompanion: () => undefined,
+  onOpenShop: () => undefined,
 }
 
 describe('HomeScreen', () => {
@@ -68,6 +70,14 @@ describe('HomeScreen', () => {
     expect(screen.queryByText('최근 발견')).not.toBeInTheDocument()
   })
 
+  it('keeps the details tucked away until a room object is tapped', () => {
+    render(<HomeScreen {...props} />)
+
+    expect(screen.queryByRole('region', { name: '오늘의 식사 게이지' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: '오늘의 모험 보드' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: '식사 모험' })).not.toBeInTheDocument()
+  })
+
   it('keeps the main recording action visible', () => {
     render(<HomeScreen {...props} />)
     expect(screen.getByRole('button', { name: '오늘의 보상 받기' })).toBeInTheDocument()
@@ -75,7 +85,27 @@ describe('HomeScreen', () => {
 
   it('shows the compact coin wallet beside the level', () => {
     render(<HomeScreen {...props} />)
-    expect(screen.getByLabelText('보유 코인 13개')).toBeInTheDocument()
+    expect(screen.getByLabelText('보유 코인 13개 · 방 꾸미기 상점 열기')).toBeInTheDocument()
+  })
+
+  it('opens the cosmetic shop when the coin pill is tapped', async () => {
+    const user = userEvent.setup()
+    const onOpenShop = vi.fn()
+    render(<HomeScreen {...props} onOpenShop={onOpenShop} />)
+
+    await user.click(screen.getByLabelText('보유 코인 13개 · 방 꾸미기 상점 열기'))
+    expect(onOpenShop).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows the level popup with progress toward the next level when the level pill is tapped', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen {...props} />)
+
+    await user.click(screen.getByLabelText('레벨 1 · 다음 레벨까지 필요한 경험치 보기'))
+    const popup = screen.getByRole('region', { name: '레벨 정보' })
+    expect(popup).toHaveTextContent('LV.1')
+    expect(popup).toHaveTextContent('20/30 XP')
+    expect(popup).toHaveTextContent('다음 레벨까지 10 XP 남았어요')
   })
 
   it('shows the unified next goal in the existing hero mission', () => {
@@ -83,18 +113,35 @@ describe('HomeScreen', () => {
     expect(screen.getByRole('region', { name: '오늘의 다음 행동' })).toHaveTextContent('저녁 방을 열어보세요')
   })
 
-  it('shows the meal gauge and the next meal goal', () => {
-    render(<HomeScreen {...props} />)
-
-    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('1끼')
-    expect(screen.getByText('다음 한 끼까지 1끼 남았어요')).toBeInTheDocument()
-    expect(screen.getByText('다음 성장까지 2끼')).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('첫 끼 출발 콤보')
-    expect(screen.getByRole('region', { name: '식사 모험' })).toHaveTextContent('푸디의 첫 식탁')
+  it('uses the selected companion name in the room title', () => {
+    render(<HomeScreen {...props} characterName="다쿵이" />)
+    expect(screen.getByRole('heading', { name: '다쿵이의 맛있는 방' })).toBeInTheDocument()
   })
 
-  it('shows the V5.2 adventure board with rewards and the next evolution focus', () => {
+  it('opens the meal adventure popup when the room title is tapped, using the companion name in the chapter title', async () => {
+    render(<HomeScreen {...props} characterName="다쿵이" />)
+
+    await userEvent.click(screen.getByRole('heading', { name: '다쿵이의 맛있는 방' }))
+    expect(screen.getByRole('region', { name: '식사 모험' })).toHaveTextContent('다쿵이의 첫 식탁')
+
+    await userEvent.click(screen.getByRole('button', { name: '식사 모험 닫기' }))
+    expect(screen.queryByRole('region', { name: '식사 모험' })).not.toBeInTheDocument()
+  })
+
+  it('opens the meal gauge popup when the window is tapped', async () => {
     render(<HomeScreen {...props} />)
+
+    await userEvent.click(screen.getByRole('button', { name: '창문' }))
+
+    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('1끼')
+    expect(screen.getByText('다음 성장까지 2끼')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: '오늘의 식사 게이지' })).toHaveTextContent('첫 끼 출발 콤보')
+  })
+
+  it('opens the adventure board popup with rewards and the next evolution focus when the shelf is tapped', async () => {
+    render(<HomeScreen {...props} />)
+
+    await userEvent.click(screen.getByRole('button', { name: '카드 선반' }))
 
     expect(screen.getByRole('region', { name: '오늘의 모험 보드' })).toHaveTextContent('식사 카드 1장')
     expect(screen.getByText('보상: 20 XP')).toBeInTheDocument()

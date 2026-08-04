@@ -30,4 +30,23 @@ describe('CosmeticShop', () => {
     rerender(<CosmeticShop balance={30} ownedIds={[]} online={false} onPurchase={onPurchase} />)
     expect(screen.getByText('인터넷에 연결하면 안전하게 구매할 수 있어요.')).toBeInTheDocument()
   })
+
+  it('lets an owned product be applied and unapplied', async () => {
+    const onApply = vi.fn()
+    const product = SHOP_PRODUCTS[0]
+    const { rerender } = render(
+      <CosmeticShop balance={0} ownedIds={[product.id]} online onPurchase={vi.fn()} onApply={onApply} appliedIds={[]} />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: `${product.title} 적용` }))
+    expect(onApply).toHaveBeenCalledWith({ type: product.type, id: product.id })
+
+    rerender(
+      <CosmeticShop balance={0} ownedIds={[product.id]} online onPurchase={vi.fn()} onApply={onApply} appliedIds={[product.id]} />,
+    )
+    expect(screen.getByRole('button', { name: `${product.title} 해제` })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: `${product.title} 해제` }))
+    expect(onApply).toHaveBeenCalledWith({ type: product.type, id: undefined })
+  })
 })

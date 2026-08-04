@@ -2,7 +2,7 @@ import type { CompanionClassId } from './companionClasses'
 import { buildMealOutcome } from './mealOutcome'
 import type { MealOutcome } from './mealOutcome'
 import type { Progression } from './progression'
-import type { FoodCard, MealRecord } from './types'
+import type { FoodCard, FoodType, MealRecord } from './types'
 import type { UserReward } from '../data/foodexDb'
 import { mealCoinKey } from './coinWallet'
 import type { CoinTransaction } from './coinWallet'
@@ -34,6 +34,7 @@ export interface IntegratedMealResult {
     kind: 'dungeon-room' | 'daily-quest' | 'growth' | 'album' | 'weekly'
     label: string
   }
+  evolvedFood?: { foodType: FoodType; title: string; stage: number }
 }
 
 interface BuildIntegratedMealResultInput {
@@ -91,6 +92,14 @@ export function buildIntegratedMealResult({
   existingRewardKeys,
 }: BuildIntegratedMealResultInput): IntegratedMealResult {
   const outcome = buildMealOutcome(meal, history, classId)
+  const beforeEvolution = before.evolutions.find((evolution) => evolution.foodType === meal.foodType)
+  const afterEvolution = after.evolutions.find((evolution) => evolution.foodType === meal.foodType)
+  // A food not yet recorded before this meal has no `before` entry at all; its implicit
+  // baseline is stage 1 (same as the first-ever record of that food), so only stage
+  // increases relative to an *existing* evolution count as a fresh evolvedFood moment.
+  const evolvedFood = afterEvolution && afterEvolution.stage > (beforeEvolution?.stage ?? 1)
+    ? { foodType: afterEvolution.foodType, title: afterEvolution.title, stage: afterEvolution.stage }
+    : undefined
   const completedQuestIds = newlyCompleted(before.dailyQuests, after.dailyQuests, (quest) => quest.completed)
   const unlockedAchievementIds = newlyCompleted(before.achievements, after.achievements, (achievement) => achievement.unlocked)
   const existingKeys = new Set(existingRewardKeys)
@@ -134,5 +143,6 @@ export function buildIntegratedMealResult({
     completedQuestIds,
     unlockedAchievementIds,
     nextGoal: nextGoal(after, outcome),
+    evolvedFood,
   }
 }
