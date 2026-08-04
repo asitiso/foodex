@@ -13,6 +13,7 @@ import './homeSceneUi.css'
 import './homeSceneV4.css'
 import './homeSceneHudFix.css'
 import './referenceHomeUi.css'
+import './referenceBottomNav.css'
 
 export interface WorldHomeSceneProps {
   coinBalance: number
