@@ -12,20 +12,22 @@ const navItems: Array<{ tab: AppTab; label: string; icon: GameIconName; primary?
   { tab: 'collection', label: '도감', icon: 'collection' },
   { tab: 'record', label: '촬영', icon: 'camera', primary: true },
   { tab: 'adventure', label: '모험', icon: 'adventure' },
-  { tab: 'companion', label: '버디', icon: 'buddy' },
+  { tab: 'companion', label: '버디룸', icon: 'buddy' },
 ]
 
 export function BottomNav({ active, onNavigate }: BottomNavProps) {
   return (
-    <nav className="bottom-nav" aria-label="주요 메뉴">
+    <nav className="bottom-nav reference-bottom-nav" aria-label="주요 메뉴">
       {navItems.map((item) => (
         <button
           className={[
+            'reference-bottom-nav-item',
             active === item.tab ? 'active' : '',
-            item.primary ? 'primary' : '',
-          ].filter(Boolean).join(' ') || undefined}
+            item.primary ? 'primary reference-bottom-nav-item--primary' : '',
+          ].filter(Boolean).join(' ')}
           type="button"
           key={item.tab}
+          data-nav-tab={item.tab}
           aria-current={active === item.tab ? 'page' : undefined}
           onClick={() => onNavigate(item.tab)}
         >
